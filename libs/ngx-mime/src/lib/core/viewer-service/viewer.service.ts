@@ -3,10 +3,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import * as d3 from 'd3';
 import {
   BehaviorSubject,
+  interval,
   Observable,
   Subject,
   Subscription,
-  interval,
 } from 'rxjs';
 import { distinctUntilChanged, sample } from 'rxjs/operators';
 import { ModeService } from '../../core/mode-service/mode.service';
@@ -23,6 +23,7 @@ import {
   ModeChanges,
   RecognizedTextMode,
   RecognizedTextModeChanges,
+  ScrollDirection,
 } from '../models';
 import { Direction } from '../models/direction';
 import { Manifest, Resource } from '../models/manifest';
@@ -31,6 +32,7 @@ import { Side } from '../models/side';
 import { ViewerLayout } from '../models/viewer-layout';
 import { ViewerMode } from '../models/viewer-mode';
 import { ViewerOptions } from '../models/viewer-options';
+import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { StyleService } from '../style-service/style.service';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
 import { Hit } from './../models/hit';
@@ -40,8 +42,9 @@ import { SearchResult } from './../models/search-result';
 import { CalculateNextCanvasGroupFactory } from './calculate-next-canvas-group-factory';
 import { CanvasGroupMask } from './canvas-group-mask';
 import {
-  DefaultGoToCanvasGroupStrategy,
   GoToCanvasGroupStrategy,
+  HorizontalGoToCanvasGroupStrategy,
+  VerticalGoToCanvasGroupStrategy,
 } from './go-to-canvas-group-strategy';
 import { OptionsFactory } from './options.factory';
 import { SwipeDragEndCounter } from './swipe-drag-end-counter';
@@ -96,6 +99,7 @@ export class ViewerService {
     private iiifContentSearchService: IiifContentSearchService,
     private styleService: StyleService,
     private altoService: AltoService,
+    private scrollDirectionService: ScrollDirectionService,
     private snackBar: MatSnackBar,
     private intl: MimeViewerIntl
   ) {
@@ -202,7 +206,9 @@ export class ViewerService {
 
       for (const hit of searchResult.hits) {
         for (const highlightRect of hit.highlightRects) {
-          const canvasRect = this.canvasService.getCanvasRect(highlightRect.canvasIndex);
+          const canvasRect = this.canvasService.getCanvasRect(
+            highlightRect.canvasIndex
+          );
           if (canvasRect) {
             const currentHitStrokeOffset = 8;
             let width = highlightRect.width + currentHitStrokeOffset;
@@ -227,7 +233,8 @@ export class ViewerService {
 
               case 180:
                 x += canvasRect.width - (highlightRect.x + highlightRect.width);
-                y += canvasRect.height - (highlightRect.y + highlightRect.height);
+                y +=
+                  canvasRect.height - (highlightRect.y + highlightRect.height);
                 break;
 
               case 270:
@@ -287,7 +294,7 @@ export class ViewerService {
           this.modeService,
           this.viewerLayoutService
         );
-        this.goToCanvasGroupStrategy = new DefaultGoToCanvasGroupStrategy(
+        this.goToCanvasGroupStrategy = new HorizontalGoToCanvasGroupStrategy(
           this.viewer,
           this.zoomStrategy,
           this.canvasService,
@@ -417,6 +424,34 @@ export class ViewerService {
         }
       )
     );
+
+    this.subscriptions.add(
+      this.scrollDirectionService.onChange.subscribe(
+        (scrollDirection: ScrollDirection) => {
+          if (scrollDirection === ScrollDirection.VERTICAL) {
+            this.goToCanvasGroupStrategy = new VerticalGoToCanvasGroupStrategy(
+              this.viewer,
+              this.zoomStrategy,
+              this.canvasService,
+              this.modeService,
+              this.config,
+              this.manifest.viewingDirection
+            );
+          } else if (scrollDirection === ScrollDirection.HORIZONTAL) {
+            this.goToCanvasGroupStrategy =
+              new HorizontalGoToCanvasGroupStrategy(
+                this.viewer,
+                this.zoomStrategy,
+                this.canvasService,
+                this.modeService,
+                this.config,
+                this.manifest.viewingDirection
+              );
+          }
+          this.layoutPages();
+        }
+      )
+    );
   }
 
   hidePages() {
@@ -522,14 +557,23 @@ export class ViewerService {
     });
     this.viewer.addHandler('canvas-drag-end', (e: any) => {
       if (this.dragStatus) {
-        this.constraintCanvas();
-        this.swipeToCanvasGroup(e);
+        if (this.modeService.isPageZoomed() && this.scrollDirectionService.isHorizontalScrollingDirection()) {
+          this.constraintCanvas();
+        }
+
+        if (this.scrollDirectionService.isVerticalScrollingDirection() && this.modeService.isPageZoomed()) {
+          this.calculateCurrentCanvasGroup(e.center);
+          this.canvasService.currentCanvasGroupIndex = this.currentCanvasIndex.getValue();
+        } else {
+          this.swipeToCanvasGroup(e);
+        }
       }
       this.dragStatus = false;
     });
     this.viewer.addHandler('animation', (e: any) => {
       this.currentCenter.next(this.viewer?.viewport.getCenter(true));
     });
+    this.viewer.addHandler('pan', this.panHandler);
   }
 
   zoomIn(zoomFactor?: number, position?: Point): void {
@@ -559,17 +603,29 @@ export class ViewerService {
     if (!this.viewer) {
       return;
     }
-
+    const isHorizontalScrollingDirection = this.scrollDirectionService.isHorizontalScrollingDirection();
     if (mode.currentValue === ViewerMode.DASHBOARD) {
-      this.viewer.panVertical = false;
+      if (isHorizontalScrollingDirection) {
+        this.viewer.panVertical = false;
+      } else {
+        this.viewer.panHorizontal = false;
+      }
       this.toggleToDashboard();
       this.disableKeyDownHandler();
     } else if (mode.currentValue === ViewerMode.PAGE) {
-      this.viewer.panVertical = false;
+      if (isHorizontalScrollingDirection) {
+        this.viewer.panVertical = false;
+      } else {
+        this.viewer.panHorizontal = false;
+      }
       this.toggleToPage();
       this.disableKeyDownHandler();
     } else if (mode.currentValue === ViewerMode.PAGE_ZOOMED) {
-      this.viewer.panVertical = true;
+      if (isHorizontalScrollingDirection) {
+        this.viewer.panVertical = true;
+      } else {
+        this.viewer.panHorizontal = true;
+      }
       this.resetKeyDownHandler();
     }
   }
@@ -620,12 +676,35 @@ export class ViewerService {
    */
   scrollHandler = (event: any) => {
     const zoomFactor = Math.pow(ViewerOptions.zoom.zoomFactor, event.scroll);
-    // Scrolling up
-    if (event.scroll > 0) {
-      this.zoomInGesture(event.position, zoomFactor);
-      // Scrolling down
-    } else if (event.scroll < 0) {
-      this.zoomOutGesture(event.position, zoomFactor);
+    if (event.originalEvent.ctrlKey) {
+      const zoomFactor = Math.pow(ViewerOptions.zoom.zoomFactor, event.scroll);
+      // Scrolling up
+      if (event.scroll > 0) {
+        this.zoomInGesture(event.position, zoomFactor);
+        // Scrolling down
+      } else if (event.scroll < 0) {
+        this.zoomOutGesture(event.position, zoomFactor);
+      }
+    } else {
+      event.scroll > 0
+        ? this.goToPreviousCanvasGroup()
+        : this.goToNextCanvasGroup();
+    }
+  };
+
+  /**
+   * Pan-handler
+   */
+  private panHandler = (event: any) => {
+    if (
+      this.scrollDirectionService.isVerticalScrollingDirection() &&
+      this.modeService.isPageZoomed() &&
+      !this.dragStatus
+    ) {
+      // TODO: er dette korrekt måte?
+      this.calculateCurrentCanvasGroup(event.center);
+      this.canvasService.currentCanvasGroupIndex =
+        this.currentCanvasIndex.getValue();
     }
   };
 
@@ -781,7 +860,8 @@ export class ViewerService {
       CalculateCanvasGroupPositionFactory.create(
         this.viewerLayoutService.layout,
         this.isManifestPaged,
-        this.config
+        this.config,
+        this.scrollDirectionService.scrollDirection
       );
 
     const isTwoPageView: boolean =
@@ -797,6 +877,8 @@ export class ViewerService {
             canvasSource: tile,
             previousCanvasGroupPosition: canvasRects[i - 1],
             viewingDirection: this.manifest.viewingDirection,
+            viewerLayout: this.viewerLayoutService.layout,
+            scrollDirection: this.scrollDirectionService.scrollDirection,
           },
           rotation
         );
@@ -922,24 +1004,47 @@ export class ViewerService {
   }
 
   private dragHandler = (e: any) => {
-    this.viewer.panHorizontal = true;
-    if (this.modeService.isPageZoomed()) {
-      const canvasGroupRect: Rect =
-        this.canvasService.getCurrentCanvasGroupRect();
-      const vpBounds: Rect = this.getViewportBounds();
-      const pannedPastCanvasGroup =
-        SwipeUtils.getSideIfPanningPastEndOfCanvasGroup(
-          canvasGroupRect,
-          vpBounds
-        );
-      const direction: number = e.direction;
-      if (
-        (pannedPastCanvasGroup === Side.LEFT &&
-          SwipeUtils.isDirectionInRightSemicircle(direction)) ||
-        (pannedPastCanvasGroup === Side.RIGHT &&
-          SwipeUtils.isDirectionInLeftSemicircle(direction))
-      ) {
-        this.viewer.panHorizontal = false;
+    if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
+      this.viewer.panHorizontal = true;
+      if (this.modeService.isPageZoomed()) {
+        const canvasGroupRect: Rect =
+          this.canvasService.getCurrentCanvasGroupRect();
+        const vpBounds: Rect = this.getViewportBounds();
+        const pannedPastCanvasGroup =
+          SwipeUtils.getSideIfPanningPastEndOfCanvasGroup(
+            canvasGroupRect,
+            vpBounds
+          );
+        const direction: number = e.direction;
+        if (
+          (pannedPastCanvasGroup === Side.LEFT &&
+            SwipeUtils.isDirectionInRightSemicircle(direction)) ||
+          (pannedPastCanvasGroup === Side.RIGHT &&
+            SwipeUtils.isDirectionInLeftSemicircle(direction))
+        ) {
+          this.viewer.panHorizontal = false;
+        }
+      }
+    } else {
+      this.viewer.panVertical = true;
+      if (this.modeService.isPageZoomed()) {
+        const canvasGroupRect: Rect =
+          this.canvasService.getCurrentCanvasGroupRect();
+        const vpBounds: Rect = this.getViewportBounds();
+        const pannedPastCanvasGroup =
+          SwipeUtils.getSideIfPanningPastEndOfCanvasGroup(
+            canvasGroupRect,
+            vpBounds
+          );
+        const direction: number = e.direction;
+        if (
+          (pannedPastCanvasGroup === Side.LEFT &&
+            SwipeUtils.isDirectionInRightSemicircle(direction)) ||
+          (pannedPastCanvasGroup === Side.RIGHT &&
+            SwipeUtils.isDirectionInLeftSemicircle(direction))
+        ) {
+          this.viewer.panVertical = false;
+        }
       }
     }
   };
@@ -1061,6 +1166,7 @@ export class ViewerService {
         currentCanvasGroupIndex: currentCanvasGroupIndex,
         canvasGroupEndHitCountReached: canvasGroupEndHitCountReached,
         viewingDirection: this.manifest.viewingDirection,
+        scrollingDirection: this.scrollDirectionService.scrollDirection,
       })
     );
     if (

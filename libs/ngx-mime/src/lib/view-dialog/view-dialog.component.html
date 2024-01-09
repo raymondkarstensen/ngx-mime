@@ -69,6 +69,39 @@
         </div>
       </div>
     </section>
+    <section data-testid="scroll-direction">
+      <h2>{{ intl.scrollDirectionLabel }}</h2>
+      <div
+        class="flex flex-col gap-y-2"
+        role="group"
+        [attr.aria-label]="intl.scrollDirectionLabel"
+      >
+        <div class="flex items-center">
+          <mat-button-toggle
+            data-testid="ngx-mime-horizontal-scroll-button"
+            [aria-label]="intl.scrollDirectionHorizontalLabel"
+            [value]="ScrollDirection.HORIZONTAL"
+            [checked]="scrollDirection === ScrollDirection.HORIZONTAL"
+            (click)="setScrollDirectionHorizontal()"
+          >
+            <mat-icon>block</mat-icon>
+          </mat-button-toggle>
+          <div class="label">{{ intl.scrollDirectionHorizontalLabel }}</div>
+        </div>
+        <div class="flex items-center">
+          <mat-button-toggle
+            data-testid="ngx-mime-vertical-scroll-button"
+            [aria-label]="intl.scrollDirectionVerticalLabel"
+            [value]="ScrollDirection.VERTICAL"
+            [checked]="scrollDirection === ScrollDirection.VERTICAL"
+            (click)="setScrollDirectionVertical()"
+          >
+            <mat-icon>block</mat-icon>
+          </mat-button-toggle>
+          <div class="label">{{ intl.scrollDirectionVerticalLabel }}</div>
+        </div>
+      </div>
+    </section>
   </ng-container>
   <ng-container *ngIf="hasRecognizedTextContent">
     <mat-divider></mat-divider>

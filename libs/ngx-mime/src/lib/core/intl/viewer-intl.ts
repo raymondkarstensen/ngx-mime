@@ -17,6 +17,9 @@ export class MimeViewerIntl {
   singlePageViewLabel = 'Single pages';
   twoPageViewLabel = 'Two pages';
   digitalTextLabel = 'Digital text';
+  scrollDirectionLabel = 'Scroll direction';
+  scrollDirectionHorizontalLabel = 'Horizontal';
+  scrollDirectionVerticalLabel = 'Vertical';
   recognizedTextContentCloseLabel = 'None';
   recognizedTextContentInSplitViewLabel = 'Split';
   showRecognizedTextContentLabel = 'Digital text only';

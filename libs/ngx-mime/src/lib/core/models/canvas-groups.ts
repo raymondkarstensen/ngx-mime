@@ -1,5 +1,6 @@
 import { Point } from './point';
 import { Rect } from './rect';
+import { ScrollDirection } from './scroll-direction';
 
 export class CanvasGroups {
   canvasGroupRects: Rect[] = [];
@@ -18,7 +19,7 @@ export class CanvasGroups {
     return { ...this.canvasGroupRects[index] };
   }
 
-  public findClosestIndex(point: Point): number {
+  public findClosestIndex(point: Point, scrollDirection: ScrollDirection): number {
     let i = 0;
     let lastDelta: any;
 
@@ -26,7 +27,12 @@ export class CanvasGroups {
       return -1;
     }
     this.canvasGroupRects.some(function (rect: Rect, index: number) {
-      const delta = Math.abs(point.x - rect.centerX);
+      let delta;
+      if(scrollDirection === ScrollDirection.HORIZONTAL) {
+        delta = Math.abs(point.x - rect.centerX);
+      } else {
+        delta = Math.abs(point.y - rect.centerY);
+      }
       if (delta >= lastDelta) {
         return true;
       }

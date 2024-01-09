@@ -2,10 +2,10 @@ import { CanvasService } from '../canvas-service/canvas-service';
 import { ModeService } from '../mode-service/mode.service';
 import { ViewerMode } from '../models/viewer-mode';
 import { ViewingDirection } from '../models/viewing-direction';
-import { DefaultGoToCanvasGroupStrategy } from './go-to-canvas-group-strategy';
+import { HorizontalGoToCanvasGroupStrategy } from './go-to-canvas-group-strategy';
 
 describe('DefaultGoToCanvasGroupStrategy ', () => {
-  let strategy: DefaultGoToCanvasGroupStrategy;
+  let strategy: HorizontalGoToCanvasGroupStrategy;
   const viewport: any = {
     getCenter: {},
     getBounds: {},
@@ -22,7 +22,7 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
   let spy: any;
 
   beforeEach(() => {
-    strategy = new DefaultGoToCanvasGroupStrategy(
+    strategy = new HorizontalGoToCanvasGroupStrategy(
       viewer,
       zoomStrategy,
       canvasService,

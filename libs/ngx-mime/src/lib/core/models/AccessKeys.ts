@@ -3,6 +3,8 @@ export class AccessKeys {
   public static PAGEUP = [33];
   public static ARROWRIGHT = [39];
   public static ARROWLEFT = [37];
+  public static ARROWUP = [38];
+  public static ARROWDOWN = [40];
   public static firstCanvasGroupCodes = [36]; // Home
   public static lastCanvasGroupCodes = [35]; // End
   public static zoomInCodes = [107, 187, 171]; // +, numpad and standard position, Firefox uses 171 for standard position
@@ -38,6 +40,14 @@ export class AccessKeys {
 
   public isArrowLeftKeys() {
     return !this.isMultiKeys() && this.arrayContainsKeys(AccessKeys.ARROWLEFT);
+  }
+
+  public isArrowUpKeys() {
+    return !this.isMultiKeys() && this.arrayContainsKeys(AccessKeys.ARROWUP);
+  }
+
+  public isArrowDownKeys() {
+    return !this.isMultiKeys() && this.arrayContainsKeys(AccessKeys.ARROWDOWN);
   }
 
   public isPageUpKeys() {

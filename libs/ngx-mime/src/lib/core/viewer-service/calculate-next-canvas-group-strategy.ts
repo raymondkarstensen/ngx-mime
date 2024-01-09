@@ -1,3 +1,4 @@
+import { ScrollDirection } from '../models/scroll-direction';
 import { Direction } from '../models/direction';
 import { ViewingDirection } from '../models/viewing-direction';
 
@@ -8,6 +9,7 @@ export interface NextCanvasGroupCriteria {
   currentCanvasGroupIndex: number;
   currentCanvasGroupCenter: number;
   viewingDirection: ViewingDirection;
+  scrollingDirection: ScrollDirection;
 }
 
 export interface CalculateNextCanvasGroupStrategy {

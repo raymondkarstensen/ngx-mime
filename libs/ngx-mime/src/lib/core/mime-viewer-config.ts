@@ -1,4 +1,4 @@
-import { RecognizedTextMode, ViewerMode } from './models';
+import { RecognizedTextMode, ScrollDirection, ViewerMode } from './models';
 import { ViewerLayout } from './models/viewer-layout';
 
 export class MimeViewerConfig {
@@ -6,7 +6,7 @@ export class MimeViewerConfig {
   public attributionDialogHideTimeout? = -1;
   public navigationControlEnabled? = true;
   public initViewerMode = ViewerMode.PAGE;
-  public initViewerLayout = ViewerLayout.TWO_PAGE;
+  public initViewerLayout = ViewerLayout.ONE_PAGE; // TODO: Set default back to TWO_PAGE
   public withCredentials = false;
   public loadTilesWithAjax = false;
   public crossOriginPolicy:
@@ -19,6 +19,7 @@ export class MimeViewerConfig {
   public startOnTopOnCanvasGroupChange = false;
   public isDropEnabled = false;
   public initRecognizedTextContentMode = RecognizedTextMode.NONE;
+  public initScrollDirection = ScrollDirection.VERTICAL; // TODO: Set default back to HORIZONTAL
   public ignorePhysicalScale = false;
 
   constructor(fields?: {
@@ -35,6 +36,7 @@ export class MimeViewerConfig {
     startOnTopOnCanvasGroupChange?: boolean;
     isDropEnabled?: boolean;
     initRecognizedTextContentMode?: RecognizedTextMode;
+    initScrollDirection?: ScrollDirection;
     ignorePhysicalScale?: boolean;
   }) {
     if (fields) {
@@ -101,6 +103,11 @@ export class MimeViewerConfig {
         fields.initRecognizedTextContentMode !== undefined
           ? fields.initRecognizedTextContentMode
           : this.initRecognizedTextContentMode;
+
+      this.initScrollDirection =
+        fields.initScrollDirection !== undefined
+          ? fields.initScrollDirection
+          : this.initScrollDirection;
 
       this.ignorePhysicalScale =
         fields.ignorePhysicalScale !== undefined

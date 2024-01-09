@@ -1,16 +1,17 @@
 import { Direction } from '../models/direction';
 import { Side } from '../models/side';
+
 export class SwipeDragEndCounter {
-  public leftCount = 0;
-  public rightCount = 0;
+  public previous = 0;
+  public next = 0;
 
   constructor() {
     this.reset();
   }
 
   public reset(): void {
-    this.leftCount = 0;
-    this.rightCount = 0;
+    this.previous = 0;
+    this.next = 0;
   }
 
   /**
@@ -27,16 +28,16 @@ export class SwipeDragEndCounter {
   }
 
   public hitCountReached(): boolean {
-    return this.leftCount >= 2 || this.rightCount >= 2;
+    return this.previous >= 2 || this.next >= 2;
   }
 
   private incrementSide(side: Side): void {
-    if (side === Side.LEFT) {
-      this.leftCount++;
-      this.rightCount = 0;
-    } else if (side === Side.RIGHT) {
-      this.rightCount++;
-      this.leftCount = 0;
+    if (side === Side.LEFT || side === Side.TOP) {
+      this.previous++;
+      this.next = 0;
+    } else if (side === Side.RIGHT || side === Side.BOTTOM) {
+      this.next++;
+      this.previous = 0;
     }
   }
 
@@ -45,10 +46,10 @@ export class SwipeDragEndCounter {
    * @param Direction of swipe / pan
    */
   private clearOppositeSideOfDragDirection(dir: Direction): void {
-    if (dir === Direction.LEFT) {
-      this.leftCount = 0;
-    } else if (dir === Direction.RIGHT) {
-      this.rightCount = 0;
+    if (dir === Direction.LEFT || dir === Direction.UP) {
+      this.previous = 0;
+    } else if (dir === Direction.RIGHT || dir === Direction.DOWN) {
+      this.next = 0;
     }
   }
 }

@@ -9,12 +9,13 @@ import { IiifContentSearchService } from '../iiif-content-search-service/iiif-co
 import { IiifManifestService } from '../iiif-manifest-service/iiif-manifest-service';
 import { MimeDomHelper } from '../mime-dom-helper';
 import { ModeService } from '../mode-service/mode.service';
-import { RecognizedTextMode, ViewerMode } from '../models';
+import { RecognizedTextMode, ScrollDirection, ViewerMode } from '../models';
 import { AccessKeys } from '../models/AccessKeys';
 import { Manifest } from '../models/manifest';
 import { SearchResult } from '../models/search-result';
 import { ViewingDirection } from '../models/viewing-direction';
 import { ContentSearchNavigationService } from '../navigation/content-search-navigation-service/content-search-navigation.service';
+import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { ViewerService } from '../viewer-service/viewer.service';
 
 @Injectable()
@@ -36,7 +37,8 @@ export class AccessKeysService {
     private viewDialogService: ViewDialogService,
     private mimeDomHelper: MimeDomHelper,
     private contentSearchNavigationService: ContentSearchNavigationService,
-    private altoService: AltoService
+    private altoService: AltoService,
+    private scrollDirectionService: ScrollDirectionService
   ) {}
 
   initialize() {
@@ -68,13 +70,22 @@ export class AccessKeysService {
   public handleKeyEvents(event: KeyboardEvent) {
     const accessKeys = new AccessKeys(event);
     if (!this.isKeyDisabled(event.keyCode)) {
-      if (accessKeys.isArrowLeftKeys()) {
+      const isHorizontal =
+        this.scrollDirectionService.scrollDirection ===
+        ScrollDirection.HORIZONTAL;
+      if (
+        (isHorizontal && accessKeys.isArrowLeftKeys()) ||
+        (!isHorizontal && accessKeys.isArrowUpKeys())
+      ) {
         if (!this.isZoomedIn()) {
           this.invert
             ? accessKeys.execute(() => this.goToNextCanvasGroup())
             : accessKeys.execute(() => this.goToPreviousCanvasGroup());
         }
-      } else if (accessKeys.isArrowRightKeys()) {
+      } else if (
+        (isHorizontal && accessKeys.isArrowRightKeys()) ||
+        (!isHorizontal && accessKeys.isArrowDownKeys())
+      ) {
         if (!this.isZoomedIn()) {
           this.invert
             ? accessKeys.execute(() => this.goToPreviousCanvasGroup())

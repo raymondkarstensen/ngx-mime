@@ -4,13 +4,16 @@ import {
   Breakpoints,
 } from '@angular/cdk/layout';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ScrollDirectionService
+} from '../core/scroll-direction-service/scroll-direction-service';
 import { Subscription } from 'rxjs';
 import { AltoService } from '../core/alto-service/alto.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
 import { ManifestUtils } from '../core/iiif-manifest-service/iiif-manifest-utils';
 import { MimeViewerIntl } from '../core/intl';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
-import { RecognizedTextMode, RecognizedTextModeChanges } from '../core/models';
+import { RecognizedTextMode, RecognizedTextModeChanges, ScrollDirection } from '../core/models';
 import { Dimensions } from '../core/models/dimensions';
 import { Manifest } from '../core/models/manifest';
 import { ViewerLayout } from '../core/models/viewer-layout';
@@ -29,6 +32,7 @@ export class ViewDialogComponent implements OnInit, OnDestroy {
   hasRecognizedTextContent = false;
   recognizedTextMode = RecognizedTextMode.NONE;
   RecognizedTextMode: typeof RecognizedTextMode = RecognizedTextMode;
+  scrollDirection = ScrollDirection.HORIZONTAL;
   contentStyle: any;
   private subscriptions = new Subscription();
 
@@ -39,7 +43,8 @@ export class ViewDialogComponent implements OnInit, OnDestroy {
     private viewerLayoutService: ViewerLayoutService,
     private iiifManifestService: IiifManifestService,
     private altoService: AltoService,
-    private mimeResizeService: MimeResizeService
+    private mimeResizeService: MimeResizeService,
+    private scrollDirectionService: ScrollDirectionService
   ) {}
 
   ngOnInit(): void {
@@ -83,6 +88,13 @@ export class ViewDialogComponent implements OnInit, OnDestroy {
         this.resizeHeight(rect);
       })
     );
+    this.subscriptions.add(
+      this.scrollDirectionService.onChange.subscribe(
+        (scrollDirection: ScrollDirection) => {
+          this.scrollDirection = scrollDirection;
+        }
+      )
+    );
   }
 
   ngOnDestroy() {
@@ -95,6 +107,14 @@ export class ViewDialogComponent implements OnInit, OnDestroy {
 
   setLayoutTwoPage(): void {
     this.viewerLayoutService.setLayout(ViewerLayout.TWO_PAGE);
+  }
+
+  setScrollDirectionHorizontal(): void {
+    this.scrollDirectionService.setScrollDirection(ScrollDirection.HORIZONTAL);
+  }
+
+  setScrollDirectionVertical(): void {
+    this.scrollDirectionService.setScrollDirection(ScrollDirection.VERTICAL);
   }
 
   closeRecognizedTextContent(): void {
@@ -119,4 +139,6 @@ export class ViewDialogComponent implements OnInit, OnDestroy {
     };
     this.cdr.detectChanges();
   }
+
+  protected readonly ScrollDirection = ScrollDirection;
 }

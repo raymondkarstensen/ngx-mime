@@ -3,23 +3,25 @@ import { Point } from '../models/point';
 import { Side } from '../models/side';
 import { Direction } from '../models/direction';
 import { ViewerOptions } from '../models/viewer-options';
+
 export class SwipeUtils {
-  // Added threshold to prevent sensitive direction-calculation when zoomed in
   static getSwipeDirection(
     start: Point,
     end: Point,
     useThreshold?: boolean
   ): Direction {
-    let deltaX = Math.abs(start.x - end.x);
+    const deltaX = Math.abs(start.x - end.x);
     const deltaY = Math.abs(start.y - end.y);
-    deltaX = useThreshold
-      ? deltaX - ViewerOptions.pan.swipeDirectionThreshold
-      : deltaX;
+    const threshold = useThreshold
+      ? ViewerOptions.pan.swipeDirectionThreshold
+      : 0;
 
-    if (start.x > end.x && deltaX >= deltaY) {
-      return Direction.LEFT;
-    } else if (start.x < end.x && deltaX >= deltaY) {
-      return Direction.RIGHT;
+    if (deltaX > deltaY + threshold) {
+      // Horizontal Swipe
+      return start.x > end.x ? Direction.LEFT : Direction.RIGHT;
+    } else if (deltaY > deltaX + threshold) {
+      // Vertical Swipe
+      return start.y > end.y ? Direction.UP : Direction.DOWN;
     } else {
       return Direction.UNDEFINED;
     }
@@ -33,6 +35,10 @@ export class SwipeUtils {
       return Side.LEFT;
     } else if (this.isPanningOutsideRight(canvasGroupRect, vpBounds)) {
       return Side.RIGHT;
+    } else if (this.isPanningOutsideTop(canvasGroupRect, vpBounds)) {
+      return Side.TOP;
+    } else if (this.isPanningOutsideBottom(canvasGroupRect, vpBounds)) {
+      return Side.BOTTOM;
     } else {
       return null;
     }
@@ -44,7 +50,9 @@ export class SwipeUtils {
   ): boolean {
     return (
       this.isPanningOutsideLeft(canvasGroupRect, vpBounds) ||
-      this.isPanningOutsideRight(canvasGroupRect, vpBounds)
+      this.isPanningOutsideRight(canvasGroupRect, vpBounds) ||
+      this.isPanningOutsideTop(canvasGroupRect, vpBounds) ||
+      this.isPanningOutsideBottom(canvasGroupRect, vpBounds)
     );
   }
 
@@ -53,25 +61,22 @@ export class SwipeUtils {
   }
 
   static isPanningOutsideRight(canvasGroupRect: Rect, vpBounds: Rect): boolean {
-    return (
-      vpBounds.x + vpBounds.width > canvasGroupRect.x + canvasGroupRect.width
-    );
+    return vpBounds.x + vpBounds.width > canvasGroupRect.x + canvasGroupRect.width;
   }
 
-  /**
-   *
-   * @param direction Current computed direction, expressed as an
-   * angle counterclockwise relative to the positive X axis (-pi to pi, in radians).
-   * Only valid if speed > 0.
-   */
+  static isPanningOutsideTop(canvasGroupRect: Rect, vpBounds: Rect): boolean {
+    return vpBounds.y < canvasGroupRect.y;
+  }
+
+  static isPanningOutsideBottom(canvasGroupRect: Rect, vpBounds: Rect): boolean {
+    return vpBounds.y + vpBounds.height > canvasGroupRect.y + canvasGroupRect.height;
+  }
+
   static isDirectionInRightSemicircle(direction: number): boolean {
     return direction > -Math.PI / 2 && direction < Math.PI / 2;
   }
 
-  /**
-   * @param direction @see isDirectionInRightSemicircle
-   */
   static isDirectionInLeftSemicircle(direction: number): boolean {
-    return !this.isDirectionInRightSemicircle(direction) || direction === 0; // fix for speed = 0
+    return !this.isDirectionInRightSemicircle(direction) || direction === 0;
   }
 }

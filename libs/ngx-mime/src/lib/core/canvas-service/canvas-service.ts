@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { ViewerLayout } from '../models/viewer-layout';
@@ -17,7 +18,7 @@ export class CanvasService {
   protected canvasGroups: CanvasGroups = new CanvasGroups();
   protected _numberOfCanvases = 0;
 
-  constructor() {}
+  constructor(private scrollDirectionService: ScrollDirectionService) {}
 
   addAll(canvasRects: Rect[], layout: ViewerLayout) {
     this.numberOfCanvases = canvasRects.length;
@@ -112,7 +113,10 @@ export class CanvasService {
   }
 
   findClosestCanvasGroupIndex(point: Point): number {
-    return this.canvasGroups.findClosestIndex(point);
+    return this.canvasGroups.findClosestIndex(
+      point,
+      this.scrollDirectionService.scrollDirection
+    );
   }
 
   findCanvasGroupByCanvasIndex(canvasIndex: number): number {

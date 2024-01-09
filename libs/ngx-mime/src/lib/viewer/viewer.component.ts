@@ -17,6 +17,9 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import {
+  ScrollDirectionService
+} from '../core/scroll-direction-service/scroll-direction-service';
 import { Subscription, interval } from 'rxjs';
 import { take, throttle } from 'rxjs/operators';
 import { AttributionDialogService } from '../attribution-dialog/attribution-dialog.service';
@@ -115,6 +118,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     private viewerLayoutService: ViewerLayoutService,
     private styleService: StyleService,
     private altoService: AltoService,
+    private scrollDirectionService: ScrollDirectionService,
     private zone: NgZone,
     private platform: Platform,
     canvasGroupDialogService: CanvasGroupDialogService,
@@ -333,6 +337,8 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
       this.altoService.setConfig(this.config);
       this.modeService.setConfig(this.config);
       this.modeService.initialize();
+      this.scrollDirectionService.setConfig(this.config);
+      this.scrollDirectionService.initialize();
     }
 
     if (changes['manifestUri']) {

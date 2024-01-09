@@ -3,6 +3,9 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { DebugElement, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import {
+  ScrollDirectionService
+} from '../core/scroll-direction-service/scroll-direction-service';
 import { injectedStub } from '../../testing/injected-stub';
 import { TestManifests } from '../../testing/test-manifests';
 import { AltoService } from '../core/alto-service/alto.service';
@@ -38,6 +41,7 @@ describe('ViewDialogComponent', () => {
         ViewerLayoutService,
         CanvasService,
         HighlightService,
+        ScrollDirectionService,
         { provide: AltoService, useClass: AltoServiceStub },
         { provide: ViewerService, useClass: ViewerServiceStub },
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },

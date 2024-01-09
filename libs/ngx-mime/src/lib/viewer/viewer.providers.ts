@@ -1,3 +1,4 @@
+import { ScrollDirectionService } from '../core/scroll-direction-service/scroll-direction-service';
 import { AttributionDialogResizeService } from '../attribution-dialog/attribution-dialog-resize.service';
 import { AttributionDialogService } from '../attribution-dialog/attribution-dialog.service';
 import { CanvasGroupDialogService } from '../canvas-group-dialog/canvas-group-dialog.service';
@@ -48,6 +49,7 @@ export const VIEWER_PROVIDERS = [
   MimeDomHelper,
   MimeResizeService,
   ModeService,
+  ScrollDirectionService,
   SpinnerService,
   StyleService,
   ViewDialogConfigStrategyFactory,

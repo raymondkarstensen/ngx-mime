@@ -3,17 +3,19 @@ import { OnePageCalculatePagePositionStrategy } from './one-page-calculate-page-
 import { TwoPageCalculateCanvasGroupPositionStrategy } from './two-page-calculate-page-position-strategy';
 import { ViewerLayout } from '../models/viewer-layout';
 import { MimeViewerConfig } from '../mime-viewer-config';
+import { ScrollDirection } from '../models/scroll-direction';
 
 export class CalculateCanvasGroupPositionFactory {
   public static create(
     viewerLayout: ViewerLayout,
     paged: boolean,
-    config: MimeViewerConfig
+    config: MimeViewerConfig,
+    scrollDirection: ScrollDirection
   ): CalculateCanvasGroupPositionStrategy {
     if (viewerLayout === ViewerLayout.ONE_PAGE || !paged) {
-      return new OnePageCalculatePagePositionStrategy(config);
+      return new OnePageCalculatePagePositionStrategy(config, scrollDirection);
     } else {
-      return new TwoPageCalculateCanvasGroupPositionStrategy(config);
+      return new TwoPageCalculateCanvasGroupPositionStrategy(config, scrollDirection);
     }
   }
 }

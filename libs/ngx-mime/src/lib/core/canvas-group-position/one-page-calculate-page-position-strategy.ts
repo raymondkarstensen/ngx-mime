@@ -2,6 +2,7 @@ import { MimeViewerConfig } from '../mime-viewer-config';
 import { Rect } from '../models/rect';
 import { ViewerOptions } from '../models/viewer-options';
 import { ViewingDirection } from '../models/viewing-direction';
+import { ScrollDirection } from '../models/scroll-direction';
 import {
   CalculateCanvasGroupPositionStrategy,
   CanvasGroupPositionCriteria,
@@ -11,9 +12,23 @@ import { canvasRectFromCriteria } from './calculate-canvas-group-position-utils'
 export class OnePageCalculatePagePositionStrategy
   implements CalculateCanvasGroupPositionStrategy
 {
-  constructor(private config: MimeViewerConfig) {}
+  constructor(
+    private config: MimeViewerConfig,
+    private scrollDirection: ScrollDirection
+  ) {}
 
   calculateCanvasGroupPosition(
+    criteria: CanvasGroupPositionCriteria,
+    rotation = 0
+  ): Rect {
+    if (this.scrollDirection === ScrollDirection.HORIZONTAL) {
+      return this.calculateHorizontalCanvasGroupPosition(criteria, rotation);
+    } else {
+      return this.calculateVerticalCanvasGroupPosition(criteria, rotation);
+    }
+  }
+
+  private calculateHorizontalCanvasGroupPosition(
     criteria: CanvasGroupPositionCriteria,
     rotation = 0
   ): Rect {
@@ -34,7 +49,34 @@ export class OnePageCalculatePagePositionStrategy
       rotation,
       criteria,
       x,
-      this.config.ignorePhysicalScale
+      this.config.ignorePhysicalScale,
+      this.scrollDirection
+    );
+  }
+
+  private calculateVerticalCanvasGroupPosition(
+    criteria: CanvasGroupPositionCriteria,
+    rotation = 0
+  ): Rect {
+    let y: number;
+    if (!criteria.canvasGroupIndex) {
+      if (rotation === 90 || rotation === 270) {
+        y = (criteria.canvasSource.width / 2) * -1;
+      } else {
+        y = (criteria.canvasSource.height / 2) * -1;
+      }
+    } else {
+      y =
+        criteria.viewingDirection === ViewingDirection.LTR
+          ? this.calculateTopToBottomY(criteria)
+          : this.calculateBottomToTopY(criteria);
+    }
+    return canvasRectFromCriteria(
+      rotation,
+      criteria,
+      y,
+      this.config.ignorePhysicalScale,
+      this.scrollDirection
     );
   }
 
@@ -50,6 +92,22 @@ export class OnePageCalculatePagePositionStrategy
     return (
       criteria.previousCanvasGroupPosition.x -
       criteria.previousCanvasGroupPosition.width -
+      ViewerOptions.overlays.canvasGroupMarginInDashboardView
+    );
+  }
+
+  private calculateTopToBottomY(criteria: CanvasGroupPositionCriteria) {
+    return (
+      criteria.previousCanvasGroupPosition.y +
+      criteria.previousCanvasGroupPosition.height +
+      ViewerOptions.overlays.canvasGroupMarginInDashboardView
+    );
+  }
+
+  private calculateBottomToTopY(criteria: CanvasGroupPositionCriteria) {
+    return (
+      criteria.previousCanvasGroupPosition.y -
+      criteria.previousCanvasGroupPosition.height -
       ViewerOptions.overlays.canvasGroupMarginInDashboardView
     );
   }

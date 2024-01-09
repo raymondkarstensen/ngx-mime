@@ -1,5 +1,5 @@
+import { ScrollDirection } from '../models/scroll-direction';
 import { Direction } from '../models/direction';
-import { ViewingDirection } from '../models/viewing-direction';
 import {
   CalculateNextCanvasGroupStrategy,
   NextCanvasGroupCriteria,
@@ -13,35 +13,58 @@ export class DashboardModeCalculateNextCanvasGroupStrategy
     const direction = criteria.direction;
     const currentCanvasGroupIndex = criteria.currentCanvasGroupIndex;
     const currentCanvasGroupCenter = criteria.currentCanvasGroupCenter;
-
-    let nextCanvasGroup: number;
-    let canvasGroupDelta = this.calculateNumberOfCanvasGroupsToGo(speed);
+    const isHorizontalScrollingDirection = criteria.scrollingDirection === ScrollDirection.HORIZONTAL;
+    let canvasGroupDelta = this.calculateNumberOfCanvasGroupsToGo(
+      speed,
+      isHorizontalScrollingDirection
+    );
     if (canvasGroupDelta === 0) {
-      nextCanvasGroup = currentCanvasGroupCenter;
-    } else {
-      canvasGroupDelta =
-        direction === Direction.LEFT ? canvasGroupDelta : canvasGroupDelta * -1;
-      nextCanvasGroup =
-        criteria.viewingDirection === ViewingDirection.LTR
-          ? currentCanvasGroupIndex + canvasGroupDelta
-          : currentCanvasGroupIndex - canvasGroupDelta;
+      return currentCanvasGroupCenter;
     }
-    return nextCanvasGroup;
+
+    if (isHorizontalScrollingDirection && this.isHorizontalDirection(direction)) {
+      return direction === Direction.LEFT
+        ? currentCanvasGroupIndex + canvasGroupDelta
+        : currentCanvasGroupIndex - canvasGroupDelta;
+    }
+
+    if (!isHorizontalScrollingDirection && this.isVerticalDirection(direction)) {
+      return direction === Direction.UP
+        ? currentCanvasGroupIndex + canvasGroupDelta
+        : currentCanvasGroupIndex - canvasGroupDelta;
+    }
+
+    return currentCanvasGroupIndex;
   }
 
-  private calculateNumberOfCanvasGroupsToGo(speed: number | undefined): number {
+  private calculateNumberOfCanvasGroupsToGo(
+    speed: number | undefined,
+    isHorizontalScrollingDirection: boolean
+  ): number {
     let canvasGroupsToGo = 10;
     if (speed !== undefined) {
-      if (speed < 500) {
+      const threshold1 = isHorizontalScrollingDirection ? 500 : 1000;
+      const threshold2 = isHorizontalScrollingDirection ? 1500 : 3000;
+      const threshold3 = isHorizontalScrollingDirection ? 2500 : 5000;
+      const maxThreshold = isHorizontalScrollingDirection ? 3500 : 7000;
+      if (speed < threshold1) {
         canvasGroupsToGo = 0;
-      } else if (speed >= 500 && speed < 1500) {
+      } else if (speed >= threshold1 && speed < threshold2) {
         canvasGroupsToGo = 1;
-      } else if (speed >= 1500 && speed < 2500) {
+      } else if (speed >= threshold2 && speed < threshold3) {
         canvasGroupsToGo = 3;
-      } else if (speed >= 2500 && speed < 3500) {
+      } else if (speed >= threshold2 && speed < maxThreshold) {
         canvasGroupsToGo = 5;
       }
     }
     return canvasGroupsToGo;
+  }
+
+  private isHorizontalDirection(direction: Direction): boolean {
+    return direction === Direction.LEFT || direction === Direction.RIGHT;
+  }
+
+  private isVerticalDirection(direction: Direction): boolean {
+    return direction === Direction.UP || direction === Direction.DOWN;
   }
 }
