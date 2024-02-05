@@ -1,12 +1,15 @@
 import { Direction } from '../models/direction';
+import { ScrollDirection } from '../models/scroll-direction';
 import { ViewingDirection } from '../models/viewing-direction';
 import { DashboardModeCalculateNextCanvasGroupStrategy } from './dashboard-mode-calculate-next-canvas-group-strategy';
 
 describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
   let strategy: DashboardModeCalculateNextCanvasGroupStrategy;
+  let scrollDirection: ScrollDirection;
 
   beforeEach(() => {
     strategy = new DashboardModeCalculateNextCanvasGroupStrategy();
+    scrollDirection = ScrollDirection.HORIZONTAL;
   });
 
   describe('LTR', () => {
@@ -19,6 +22,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(1);
@@ -31,6 +35,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(1);
@@ -43,6 +48,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(2);
@@ -55,6 +61,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(4);
@@ -67,6 +74,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(6);
@@ -79,6 +87,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(11);
@@ -91,6 +100,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 3,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(3);
@@ -106,6 +116,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(1);
@@ -118,6 +129,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(2);
@@ -130,6 +142,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(4);
@@ -142,6 +155,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(6);
@@ -154,6 +168,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(11);
@@ -166,6 +181,7 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 3,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(3);

@@ -9,7 +9,7 @@ export interface NextCanvasGroupCriteria {
   currentCanvasGroupIndex: number;
   currentCanvasGroupCenter: number;
   viewingDirection: ViewingDirection;
-  scrollingDirection: ScrollDirection;
+  scrollDirection: ScrollDirection;
 }
 
 export interface CalculateNextCanvasGroupStrategy {

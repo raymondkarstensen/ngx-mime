@@ -2,6 +2,9 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import {
+  ScrollDirectionService
+} from '../../core/scroll-direction-service/scroll-direction-service';
 import { injectedStub } from '../../../testing/injected-stub';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { ClickService } from '../../core/click-service/click.service';
@@ -36,6 +39,7 @@ describe('OsdToolbarComponent', () => {
       providers: [
         MimeResizeService,
         MimeViewerIntl,
+        ScrollDirectionService,
         { provide: ViewerService, useClass: ViewerServiceStub },
         { provide: CanvasService, useClass: CanvasServiceStub },
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },

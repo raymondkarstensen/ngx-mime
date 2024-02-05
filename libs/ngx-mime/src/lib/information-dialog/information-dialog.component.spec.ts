@@ -8,6 +8,9 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatTabGroupHarness } from '@angular/material/tabs/testing';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import {
+  ScrollDirectionService
+} from '../core/scroll-direction-service/scroll-direction-service';
 import { injectedStub } from '../../testing/injected-stub';
 import { AltoService } from '../core/alto-service/alto.service';
 import { CanvasService } from '../core/canvas-service/canvas-service';
@@ -65,6 +68,7 @@ describe('InformationDialogComponent', () => {
         IiifContentSearchService,
         StyleService,
         HighlightService,
+        ScrollDirectionService,
         { provide: AltoService, useClass: AltoServiceStub },
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },
         { provide: MatDialogRef, useClass: MatDialogRefStub },

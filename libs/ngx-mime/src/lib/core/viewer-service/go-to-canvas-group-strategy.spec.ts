@@ -2,6 +2,7 @@ import { CanvasService } from '../canvas-service/canvas-service';
 import { ModeService } from '../mode-service/mode.service';
 import { ViewerMode } from '../models/viewer-mode';
 import { ViewingDirection } from '../models/viewing-direction';
+import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { HorizontalGoToCanvasGroupStrategy } from './go-to-canvas-group-strategy';
 
 describe('DefaultGoToCanvasGroupStrategy ', () => {
@@ -16,7 +17,7 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
     collectionTileMargin: 80,
   };
   const zoomStrategy: any = {};
-  const canvasService: CanvasService = new CanvasService();
+  const canvasService: CanvasService = new CanvasService(new ScrollDirectionService());
   const modeService = new ModeService();
   const config: any = {};
   let spy: any;

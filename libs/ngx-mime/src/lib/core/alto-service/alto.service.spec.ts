@@ -3,6 +3,9 @@ import {
   HttpTestingController,
 } from '@angular/common/http/testing';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import {
+  ScrollDirectionService
+} from '../scroll-direction-service/scroll-direction-service';
 import { cold } from 'jasmine-marbles';
 import { CanvasServiceStub } from '../../test/canvas-service-stub';
 import { IiifManifestServiceStub } from '../../test/iiif-manifest-service-stub';
@@ -29,6 +32,7 @@ describe('AltoService', () => {
         AltoService,
         MimeViewerIntl,
         HighlightService,
+        ScrollDirectionService,
         { provide: CanvasService, useClass: CanvasServiceStub },
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },
       ],

@@ -2,6 +2,9 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import {
+  ScrollDirectionService
+} from '../../core/scroll-direction-service/scroll-direction-service';
 import { cold, getTestScheduler } from 'jasmine-marbles';
 import { of } from 'rxjs';
 import { AltoService } from '../../core/alto-service/alto.service';
@@ -35,6 +38,7 @@ describe('RecognizedTextContentComponent', () => {
           MimeViewerIntl,
           HighlightService,
           IiifContentSearchService,
+          ScrollDirectionService,
           { provide: IiifManifestService, useClass: IiifManifestServiceStub },
         ],
       }).compileComponents();

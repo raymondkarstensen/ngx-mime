@@ -2,6 +2,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import {
+  ScrollDirectionService
+} from '../../core/scroll-direction-service/scroll-direction-service';
 import { injectedStub } from '../../../testing/injected-stub';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { ClickService } from '../../core/click-service/click.service';
@@ -30,6 +33,7 @@ describe('TocComponent', () => {
         CanvasService,
         ModeService,
         MimeViewerIntl,
+        ScrollDirectionService,
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },
         { provide: ViewerService, useClass: ViewerServiceStub },
       ],

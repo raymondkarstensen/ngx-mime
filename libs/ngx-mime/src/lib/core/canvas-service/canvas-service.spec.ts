@@ -1,3 +1,6 @@
+import {
+  ScrollDirectionService
+} from '../scroll-direction-service/scroll-direction-service';
 import { CanvasService } from './canvas-service';
 import { Rect } from '../models/rect';
 import { ViewerLayout } from '../models/viewer-layout';
@@ -6,7 +9,7 @@ describe('CanvasService', () => {
   let service: CanvasService;
 
   beforeEach(() => {
-    service = new CanvasService();
+    service = new CanvasService(new ScrollDirectionService());
 
     const canvases: Rect[] = [];
     for (let i = 0; i < 100; i++) {

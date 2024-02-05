@@ -7,6 +7,9 @@ import {
 } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import {
+  ScrollDirectionService
+} from '../../../core/scroll-direction-service/scroll-direction-service';
 import { injectedStub } from '../../../../testing/injected-stub';
 import { IiifManifestService } from '../../../core/iiif-manifest-service/iiif-manifest-service';
 import { Rect } from '../../../core/models/rect';
@@ -40,6 +43,7 @@ describe('ContentSearchNavigatorComponent', () => {
       providers: [
         MimeViewerIntl,
         ContentSearchNavigationService,
+        ScrollDirectionService,
         { provide: ViewerService, useClass: ViewerServiceStub },
         {
           provide: IiifContentSearchService,

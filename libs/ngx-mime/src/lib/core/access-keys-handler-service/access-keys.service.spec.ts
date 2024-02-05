@@ -1,4 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import {
+  ScrollDirectionService
+} from '../scroll-direction-service/scroll-direction-service';
 import { provideAutoSpy } from 'jasmine-auto-spies';
 import { ContentSearchDialogService } from '../../content-search-dialog/content-search-dialog.service';
 import { InformationDialogService } from '../../information-dialog/information-dialog.service';
@@ -22,6 +25,7 @@ describe('AccessKeysService', () => {
       imports: [SharedModule],
       providers: [
         AccessKeysService,
+        ScrollDirectionService,
         provideAutoSpy(ViewerService),
         provideAutoSpy(CanvasService),
         provideAutoSpy(ModeService),

@@ -1,11 +1,14 @@
+import { ScrollDirection } from '../models';
 import { Direction } from '../models/direction';
 import { ViewingDirection } from '../models/viewing-direction';
 import { PageZoomedModeCalculateNextCanvasGroupStrategy } from './page-zoomed-mode-calculate-next-canvas-group-strategy';
 
 describe('PageZoomedModeCalculateNextCanvasGroupStrategy ', () => {
+  let scrollDirection: ScrollDirection;
   let strategy: PageZoomedModeCalculateNextCanvasGroupStrategy;
 
   beforeEach(() => {
+    scrollDirection = ScrollDirection.HORIZONTAL;
     strategy = new PageZoomedModeCalculateNextCanvasGroupStrategy();
   });
 
@@ -16,6 +19,7 @@ describe('PageZoomedModeCalculateNextCanvasGroupStrategy ', () => {
       currentCanvasGroupCenter: 1,
       canvasGroupEndHitCountReached: false,
       viewingDirection: ViewingDirection.LTR,
+      scrollDirection,
     });
 
     expect(res).toBe(1);
@@ -28,6 +32,7 @@ describe('PageZoomedModeCalculateNextCanvasGroupStrategy ', () => {
       currentCanvasGroupCenter: 1,
       canvasGroupEndHitCountReached: true,
       viewingDirection: ViewingDirection.LTR,
+      scrollDirection,
     });
 
     expect(res).toBe(2);
@@ -40,6 +45,7 @@ describe('PageZoomedModeCalculateNextCanvasGroupStrategy ', () => {
       currentCanvasGroupCenter: 2,
       canvasGroupEndHitCountReached: true,
       viewingDirection: ViewingDirection.LTR,
+      scrollDirection,
     });
 
     expect(res).toBe(1);

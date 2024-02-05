@@ -13,6 +13,9 @@ import { MatButtonHarness } from '@angular/material/button/testing';
 import { MatDialogHarness } from '@angular/material/dialog/testing';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import {
+  ScrollDirectionService
+} from '../../core/scroll-direction-service/scroll-direction-service';
 import { Spy, provideAutoSpy } from 'jasmine-auto-spies';
 import { injectedStub } from '../../../testing/injected-stub';
 import { TestManifests } from '../../../testing/test-manifests';
@@ -88,6 +91,7 @@ describe('ViewerHeaderComponent', () => {
         ViewDialogService,
         HelpDialogConfigStrategyFactory,
         HelpDialogService,
+        ScrollDirectionService,
         provideAutoSpy(ElementRef),
         provideAutoSpy(FullscreenService, {
           observablePropsToSpyOn: ['onChange'],

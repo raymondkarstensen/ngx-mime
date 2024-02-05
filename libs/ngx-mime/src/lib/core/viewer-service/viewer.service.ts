@@ -1,5 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ViewingDirection } from '../models/viewing-direction';
 import * as d3 from 'd3';
 import {
   BehaviorSubject,
@@ -87,6 +88,7 @@ export class ViewerService {
 
   private rotation: BehaviorSubject<number> = new BehaviorSubject(0);
   private dragStatus = false;
+  private scrollPanFactor = 10;
   public id = 'ngx-mime-mimeViewer';
   public openseadragonId = 'openseadragon';
 
@@ -132,31 +134,31 @@ export class ViewerService {
     this.config = config;
   }
 
-  public getViewer(): any {
+  getViewer(): any {
     return this.viewer;
   }
 
-  public getTilesources(): Resource[] {
+  getTilesources(): Resource[] {
     return this.tileSources;
   }
 
-  public getOverlays(): SVGRectElement[] {
+  getOverlays(): SVGRectElement[] {
     return this.overlays;
   }
 
-  public getZoom(): number {
+  getZoom(): number {
     return this.zoomStrategy.getZoom();
   }
 
-  public getMinZoom(): number {
+  getMinZoom(): number {
     return this.zoomStrategy.getMinZoom();
   }
 
-  public getMaxZoom(): number {
+  getMaxZoom(): number {
     return this.zoomStrategy.getMaxZoom();
   }
 
-  public home(): void {
+  home(): void {
     if (!this.osdIsReady.getValue()) {
       return;
     }
@@ -167,26 +169,26 @@ export class ViewerService {
     this.zoomStrategy.goToHomeZoom();
   }
 
-  public goToPreviousCanvasGroup(): void {
+  goToPreviousCanvasGroup(): void {
     this.goToCanvasGroupStrategy.goToPreviousCanvasGroup(
       this.currentCanvasIndex.getValue()
     );
   }
 
-  public goToNextCanvasGroup(): void {
+  goToNextCanvasGroup(): void {
     this.goToCanvasGroupStrategy.goToNextCanvasGroup(
       this.currentCanvasIndex.getValue()
     );
   }
 
-  public goToCanvasGroup(canvasGroupIndex: number, immediately: boolean): void {
+  goToCanvasGroup(canvasGroupIndex: number, immediately: boolean): void {
     this.goToCanvasGroupStrategy.goToCanvasGroup({
       canvasGroupIndex: canvasGroupIndex,
       immediately: immediately,
     });
   }
 
-  public goToCanvas(canvasIndex: number, immediately: boolean): void {
+  goToCanvas(canvasIndex: number, immediately: boolean): void {
     const canvasGroupIndex =
       this.canvasService.findCanvasGroupByCanvasIndex(canvasIndex);
     this.goToCanvasGroupStrategy.goToCanvasGroup({
@@ -195,7 +197,7 @@ export class ViewerService {
     });
   }
 
-  public highlight(searchResult: SearchResult): void {
+  highlight(searchResult: SearchResult): void {
     this.clearHightlight();
     if (this.viewer) {
       if (searchResult.q) {
@@ -260,16 +262,7 @@ export class ViewerService {
     }
   }
 
-  private highlightCurrentHit() {
-    if (this.currentHit) {
-      this.svgNode.selectAll(`g > rect.selected`).attr('class', 'hit');
-      this.svgNode
-        .selectAll(`g > rect[mimeHitIndex='${this.currentHit.id}']`)
-        .attr('class', 'hit selected');
-    }
-  }
-
-  public clearHightlight(): void {
+  clearHightlight(): void {
     if (this.svgNode) {
       this.svgNode.selectAll('.hit').remove();
       this.currentSearch = null;
@@ -326,7 +319,76 @@ export class ViewerService {
     }
   }
 
-  addSubscriptions(): void {
+  /**
+   *
+   * @param layoutSwitch true if switching between layouts
+   * to keep current search-state and rotation
+   */
+  destroy(layoutSwitch?: boolean) {
+    this.osdIsReady.next(false);
+    this.currentCenter.next({ x: 0, y: 0 });
+    if (this.viewer != null && this.viewer.isOpen()) {
+      if (this.viewer.container != null) {
+        d3.select(this.viewer.container.parentNode).style('opacity', '0');
+      }
+      this.viewer.destroy();
+      this.viewer = null;
+    }
+    this.overlays = [];
+    this.canvasService.reset();
+    if (this.canvasGroupMask) {
+      this.canvasGroupMask.destroy();
+    }
+    // Keep search-state and rotation only if layout-switch
+    if (!layoutSwitch) {
+      this.altoService.destroy();
+      this.currentSearch = null;
+      this.iiifContentSearchService.destroy();
+      this.rotation.next(0);
+      this.modeService.destroy();
+      this.unsubscribe();
+    }
+  }
+
+  zoomIn(zoomFactor?: number, position?: Point): void {
+    this.zoomStrategy.zoomIn(zoomFactor, position);
+  }
+
+  zoomOut(zoomFactor?: number, position?: Point): void {
+    this.zoomStrategy.zoomOut(zoomFactor, position);
+  }
+
+  goToHomeZoom(): void {
+    this.zoomStrategy.goToHomeZoom();
+  }
+
+  rotate(): void {
+    if (this.osdIsReady.getValue()) {
+      if (this.viewer.useCanvas) {
+        this.rotateToRight();
+        this.highlightCurrentHit();
+      } else {
+        this.showRotationIsNotSupportetMessage();
+      }
+    }
+  }
+
+  /**
+   * Returns overlay-index for click-event if hit
+   * @param target hit <rect>
+   */
+  getOverlayIndexFromClickEvent(event: any) {
+    const target = this.getOriginalTarget(event);
+    if (this.isCanvasGroupHit(target)) {
+      const requestedCanvasGroup: number = this.overlays.indexOf(target);
+      if (requestedCanvasGroup >= 0) {
+        return requestedCanvasGroup;
+      }
+    }
+    return -1;
+  }
+
+  private addSubscriptions(): void {
     this.initialize();
     this.subscriptions.add(
       this.modeService.onChange.subscribe((mode: ModeChanges) => {
@@ -454,15 +516,24 @@ export class ViewerService {
     );
   }
 
-  hidePages() {
+  private highlightCurrentHit() {
+    if (this.currentHit) {
+      this.svgNode.selectAll(`g > rect.selected`).attr('class', 'hit');
+      this.svgNode
+        .selectAll(`g > rect[mimeHitIndex='${this.currentHit.id}']`)
+        .attr('class', 'hit selected');
+    }
+  }
+
+  private hidePages() {
     this.setOpacityOnPages(0);
   }
 
-  showPages() {
+  private showPages() {
     this.setOpacityOnPages(1);
   }
 
-  layoutPages() {
+  private layoutPages() {
     if (this.osdIsReady.getValue()) {
       const currentCanvasIndex = this.canvasService.currentCanvasIndex;
       this.destroy(true);
@@ -480,55 +551,16 @@ export class ViewerService {
     }
   }
 
-  addToWindow() {
+  private addToWindow() {
     (<any>window).openSeadragonViewer = this.viewer;
   }
 
-  setupOverlays(): void {
+  private setupOverlays(): void {
     this.svgOverlay = this.viewer.svgOverlay();
     this.svgNode = d3.select(this.svgOverlay.node());
   }
 
-  disableKeyDownHandler() {
-    this.viewer.innerTracker.keyDownHandler = null;
-  }
-
-  resetKeyDownHandler() {
-    this.viewer.innerTracker.keyDownHandler = this.defaultKeyDownHandler;
-  }
-
-  /**
-   *
-   * @param layoutSwitch true if switching between layouts
-   * to keep current search-state and rotation
-   */
-  destroy(layoutSwitch?: boolean) {
-    this.osdIsReady.next(false);
-    this.currentCenter.next({ x: 0, y: 0 });
-    if (this.viewer != null && this.viewer.isOpen()) {
-      if (this.viewer.container != null) {
-        d3.select(this.viewer.container.parentNode).style('opacity', '0');
-      }
-      this.viewer.destroy();
-      this.viewer = null;
-    }
-    this.overlays = [];
-    this.canvasService.reset();
-    if (this.canvasGroupMask) {
-      this.canvasGroupMask.destroy();
-    }
-    // Keep search-state and rotation only if layout-switch
-    if (!layoutSwitch) {
-      this.altoService.destroy();
-      this.currentSearch = null;
-      this.iiifContentSearchService.destroy();
-      this.rotation.next(0);
-      this.modeService.destroy();
-      this.unsubscribe();
-    }
-  }
-
-  addEvents(): void {
+  private addEvents(): void {
     this.clickService.reset();
     this.clickService.addSingleClickHandler(this.singleClickHandler);
     this.clickService.addDoubleClickHandler(this.dblClickHandler);
@@ -555,55 +587,23 @@ export class ViewerService {
       this.dragStatus = true;
       this.dragHandler(e);
     });
-    this.viewer.addHandler('canvas-drag-end', (e: any) => {
-      if (this.dragStatus) {
-        if (this.modeService.isPageZoomed() && this.scrollDirectionService.isHorizontalScrollingDirection()) {
-          this.constraintCanvas();
-        }
-
-        if (this.scrollDirectionService.isVerticalScrollingDirection() && this.modeService.isPageZoomed()) {
-          this.calculateCurrentCanvasGroup(e.center);
-          this.canvasService.currentCanvasGroupIndex = this.currentCanvasIndex.getValue();
-        } else {
-          this.swipeToCanvasGroup(e);
-        }
-      }
-      this.dragStatus = false;
-    });
+    this.viewer.addHandler('canvas-drag-end', this.dragEndHandler);
     this.viewer.addHandler('animation', (e: any) => {
       this.currentCenter.next(this.viewer?.viewport.getCenter(true));
     });
     this.viewer.addHandler('pan', this.panHandler);
   }
 
-  zoomIn(zoomFactor?: number, position?: Point): void {
-    this.zoomStrategy.zoomIn(zoomFactor, position);
-  }
-
-  zoomOut(zoomFactor?: number, position?: Point): void {
-    this.zoomStrategy.zoomOut(zoomFactor, position);
-  }
-
-  rotate(): void {
-    if (this.osdIsReady.getValue()) {
-      if (this.viewer.useCanvas) {
-        this.rotateToRight();
-        this.highlightCurrentHit();
-      } else {
-        this.showRotationIsNotSupportetMessage();
-      }
-    }
-  }
-
   /**
    * Callback for mode-change
    * @param mode ViewerMode
    */
-  modeChanged(mode: ModeChanges): void {
+  private modeChanged(mode: ModeChanges): void {
     if (!this.viewer) {
       return;
     }
-    const isHorizontalScrollingDirection = this.scrollDirectionService.isHorizontalScrollingDirection();
+    const isHorizontalScrollingDirection =
+      this.scrollDirectionService.isHorizontalScrollingDirection();
     if (mode.currentValue === ViewerMode.DASHBOARD) {
       if (isHorizontalScrollingDirection) {
         this.viewer.panVertical = false;
@@ -630,110 +630,11 @@ export class ViewerService {
     }
   }
 
-  private generateRandomId(prefix: string): string {
-    const randomString = Math.random().toString(16).slice(2);
-    return `${prefix}-${randomString}`;
-  }
-
-  /**
-   * Switches to DASHBOARD-mode, repositions canvas group and removes max-width on viewer
-   */
-  private toggleToDashboard(): void {
-    if (!this.canvasService.isCurrentCanvasGroupValid()) {
-      return;
-    }
-    this.goToCanvasGroupStrategy.goToCanvasGroup({
-      canvasGroupIndex: this.canvasService.currentCanvasGroupIndex,
-      immediately: false,
-    });
-
-    this.canvasGroupMask.hide();
-
-    this.zoomStrategy.setMinZoom(ViewerMode.DASHBOARD);
-    this.zoomStrategy.goToHomeZoom();
-  }
-
-  /**
-   * Switches to PAGE-mode, centers current canvas group and repositions other canvas groups
-   */
-  private toggleToPage(): void {
-    if (!this.canvasService.isCurrentCanvasGroupValid()) {
-      return;
-    }
-    this.goToCanvasGroupStrategy.goToCanvasGroup({
-      canvasGroupIndex: this.canvasService.currentCanvasGroupIndex,
-      immediately: false,
-    });
-
-    this.canvasGroupMask.show();
-
-    this.zoomStrategy.setMinZoom(ViewerMode.PAGE);
-    this.zoomStrategy.goToHomeZoom();
-  }
-
-  /**
-   * Scroll-handler
-   */
-  scrollHandler = (event: any) => {
-    const zoomFactor = Math.pow(ViewerOptions.zoom.zoomFactor, event.scroll);
-    if (event.originalEvent.ctrlKey) {
-      const zoomFactor = Math.pow(ViewerOptions.zoom.zoomFactor, event.scroll);
-      // Scrolling up
-      if (event.scroll > 0) {
-        this.zoomInGesture(event.position, zoomFactor);
-        // Scrolling down
-      } else if (event.scroll < 0) {
-        this.zoomOutGesture(event.position, zoomFactor);
-      }
-    } else {
-      event.scroll > 0
-        ? this.goToPreviousCanvasGroup()
-        : this.goToNextCanvasGroup();
-    }
-  };
-
-  /**
-   * Pan-handler
-   */
-  private panHandler = (event: any) => {
-    if (
-      this.scrollDirectionService.isVerticalScrollingDirection() &&
-      this.modeService.isPageZoomed() &&
-      !this.dragStatus
-    ) {
-      // TODO: er dette korrekt måte?
-      this.calculateCurrentCanvasGroup(event.center);
-      this.canvasService.currentCanvasGroupIndex =
-        this.currentCanvasIndex.getValue();
-    }
-  };
-
-  /**
-   * Pinch-handler
-   */
-  pinchHandler = (event: any) => {
-    this.pinchStatus.active = true;
-    const zoomFactor = event.distance / event.lastDistance;
-    // Pinch Out
-    if (
-      event.distance >
-      event.lastDistance + ViewerOptions.zoom.pinchZoomThreshold
-    ) {
-      this.zoomInPinchGesture(event, zoomFactor);
-      // Pinch In
-    } else if (
-      event.distance + ViewerOptions.zoom.pinchZoomThreshold <
-      event.lastDistance
-    ) {
-      this.zoomOutPinchGesture(event, zoomFactor);
-    }
-  };
-
   /**
    *
    * @param point to zoom to. If not set, the viewer will zoom to center
    */
-  zoomInGesture(position: Point, zoomFactor?: number): void {
+  private zoomInGesture(position: Point, zoomFactor?: number): void {
     if (this.modeService.mode === ViewerMode.DASHBOARD) {
       this.modeService.mode = ViewerMode.PAGE;
     } else {
@@ -745,7 +646,7 @@ export class ViewerService {
     }
   }
 
-  zoomOutGesture(position: Point, zoomFactor?: number): void {
+  private zoomOutGesture(position: Point, zoomFactor?: number): void {
     if (this.modeService.isPageZoomed()) {
       this.zoomStrategy.zoomOut(zoomFactor, position);
     } else if (this.modeService.mode === ViewerMode.PAGE) {
@@ -760,7 +661,7 @@ export class ViewerService {
    *
    * @param event from pinch gesture
    */
-  zoomInPinchGesture(event: any, zoomFactor: number): void {
+  private zoomInPinchGesture(event: any, zoomFactor: number): void {
     if (this.modeService.mode === ViewerMode.DASHBOARD) {
       this.modeService.mode = ViewerMode.PAGE;
     } else {
@@ -776,7 +677,7 @@ export class ViewerService {
    *
    * @param event from pinch gesture
    */
-  zoomOutPinchGesture(event: any, zoomFactor: number): void {
+  private zoomOutPinchGesture(event: any, zoomFactor: number): void {
     const gestureId = event.gesturePoints[0].id;
     if (this.modeService.isPageZoomed()) {
       this.pinchStatus.shouldStop = true;
@@ -793,59 +694,11 @@ export class ViewerService {
     }
   }
 
-  goToHomeZoom(): void {
-    this.zoomStrategy.goToHomeZoom();
-  }
-
-  /**
-   * Single-click-handler
-   * Single-click toggles between page/dashboard-mode if a page is hit
-   */
-  singleClickHandler = (event: any) => {
-    const tileIndex = this.getOverlayIndexFromClickEvent(event);
-    const requestedCanvasGroupIndex =
-      this.canvasService.findCanvasGroupByCanvasIndex(tileIndex);
-    if (requestedCanvasGroupIndex !== -1) {
-      this.canvasService.currentCanvasGroupIndex = requestedCanvasGroupIndex;
-    } else {
-      this.calculateCurrentCanvasGroup(this.viewer?.viewport.getCenter(true));
-    }
-    this.modeService.toggleMode();
-  };
-
-  /**
-   * Double-click-handler
-   * Double-click dashboard-mode should go to page-mode
-   * Double-click page-mode should
-   *    a) Zoom in if page is fitted vertically, or
-   *    b) Fit vertically if page is already zoomed in
-   */
-  dblClickHandler = (event: any) => {
-    // Page is fitted vertically, so dbl-click zooms in
-    if (this.modeService.mode === ViewerMode.PAGE) {
-      this.modeService.mode = ViewerMode.PAGE_ZOOMED;
-      this.zoomStrategy.zoomIn(
-        ViewerOptions.zoom.dblClickZoomFactor,
-        event.position
-      );
-    } else {
-      this.modeService.mode = ViewerMode.PAGE;
-      const canvasIndex: number = this.getOverlayIndexFromClickEvent(event);
-      const requestedCanvasGroupIndex =
-        this.canvasService.findCanvasGroupByCanvasIndex(canvasIndex);
-      if (requestedCanvasGroupIndex >= 0) {
-        this.canvasService.currentCanvasGroupIndex = requestedCanvasGroupIndex;
-      } else {
-        this.calculateCurrentCanvasGroup(this.viewer?.viewport.getCenter(true));
-      }
-    }
-  };
-
   /**
    * Checks if hit element is a <rect>-element
    * @param target
    */
-  isCanvasGroupHit(target: HTMLElement): boolean {
+  private isCanvasGroupHit(target: HTMLElement): boolean {
     return target instanceof SVGRectElement;
   }
 
@@ -853,7 +706,7 @@ export class ViewerService {
    * Iterates tilesources and adds them to viewer
    * Creates svg clickable overlays for each tile
    */
-  createOverlays(): void {
+  private createOverlays(): void {
     this.overlays = [];
     const canvasRects: Rect[] = [];
     const calculateCanvasGroupPositionStrategy =
@@ -980,21 +833,6 @@ export class ViewerService {
     }
   }
 
-  /**
-   * Returns overlay-index for click-event if hit
-   * @param target hit <rect>
-   */
-  getOverlayIndexFromClickEvent(event: any) {
-    const target = this.getOriginalTarget(event);
-    if (this.isCanvasGroupHit(target)) {
-      const requestedCanvasGroup: number = this.overlays.indexOf(target);
-      if (requestedCanvasGroup >= 0) {
-        return requestedCanvasGroup;
-      }
-    }
-    return -1;
-  }
-
   private calculateCurrentCanvasGroup(center: Point) {
     if (center) {
       const currentCanvasGroupIndex =
@@ -1002,6 +840,50 @@ export class ViewerService {
       this.currentCanvasIndex.next(currentCanvasGroupIndex);
     }
   }
+
+  /**
+   * Single-click-handler
+   * Single-click toggles between page/dashboard-mode if a page is hit
+   */
+  private singleClickHandler = (event: any) => {
+    const tileIndex = this.getOverlayIndexFromClickEvent(event);
+    const requestedCanvasGroupIndex =
+      this.canvasService.findCanvasGroupByCanvasIndex(tileIndex);
+    if (requestedCanvasGroupIndex !== -1) {
+      this.canvasService.currentCanvasGroupIndex = requestedCanvasGroupIndex;
+    } else {
+      this.calculateCurrentCanvasGroup(this.viewer?.viewport.getCenter(true));
+    }
+    this.modeService.toggleMode();
+  };
+
+  /**
+   * Double-click-handler
+   * Double-click dashboard-mode should go to page-mode
+   * Double-click page-mode should
+   *    a) Zoom in if page is fitted vertically, or
+   *    b) Fit vertically if page is already zoomed in
+   */
+  private dblClickHandler = (event: any) => {
+    // Page is fitted vertically, so dbl-click zooms in
+    if (this.modeService.mode === ViewerMode.PAGE) {
+      this.modeService.mode = ViewerMode.PAGE_ZOOMED;
+      this.zoomStrategy.zoomIn(
+        ViewerOptions.zoom.dblClickZoomFactor,
+        event.position
+      );
+    } else {
+      this.modeService.mode = ViewerMode.PAGE;
+      const canvasIndex: number = this.getOverlayIndexFromClickEvent(event);
+      const requestedCanvasGroupIndex =
+        this.canvasService.findCanvasGroupByCanvasIndex(canvasIndex);
+      if (requestedCanvasGroupIndex >= 0) {
+        this.canvasService.currentCanvasGroupIndex = requestedCanvasGroupIndex;
+      } else {
+        this.calculateCurrentCanvasGroup(this.viewer?.viewport.getCenter(true));
+      }
+    }
+  };
 
   private dragHandler = (e: any) => {
     if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
@@ -1048,6 +930,151 @@ export class ViewerService {
       }
     }
   };
+
+  private dragEndHandler = (event: any): void => {
+    if (this.dragStatus) {
+      if (
+        this.scrollDirectionService.isHorizontalScrollingDirection() &&
+        this.modeService.isPageZoomed()
+      ) {
+        this.constraintCanvas();
+      }
+
+      if (
+        this.scrollDirectionService.isVerticalScrollingDirection() &&
+        this.modeService.isPageZoomed()
+      ) {
+        this.updateCurrentCanvasIndex(event);
+      } else {
+        this.swipeToCanvasGroup(event);
+      }
+    }
+    this.dragStatus = false;
+  };
+
+  private scrollHandler = (event: any) => {
+    if (event.originalEvent.ctrlKey) {
+      this.zoomOnScroll(event);
+    } else {
+      if (
+        this.modeService.isPageZoomed()
+      ) {
+        this.panOnScroll(event);
+      } else {
+        this.navigateOnScroll(event);
+      }
+    }
+  };
+
+  private panHandler = (event: any) => {
+    if (
+      this.scrollDirectionService.isVerticalScrollingDirection() &&
+      this.modeService.isPageZoomed() &&
+      !this.dragStatus
+    ) {
+      this.updateCurrentCanvasIndex(event);
+    }
+  };
+
+  private pinchHandler = (event: any) => {
+    this.pinchStatus.active = true;
+    const zoomFactor = event.distance / event.lastDistance;
+    // Pinch Out
+    if (
+      event.distance >
+      event.lastDistance + ViewerOptions.zoom.pinchZoomThreshold
+    ) {
+      this.zoomInPinchGesture(event, zoomFactor);
+      // Pinch In
+    } else if (
+      event.distance + ViewerOptions.zoom.pinchZoomThreshold <
+      event.lastDistance
+    ) {
+      this.zoomOutPinchGesture(event, zoomFactor);
+    }
+  };
+
+  private disableKeyDownHandler() {
+    this.viewer.innerTracker.keyDownHandler = null;
+  }
+
+  private resetKeyDownHandler() {
+    this.viewer.innerTracker.keyDownHandler = this.defaultKeyDownHandler;
+  }
+
+  private generateRandomId(prefix: string): string {
+    const randomString = Math.random().toString(16).slice(2);
+    return `${prefix}-${randomString}`;
+  }
+
+  /**
+   * Switches to DASHBOARD-mode, repositions canvas group and removes max-width on viewer
+   */
+  private toggleToDashboard(): void {
+    if (!this.canvasService.isCurrentCanvasGroupValid()) {
+      return;
+    }
+    this.goToCanvasGroupStrategy.goToCanvasGroup({
+      canvasGroupIndex: this.canvasService.currentCanvasGroupIndex,
+      immediately: false,
+    });
+
+    this.canvasGroupMask.hide();
+
+    this.zoomStrategy.setMinZoom(ViewerMode.DASHBOARD);
+    this.zoomStrategy.goToHomeZoom();
+  }
+
+  /**
+   * Switches to PAGE-mode, centers current canvas group and repositions other canvas groups
+   */
+  private toggleToPage(): void {
+    if (!this.canvasService.isCurrentCanvasGroupValid()) {
+      return;
+    }
+    this.goToCanvasGroupStrategy.goToCanvasGroup({
+      canvasGroupIndex: this.canvasService.currentCanvasGroupIndex,
+      immediately: false,
+    });
+
+    this.canvasGroupMask.show();
+
+    this.zoomStrategy.setMinZoom(ViewerMode.PAGE);
+    this.zoomStrategy.goToHomeZoom();
+  }
+
+  private zoomOnScroll(event: any): void {
+    const zoomFactor = Math.pow(ViewerOptions.zoom.zoomFactor, event.scroll);
+    // Scrolling up
+    if (event.scroll > 0) {
+      this.zoomInGesture(event.position, zoomFactor);
+      // Scrolling down
+    } else if (event.scroll < 0) {
+      this.zoomOutGesture(event.position, zoomFactor);
+    }
+  }
+
+  private panOnScroll(event: any): void {
+    const scroll = event.scroll * -1;
+    const y = scroll / this.getZoom() / this.scrollPanFactor;
+    this.panBy({ x: 0, y });
+  }
+
+  private navigateOnScroll(event: any): void {
+    this.manifest.viewingDirection === ViewingDirection.LTR
+      ? event.scroll > 0
+        ? this.goToPreviousCanvasGroup()
+        : this.goToNextCanvasGroup()
+      : event.scroll > 0
+      ? this.goToNextCanvasGroup()
+      : this.goToPreviousCanvasGroup();
+  }
+
+  private updateCurrentCanvasIndex(event: any): void {
+    this.calculateCurrentCanvasGroup(event.center);
+    this.canvasService.currentCanvasGroupIndex =
+      this.currentCanvasIndex.getValue();
+  }
 
   private constraintCanvas() {
     if (this.modeService.isPageZoomed()) {
@@ -1153,7 +1180,11 @@ export class ViewerService {
         canvasGroupRect,
         viewportBounds
       );
-      this.swipeDragEndCounter.addHit(pannedPastSide, direction);
+      this.swipeDragEndCounter.addHit(
+        pannedPastSide,
+        direction,
+        this.scrollDirectionService.scrollDirection
+      );
       canvasGroupEndHitCountReached =
         this.swipeDragEndCounter.hitCountReached();
     }
@@ -1166,7 +1197,7 @@ export class ViewerService {
         currentCanvasGroupIndex: currentCanvasGroupIndex,
         canvasGroupEndHitCountReached: canvasGroupEndHitCountReached,
         viewingDirection: this.manifest.viewingDirection,
-        scrollingDirection: this.scrollDirectionService.scrollDirection,
+        scrollDirection: this.scrollDirectionService.scrollDirection,
       })
     );
     if (
@@ -1190,6 +1221,10 @@ export class ViewerService {
     return event.originalTarget
       ? event.originalTarget
       : event.originalEvent.target;
+  }
+
+  private panBy(point: Point, immediately = false): void {
+    this.viewer.viewport.panBy(point, immediately);
   }
 
   private panTo(rect: Rect | undefined, immediately = false): void {

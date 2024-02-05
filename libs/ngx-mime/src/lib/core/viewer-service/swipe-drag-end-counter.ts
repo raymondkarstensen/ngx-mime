@@ -1,4 +1,5 @@
 import { Direction } from '../models/direction';
+import { ScrollDirection } from '../models/scroll-direction';
 import { Side } from '../models/side';
 
 export class SwipeDragEndCounter {
@@ -18,12 +19,16 @@ export class SwipeDragEndCounter {
    * @param direction of swipe / pan
    * @param side hit by swipe
    */
-  public addHit(side: Side | null, dir: Direction | null): void {
+  public addHit(
+    side: Side | null,
+    dir: Direction | null,
+    scrollDirection: ScrollDirection
+  ): void {
     if (side !== null) {
-      this.incrementSide(side);
+      this.incrementSide(side, scrollDirection);
     }
     if (dir !== null) {
-      this.clearOppositeSideOfDragDirection(dir);
+      this.clearOppositeSideOfDragDirection(dir, scrollDirection);
     }
   }
 
@@ -31,11 +36,17 @@ export class SwipeDragEndCounter {
     return this.previous >= 2 || this.next >= 2;
   }
 
-  private incrementSide(side: Side): void {
-    if (side === Side.LEFT || side === Side.TOP) {
+  private incrementSide(side: Side, scrollDirection: ScrollDirection): void {
+    if (
+      (scrollDirection === ScrollDirection.HORIZONTAL && side === Side.LEFT) ||
+      (scrollDirection === ScrollDirection.VERTICAL && side === Side.TOP)
+    ) {
       this.previous++;
       this.next = 0;
-    } else if (side === Side.RIGHT || side === Side.BOTTOM) {
+    } else if (
+      (scrollDirection === ScrollDirection.HORIZONTAL && side === Side.RIGHT) ||
+      (scrollDirection === ScrollDirection.VERTICAL && side === Side.BOTTOM)
+    ) {
       this.next++;
       this.previous = 0;
     }
@@ -45,7 +56,10 @@ export class SwipeDragEndCounter {
    * Clear opposite side if swiping in the other direction
    * @param Direction of swipe / pan
    */
-  private clearOppositeSideOfDragDirection(dir: Direction): void {
+  private clearOppositeSideOfDragDirection(
+    dir: Direction,
+    scrollDirection: ScrollDirection
+  ): void {
     if (dir === Direction.LEFT || dir === Direction.UP) {
       this.previous = 0;
     } else if (dir === Direction.RIGHT || dir === Direction.DOWN) {

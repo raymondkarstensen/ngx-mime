@@ -1,4 +1,4 @@
-import { ScrollDirection } from '@nationallibraryofnorway/ngx-mime/src/lib/core/models';
+import { ScrollDirection } from '../models/scroll-direction';
 import { Direction } from '../models/direction';
 import { ViewingDirection } from '../models/viewing-direction';
 import {
@@ -17,7 +17,7 @@ export class PageModeCalculateNextCanvasGroupStrategy
     let nextCanvasGroup = criteria.currentCanvasGroupIndex;
     if (speed && speed >= 200) {
       const isHorizontalScrollingDirection =
-        criteria.scrollingDirection === ScrollDirection.HORIZONTAL;
+        criteria.scrollDirection === ScrollDirection.HORIZONTAL;
 
       if (
         isHorizontalScrollingDirection &&

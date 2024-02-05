@@ -1,5 +1,8 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed, waitForAsync } from '@angular/core/testing';
+import {
+  ScrollDirectionService
+} from '../../scroll-direction-service/scroll-direction-service';
 import { injectedStub } from '../../../../testing/injected-stub';
 import { IiifContentSearchServiceStub } from '../../../test/iiif-content-search-service-stub';
 import { IiifManifestServiceStub } from '../../../test/iiif-manifest-service-stub';
@@ -29,6 +32,7 @@ describe('ContentSearchNavigationService', () => {
         ContentSearchNavigationService,
         MimeViewerIntl,
         CanvasService,
+        ScrollDirectionService,
         { provide: ViewerService, useClass: ViewerServiceStub },
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },
         {

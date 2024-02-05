@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+  ScrollDirectionService
+} from '../scroll-direction-service/scroll-direction-service';
 import { provideAutoSpy } from 'jasmine-auto-spies';
 import { Subscription } from 'rxjs';
 import { testManifest } from '../../test/testManifest';
@@ -42,6 +45,7 @@ describe('ViewerService', () => {
         ViewerService,
         MimeViewerIntl,
         CanvasService,
+        ScrollDirectionService,
         provideAutoSpy(ViewerLayoutService, {
           observablePropsToSpyOn: ['onChange'],
         }),

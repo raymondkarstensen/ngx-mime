@@ -1,4 +1,4 @@
-import { ScrollDirection } from '@nationallibraryofnorway/ngx-mime/src/lib/core/models';
+import { ScrollDirection } from '../models/scroll-direction';
 import { CanvasService } from '../canvas-service/canvas-service';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import { ModeService } from '../mode-service/mode.service';
@@ -24,7 +24,6 @@ export interface GoToCanvasGroupStrategy {
   centerCurrentCanvas(): void;
 }
 
-// TODO: change to one exported class
 export class HorizontalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
   constructor(
     private viewer: any,
@@ -112,7 +111,7 @@ export class HorizontalGoToCanvasGroupStrategy implements GoToCanvasGroupStrateg
           currentCanvasGroupIndex: currentCanvasGroupIndex,
           currentCanvasGroupCenter: currentCanvasIndex,
           viewingDirection: this.viewingDirection,
-          scrollingDirection: ScrollDirection.HORIZONTAL
+          scrollDirection: ScrollDirection.HORIZONTAL
         });
       this.goToCanvasGroup({
         canvasGroupIndex: newCanvasGroupIndex,
@@ -138,7 +137,7 @@ export class HorizontalGoToCanvasGroupStrategy implements GoToCanvasGroupStrateg
           currentCanvasGroupIndex: currentCanvasGroupIndex,
           currentCanvasGroupCenter: currentCanvasIndex,
           viewingDirection: this.viewingDirection,
-          scrollingDirection: ScrollDirection.HORIZONTAL
+          scrollDirection: ScrollDirection.HORIZONTAL
         });
       this.goToCanvasGroup({
         canvasGroupIndex: newCanvasGroupIndex,
@@ -222,19 +221,19 @@ export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy 
             this.canvasService.getCanvasRect(previousCanvasIndex);
           y =
             this.viewingDirection === ViewingDirection.LTR
-              ? this.topY(previousCanvasRect) // Change leftX to topY
-              : this.bottomY(newCanvasGroup); // Change rightX to bottomY
+              ? this.topY(previousCanvasRect)
+              : this.bottomY(newCanvasGroup);
         } else {
           y =
             this.viewingDirection === ViewingDirection.LTR
-              ? this.bottomY(newCanvasGroup) // Change rightX to bottomY
-              : this.topY(newCanvasGroup); // Change leftX to topY
+              ? this.bottomY(newCanvasGroup)
+              : this.topY(newCanvasGroup);
         }
       } else {
         y =
           this.viewingDirection === ViewingDirection.LTR
-            ? this.topY(newCanvasGroup) // Change leftX to topY
-            : this.bottomY(newCanvasGroup); // Change rightX to bottomY
+            ? this.topY(newCanvasGroup)
+            : this.bottomY(newCanvasGroup);
       }
 
       const x =
@@ -274,7 +273,7 @@ export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy 
           currentCanvasGroupIndex: currentCanvasGroupIndex,
           currentCanvasGroupCenter: currentCanvasIndex,
           viewingDirection: this.viewingDirection,
-          scrollingDirection: ScrollDirection.VERTICAL,
+          scrollDirection: ScrollDirection.VERTICAL,
         });
       this.goToCanvasGroup({
         canvasGroupIndex: newCanvasGroupIndex,
@@ -300,7 +299,7 @@ export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy 
           currentCanvasGroupIndex: currentCanvasGroupIndex,
           currentCanvasGroupCenter: currentCanvasIndex,
           viewingDirection: this.viewingDirection,
-          scrollingDirection: ScrollDirection.VERTICAL,
+          scrollDirection: ScrollDirection.VERTICAL,
         });
       this.goToCanvasGroup({
         canvasGroupIndex: newCanvasGroupIndex,

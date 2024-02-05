@@ -1,5 +1,6 @@
-import { ScrollDirection } from '../models/scroll-direction';
 import { Direction } from '../models/direction';
+import { ScrollDirection } from '../models/scroll-direction';
+import { ViewingDirection } from '../models/viewing-direction';
 import {
   CalculateNextCanvasGroupStrategy,
   NextCanvasGroupCriteria,
@@ -13,7 +14,8 @@ export class DashboardModeCalculateNextCanvasGroupStrategy
     const direction = criteria.direction;
     const currentCanvasGroupIndex = criteria.currentCanvasGroupIndex;
     const currentCanvasGroupCenter = criteria.currentCanvasGroupCenter;
-    const isHorizontalScrollingDirection = criteria.scrollingDirection === ScrollDirection.HORIZONTAL;
+    const isHorizontalScrollingDirection =
+      criteria.scrollDirection === ScrollDirection.HORIZONTAL;
     let canvasGroupDelta = this.calculateNumberOfCanvasGroupsToGo(
       speed,
       isHorizontalScrollingDirection
@@ -22,14 +24,24 @@ export class DashboardModeCalculateNextCanvasGroupStrategy
       return currentCanvasGroupCenter;
     }
 
-    if (isHorizontalScrollingDirection && this.isHorizontalDirection(direction)) {
-      return direction === Direction.LEFT
+    if (
+      isHorizontalScrollingDirection &&
+      this.isHorizontalDirection(direction)
+    ) {
+      canvasGroupDelta =
+        direction === Direction.LEFT ? canvasGroupDelta : canvasGroupDelta * -1;
+      return criteria.viewingDirection === ViewingDirection.LTR
         ? currentCanvasGroupIndex + canvasGroupDelta
         : currentCanvasGroupIndex - canvasGroupDelta;
     }
 
-    if (!isHorizontalScrollingDirection && this.isVerticalDirection(direction)) {
-      return direction === Direction.UP
+    if (
+      !isHorizontalScrollingDirection &&
+      this.isVerticalDirection(direction)
+    ) {
+      canvasGroupDelta =
+        direction === Direction.UP ? canvasGroupDelta : canvasGroupDelta * -1;
+      return criteria.viewingDirection === ViewingDirection.LTR
         ? currentCanvasGroupIndex + canvasGroupDelta
         : currentCanvasGroupIndex - canvasGroupDelta;
     }

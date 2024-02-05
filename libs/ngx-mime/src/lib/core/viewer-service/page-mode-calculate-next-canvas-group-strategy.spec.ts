@@ -1,11 +1,14 @@
+import { ScrollDirection } from '../models/scroll-direction';
 import { Direction } from '../models/direction';
 import { ViewingDirection } from '../models/viewing-direction';
 import { PageModeCalculateNextCanvasGroupStrategy } from './page-mode-calculate-next-canvas-group-strategy';
 
 describe('PageModeCalculateNextCanvasGroupStrategy ', () => {
+  let scrollDirection: ScrollDirection;
   let strategy: PageModeCalculateNextCanvasGroupStrategy;
 
   beforeEach(() => {
+    scrollDirection = ScrollDirection.HORIZONTAL;
     strategy = new PageModeCalculateNextCanvasGroupStrategy();
   });
 
@@ -19,6 +22,7 @@ describe('PageModeCalculateNextCanvasGroupStrategy ', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(1);
@@ -31,6 +35,7 @@ describe('PageModeCalculateNextCanvasGroupStrategy ', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(2);
@@ -43,6 +48,7 @@ describe('PageModeCalculateNextCanvasGroupStrategy ', () => {
         currentCanvasGroupIndex: 2,
         currentCanvasGroupCenter: 2,
         viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(1);
@@ -55,6 +61,7 @@ describe('PageModeCalculateNextCanvasGroupStrategy ', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 2,
         viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(2);
@@ -71,6 +78,7 @@ describe('PageModeCalculateNextCanvasGroupStrategy ', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection: viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(1);
@@ -83,6 +91,7 @@ describe('PageModeCalculateNextCanvasGroupStrategy ', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 1,
         viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(2);
@@ -95,6 +104,7 @@ describe('PageModeCalculateNextCanvasGroupStrategy ', () => {
         currentCanvasGroupIndex: 2,
         currentCanvasGroupCenter: 2,
         viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(1);
@@ -107,6 +117,7 @@ describe('PageModeCalculateNextCanvasGroupStrategy ', () => {
         currentCanvasGroupIndex: 1,
         currentCanvasGroupCenter: 2,
         viewingDirection,
+        scrollDirection,
       });
 
       expect(res).toBe(2);

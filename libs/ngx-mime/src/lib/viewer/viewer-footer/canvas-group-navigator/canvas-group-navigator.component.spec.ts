@@ -12,6 +12,9 @@ import { MatButtonHarness } from '@angular/material/button/testing';
 import { MatDialogHarness } from '@angular/material/dialog/testing';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import {
+  ScrollDirectionService
+} from '../../../core/scroll-direction-service/scroll-direction-service';
 import { injectedStub } from '../../../../testing/injected-stub';
 import { CanvasGroupDialogComponent } from '../../../canvas-group-dialog/canvas-group-dialog.component';
 import { CanvasGroupDialogService } from '../../../canvas-group-dialog/canvas-group-dialog.service';
@@ -61,6 +64,7 @@ describe('CanvasGroupNavigatorComponent', () => {
       providers: [
         MimeViewerIntl,
         CanvasGroupDialogService,
+        ScrollDirectionService,
         { provide: ViewerService, useClass: ViewerServiceStub },
         { provide: CanvasService, useClass: CanvasServiceStub },
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },

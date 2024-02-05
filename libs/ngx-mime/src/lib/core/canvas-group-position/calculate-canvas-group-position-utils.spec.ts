@@ -1,3 +1,5 @@
+import { ScrollDirection } from '../models';
+import { ViewerLayout } from '../models/viewer-layout';
 import { Resource, Service } from '../models/manifest';
 import { Rect } from '../models/rect';
 import { ViewingDirection } from '../models/viewing-direction';
@@ -5,6 +7,7 @@ import { CanvasGroupPositionCriteria } from './calculate-canvas-group-position-s
 import { canvasRectFromCriteria } from './calculate-canvas-group-position-utils';
 
 describe('canvasRectFromCriteria', () => {
+  let scrollDirection: ScrollDirection;
   const canvasGroupsPositionCriteria: CanvasGroupPositionCriteria = {
     canvasGroupIndex: 0,
     canvasSource: new Resource({
@@ -19,15 +22,23 @@ describe('canvasRectFromCriteria', () => {
       }),
     }),
     viewingDirection: ViewingDirection.LTR,
+    scrollDirection: ScrollDirection.HORIZONTAL,
     previousCanvasGroupPosition: new Rect(),
+    viewerLayout: ViewerLayout.TWO_PAGE,
   };
+
+  beforeEach(() => {
+    scrollDirection = ScrollDirection.HORIZONTAL;
+  });
+
   describe('using physicalScale', () => {
     it('should return Rect', () => {
       const canvasRect = canvasRectFromCriteria(
         0,
         canvasGroupsPositionCriteria,
         10,
-        false
+        false,
+        scrollDirection
       );
 
       expect(canvasRect).toEqual(
@@ -40,7 +51,8 @@ describe('canvasRectFromCriteria', () => {
         90,
         canvasGroupsPositionCriteria,
         10,
-        false
+        false,
+        scrollDirection
       );
 
       expect(canvasRect).toEqual(
@@ -53,7 +65,8 @@ describe('canvasRectFromCriteria', () => {
         180,
         canvasGroupsPositionCriteria,
         10,
-        false
+        false,
+        scrollDirection
       );
 
       expect(canvasRect).toEqual(
@@ -66,7 +79,8 @@ describe('canvasRectFromCriteria', () => {
         270,
         canvasGroupsPositionCriteria,
         10,
-        false
+        false,
+        scrollDirection
       );
 
       expect(canvasRect).toEqual(
@@ -78,7 +92,8 @@ describe('canvasRectFromCriteria', () => {
         360,
         canvasGroupsPositionCriteria,
         10,
-        false
+        false,
+        scrollDirection
       );
 
       expect(canvasRect).toEqual(
@@ -92,7 +107,8 @@ describe('canvasRectFromCriteria', () => {
         0,
         canvasGroupsPositionCriteria,
         10,
-        true
+        true,
+        scrollDirection
       );
 
       expect(canvasRect).toEqual(
@@ -105,7 +121,8 @@ describe('canvasRectFromCriteria', () => {
         90,
         canvasGroupsPositionCriteria,
         10,
-        true
+        true,
+        scrollDirection
       );
 
       expect(canvasRect).toEqual(
@@ -118,7 +135,8 @@ describe('canvasRectFromCriteria', () => {
         180,
         canvasGroupsPositionCriteria,
         10,
-        true
+        true,
+        scrollDirection
       );
 
       expect(canvasRect).toEqual(
@@ -131,7 +149,8 @@ describe('canvasRectFromCriteria', () => {
         270,
         canvasGroupsPositionCriteria,
         10,
-        true
+        true,
+        scrollDirection
       );
 
       expect(canvasRect).toEqual(
@@ -143,7 +162,8 @@ describe('canvasRectFromCriteria', () => {
         360,
         canvasGroupsPositionCriteria,
         10,
-        true
+        true,
+        scrollDirection
       );
 
       expect(canvasRect).toEqual(

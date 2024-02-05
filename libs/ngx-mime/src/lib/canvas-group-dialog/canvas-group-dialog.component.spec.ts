@@ -12,6 +12,9 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldHarness } from '@angular/material/form-field/testing';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import {
+  ScrollDirectionService
+} from '../core/scroll-direction-service/scroll-direction-service';
 import { injectedStub } from '../../testing/injected-stub';
 import { AltoService } from '../core/alto-service/alto.service';
 import { CanvasService } from '../core/canvas-service/canvas-service';
@@ -52,6 +55,7 @@ describe('CanvasGroupDialogComponent', () => {
         MimeViewerIntl,
         StyleService,
         HighlightService,
+        ScrollDirectionService,
         {
           provide: IiifContentSearchService,
           useClass: IiifContentSearchServiceStub,
