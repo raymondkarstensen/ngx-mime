@@ -1037,7 +1037,9 @@ export class ViewerService {
       immediately: false,
     });
 
-    this.canvasGroupMask.show();
+    if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
+      this.canvasGroupMask.show();
+    }
 
     this.zoomStrategy.setMinZoom(ViewerMode.PAGE);
     this.zoomStrategy.goToHomeZoom();
