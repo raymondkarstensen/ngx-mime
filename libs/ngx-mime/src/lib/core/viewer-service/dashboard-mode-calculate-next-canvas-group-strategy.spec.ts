@@ -9,182 +9,370 @@ describe('DashboardModeCalculateNextCanvasGroupStrategy', () => {
 
   beforeEach(() => {
     strategy = new DashboardModeCalculateNextCanvasGroupStrategy();
-    scrollDirection = ScrollDirection.HORIZONTAL;
   });
 
-  describe('LTR', () => {
-    const viewingDirection = ViewingDirection.LTR;
-
-    it('should stay on same canvas group when drag speed zero', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 0,
-        direction: Direction.LEFT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 1,
-        viewingDirection: viewingDirection,
-        scrollDirection,
-      });
-
-      expect(res).toBe(1);
+  describe('horizontal scrolldirection', () => {
+    beforeEach(() => {
+      scrollDirection = ScrollDirection.HORIZONTAL;
     });
 
-    it('should stay on same canvas group when drag speed is low and canvas group is not passed center', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 400,
-        direction: Direction.LEFT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 1,
-        viewingDirection: viewingDirection,
-        scrollDirection,
+    describe('LTR', () => {
+      const viewingDirection = ViewingDirection.LTR;
+
+      it('should stay on same canvas group when drag speed zero', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 0,
+          direction: Direction.LEFT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(1);
       });
 
-      expect(res).toBe(1);
+      it('should stay on same canvas group when drag speed is low and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 400,
+          direction: Direction.LEFT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(1);
+      });
+
+      it('should go to next canvas group when drag speed is medium and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 1000,
+          direction: Direction.LEFT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(2);
+      });
+
+      it('should go forward 3 canvas groups when speed is high and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 2000,
+          direction: Direction.LEFT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(4);
+      });
+
+      it('should go forward 5 canvas groups when speed is very high and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 3000,
+          direction: Direction.LEFT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(6);
+      });
+
+      it('should go forward 10 canvas groups when speed is extremt high and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 4000,
+          direction: Direction.LEFT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(11);
+      });
+
+      it('should go to canvas group 3 when drag speed is low and canvas group 3 is currentCanvasGroupCenter', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 400,
+          direction: Direction.LEFT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 3,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(3);
+      });
     });
 
-    it('should go to next canvas group when drag speed is medium and canvas group is not passed center', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 1000,
-        direction: Direction.LEFT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 1,
-        viewingDirection: viewingDirection,
-        scrollDirection,
+    describe('RTL', () => {
+      const viewingDirection = ViewingDirection.RTL;
+      it('should stay on same canvas group when drag speed is low and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 400,
+          direction: Direction.LEFT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(1);
       });
 
-      expect(res).toBe(2);
-    });
+      it('should go to next canvas group when drag speed is medium and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 1000,
+          direction: Direction.RIGHT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
 
-    it('should go forward 3 canvas groups when speed is high and canvas group is not passed center', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 2000,
-        direction: Direction.LEFT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 1,
-        viewingDirection: viewingDirection,
-        scrollDirection,
+        expect(res).toBe(2);
       });
 
-      expect(res).toBe(4);
-    });
+      it('should go forward 3 canvas groups when speed is high and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 2000,
+          direction: Direction.RIGHT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
 
-    it('should go forward 5 canvas groups when speed is very high and canvas group is not passed center', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 3000,
-        direction: Direction.LEFT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 1,
-        viewingDirection: viewingDirection,
-        scrollDirection,
+        expect(res).toBe(4);
       });
 
-      expect(res).toBe(6);
-    });
+      it('should go forward 5 canvas groups when speed is very high and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 3000,
+          direction: Direction.RIGHT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
 
-    it('should go forward 10 canvas groups when speed is extremt high and canvas group is not passed center', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 4000,
-        direction: Direction.LEFT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 1,
-        viewingDirection: viewingDirection,
-        scrollDirection,
+        expect(res).toBe(6);
       });
 
-      expect(res).toBe(11);
-    });
+      it('should go forward 10 canvas groups when speed is extremt high and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 4000,
+          direction: Direction.RIGHT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
 
-    it('should go to canvas group 3 when drag speed is low and canvas group 3 is currentCanvasGroupCenter', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 400,
-        direction: Direction.LEFT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 3,
-        viewingDirection: viewingDirection,
-        scrollDirection,
+        expect(res).toBe(11);
       });
 
-      expect(res).toBe(3);
+      it('should go to canvas group 3 when drag speed is low and canvas group 3 is currentCanvasGroupCenter', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 400,
+          direction: Direction.RIGHT,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 3,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(3);
+      });
     });
   });
 
-  describe('RTL', () => {
-    const viewingDirection = ViewingDirection.RTL;
-    it('should stay on same canvas group when drag speed is low and canvas group is not passed center', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 400,
-        direction: Direction.LEFT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 1,
-        viewingDirection: viewingDirection,
-        scrollDirection,
-      });
-
-      expect(res).toBe(1);
+  describe('vertical scrolldirection', () => {
+    beforeEach(() => {
+      scrollDirection = ScrollDirection.VERTICAL;
     });
 
-    it('should go to next canvas group when drag speed is medium and canvas group is not passed center', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 1000,
-        direction: Direction.RIGHT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 1,
-        viewingDirection: viewingDirection,
-        scrollDirection,
+    describe('LTR', () => {
+      const viewingDirection = ViewingDirection.LTR;
+
+      it('should stay on same canvas group when drag speed zero', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 0,
+          direction: Direction.UP,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(1);
       });
 
-      expect(res).toBe(2);
+      it('should stay on same canvas group when drag speed is low and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 800,
+          direction: Direction.UP,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(1);
+      });
+
+      it('should go to next canvas group when drag speed is medium and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 2000,
+          direction: Direction.UP,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(2);
+      });
+
+      it('should go forward 3 canvas groups when speed is high and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 4000,
+          direction: Direction.UP,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(4);
+      });
+
+      it('should go forward 5 canvas groups when speed is very high and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 6000,
+          direction: Direction.UP,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(6);
+      });
+
+      it('should go forward 10 canvas groups when speed is extremt high and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 8000,
+          direction: Direction.UP,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(11);
+      });
+
+      it('should go to canvas group 3 when drag speed is low and canvas group 3 is currentCanvasGroupCenter', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 800,
+          direction: Direction.UP,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 3,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(3);
+      });
     });
 
-    it('should go forward 3 canvas groups when speed is high and canvas group is not passed center', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 2000,
-        direction: Direction.RIGHT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 1,
-        viewingDirection: viewingDirection,
-        scrollDirection,
+    describe('RTL', () => {
+      const viewingDirection = ViewingDirection.RTL;
+      it('should stay on same canvas group when drag speed is low and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 800,
+          direction: Direction.DOWN,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(1);
       });
 
-      expect(res).toBe(4);
-    });
+      it('should go to next canvas group when drag speed is medium and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 2000,
+          direction: Direction.DOWN,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
 
-    it('should go forward 5 canvas groups when speed is very high and canvas group is not passed center', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 3000,
-        direction: Direction.RIGHT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 1,
-        viewingDirection: viewingDirection,
-        scrollDirection,
+        expect(res).toBe(2);
       });
 
-      expect(res).toBe(6);
-    });
+      it('should go forward 3 canvas groups when speed is high and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 4000,
+          direction: Direction.DOWN,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
 
-    it('should go forward 10 canvas groups when speed is extremt high and canvas group is not passed center', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 4000,
-        direction: Direction.RIGHT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 1,
-        viewingDirection: viewingDirection,
-        scrollDirection,
+        expect(res).toBe(4);
       });
 
-      expect(res).toBe(11);
-    });
+      it('should go forward 5 canvas groups when speed is very high and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 6000,
+          direction: Direction.DOWN,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
 
-    it('should go to canvas group 3 when drag speed is low and canvas group 3 is currentCanvasGroupCenter', () => {
-      const res = strategy.calculateNextCanvasGroup({
-        speed: 400,
-        direction: Direction.RIGHT,
-        currentCanvasGroupIndex: 1,
-        currentCanvasGroupCenter: 3,
-        viewingDirection: viewingDirection,
-        scrollDirection,
+        expect(res).toBe(6);
       });
 
-      expect(res).toBe(3);
+      it('should go forward 10 canvas groups when speed is extremt high and canvas group is not passed center', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 8000,
+          direction: Direction.DOWN,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 1,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(11);
+      });
+
+      it('should go to canvas group 3 when drag speed is low and canvas group 3 is currentCanvasGroupCenter', () => {
+        const res = strategy.calculateNextCanvasGroup({
+          speed: 800,
+          direction: Direction.DOWN,
+          currentCanvasGroupIndex: 1,
+          currentCanvasGroupCenter: 3,
+          viewingDirection: viewingDirection,
+          scrollDirection,
+        });
+
+        expect(res).toBe(3);
+      });
     });
   });
+
 });
