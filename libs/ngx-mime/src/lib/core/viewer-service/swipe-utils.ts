@@ -32,12 +32,22 @@ export class SwipeUtils {
     vpBounds: Rect
   ): Side | null {
     if (this.isPanningOutsideCanvasGroup(canvasGroupRect, vpBounds)) {
-      if (this.isPanningOutsideLeftInsideViewport(canvasGroupRect, vpBounds)) {
-        return Side.LEFT;
-      } else if (
-        this.isPanningOutsideRightInsideViewport(canvasGroupRect, vpBounds)
-      ) {
-        return Side.RIGHT;
+      if (this.isCanvasOutsideViewportHorizontally(canvasGroupRect, vpBounds)) {
+        if (this.isPanningOutsideLeftOutsideViewport(canvasGroupRect, vpBounds)) {
+          return Side.LEFT;
+        } else if (
+          this.isPanningOutsideRightOutsideViewport(canvasGroupRect, vpBounds)
+        ) {
+          return Side.RIGHT;
+        }
+      } else {
+        if (this.isPanningOutsideLeftInsideViewport(canvasGroupRect, vpBounds)) {
+          return Side.LEFT;
+        } else if (
+          this.isPanningOutsideRightInsideViewport(canvasGroupRect, vpBounds)
+        ) {
+          return Side.RIGHT;
+        }
       }
     }
     return null;
