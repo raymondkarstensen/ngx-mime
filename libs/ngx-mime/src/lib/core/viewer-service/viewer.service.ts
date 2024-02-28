@@ -89,6 +89,7 @@ export class ViewerService {
   private rotation: BehaviorSubject<number> = new BehaviorSubject(0);
   private dragStatus = false;
   private scrollPanFactor = 10;
+  private isCanvasMaskEnabled = false;
   public id = 'ngx-mime-mimeViewer';
   public openseadragonId = 'openseadragon';
 
@@ -494,6 +495,7 @@ export class ViewerService {
     this.subscriptions.add(
       this.scrollDirectionService.onChange.subscribe(
         (scrollDirection: ScrollDirection) => {
+          this.isCanvasMaskEnabled = false;
           if (scrollDirection === ScrollDirection.VERTICAL) {
             this.goToCanvasGroupStrategy = new VerticalGoToCanvasGroupStrategy(
               this.viewer,
@@ -504,6 +506,7 @@ export class ViewerService {
               this.manifest.viewingDirection
             );
           } else if (scrollDirection === ScrollDirection.HORIZONTAL) {
+            this.isCanvasMaskEnabled = true;
             this.goToCanvasGroupStrategy =
               new HorizontalGoToCanvasGroupStrategy(
                 this.viewer,
@@ -825,9 +828,12 @@ export class ViewerService {
    */
   private initialCanvasGroupLoaded(): void {
     this.home();
+    const isVisible =
+      this.scrollDirectionService.isHorizontalScrollingDirection() &&
+      this.modeService.mode !== ViewerMode.DASHBOARD;
     this.canvasGroupMask.initialize(
       this.canvasService.getCurrentCanvasGroupRect(),
-      this.modeService.mode !== ViewerMode.DASHBOARD
+      isVisible
     );
     if (this.viewer) {
       d3.select(this.viewer.container.parentNode)
@@ -890,67 +896,39 @@ export class ViewerService {
   };
 
   private dragHandler = (e: any) => {
-    if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
-      this.viewer.panHorizontal = true;
-      if (this.modeService.isPageZoomed()) {
-        const canvasGroupRect: Rect =
-          this.canvasService.getCurrentCanvasGroupRect();
-        const vpBounds: Rect = this.getViewportBounds();
-        const pannedPastCanvasGroup =
-          SwipeUtils.getSideIfPanningPastEndOfCanvasGroup(
-            canvasGroupRect,
-            vpBounds
-          );
-        const direction: number = e.direction;
-        if (
-          (pannedPastCanvasGroup === Side.LEFT &&
-            SwipeUtils.isDirectionInRightSemicircle(direction)) ||
-          (pannedPastCanvasGroup === Side.RIGHT &&
-            SwipeUtils.isDirectionInLeftSemicircle(direction))
-        ) {
-          this.viewer.panHorizontal = false;
-        }
-      }
-    } else {
-      this.viewer.panVertical = true;
-      if (this.modeService.isPageZoomed()) {
-        const canvasGroupRect: Rect =
-          this.canvasService.getCurrentCanvasGroupRect();
-        const vpBounds: Rect = this.getViewportBounds();
-        const pannedPastCanvasGroup =
-          SwipeUtils.getSideIfPanningPastEndOfCanvasGroup(
-            canvasGroupRect,
-            vpBounds
-          );
-        const direction: number = e.direction;
-        if (
-          (pannedPastCanvasGroup === Side.LEFT &&
-            SwipeUtils.isDirectionInRightSemicircle(direction)) ||
-          (pannedPastCanvasGroup === Side.RIGHT &&
-            SwipeUtils.isDirectionInLeftSemicircle(direction))
-        ) {
-          this.viewer.panVertical = false;
-        }
+    this.viewer.panHorizontal = true;
+    if (this.modeService.isPageZoomed()) {
+      const canvasGroupRect: Rect =
+        this.canvasService.getCurrentCanvasGroupRect();
+      const vpBounds: Rect = this.getViewportBounds();
+      const pannedPastCanvasGroup =
+        SwipeUtils.getSideIfPanningPastEndOfCanvasGroup(
+          canvasGroupRect,
+          vpBounds
+        );
+      const direction: number = e.direction;
+      if (
+        (pannedPastCanvasGroup === Side.LEFT &&
+          SwipeUtils.isDirectionInRightSemicircle(direction)) ||
+        (pannedPastCanvasGroup === Side.RIGHT &&
+          SwipeUtils.isDirectionInLeftSemicircle(direction))
+      ) {
+        this.viewer.panHorizontal = false;
       }
     }
   };
 
   private dragEndHandler = (event: any): void => {
     if (this.dragStatus) {
-      if (
-        this.scrollDirectionService.isHorizontalScrollingDirection() &&
-        this.modeService.isPageZoomed()
-      ) {
+      if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
         this.constraintCanvas();
-      }
-
-      if (
-        this.scrollDirectionService.isVerticalScrollingDirection() &&
-        this.modeService.isPageZoomed()
-      ) {
-        this.updateCurrentCanvasIndex(event);
-      } else {
         this.swipeToCanvasGroup(event);
+      } else {
+        if (this.modeService.isPageZoomed()) {
+          this.updateCurrentCanvasIndex(event);
+        } else {
+          this.swipeToCanvasGroup(event);
+        }
       }
     }
     this.dragStatus = false;
@@ -960,9 +938,7 @@ export class ViewerService {
     if (event.originalEvent.ctrlKey) {
       this.zoomOnScroll(event);
     } else {
-      if (
-        this.modeService.isPageZoomed()
-      ) {
+      if (this.modeService.isPageZoomed()) {
         this.panOnScroll(event);
       } else {
         this.navigateOnScroll(event);
@@ -1023,7 +999,9 @@ export class ViewerService {
       immediately: false,
     });
 
-    this.canvasGroupMask.hide();
+    if (this.isCanvasMaskEnabled) {
+      this.canvasGroupMask.hide();
+    }
 
     this.zoomStrategy.setMinZoom(ViewerMode.DASHBOARD);
     this.zoomStrategy.goToHomeZoom();
@@ -1041,7 +1019,7 @@ export class ViewerService {
       immediately: false,
     });
 
-    if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
+    if (this.isCanvasMaskEnabled) {
       this.canvasGroupMask.show();
     }
 
@@ -1105,7 +1083,11 @@ export class ViewerService {
     viewportBounds: Rect,
     canvasBounds: Rect
   ): boolean {
-    return viewportBounds.height < canvasBounds.height;
+    if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
+      return viewportBounds.height < canvasBounds.height;
+    } else {
+      return viewportBounds.width < canvasBounds.width;
+    }
   }
 
   private constraintCanvasOutsideViewport(
@@ -1113,16 +1095,20 @@ export class ViewerService {
     canvasBounds: Rect
   ): void {
     let rect: Rect | undefined = undefined;
-    if (this.isCanvasBelowViewportTop(viewportBounds, canvasBounds)) {
-      rect = new Rect({
-        x: viewportBounds.x + viewportBounds.width / 2,
-        y: canvasBounds.y + viewportBounds.height / 2,
-      });
-    } else if (this.isCanvasAboveViewportBottom(viewportBounds, canvasBounds)) {
-      rect = new Rect({
-        x: viewportBounds.x + viewportBounds.width / 2,
-        y: canvasBounds.y + canvasBounds.height - viewportBounds.height / 2,
-      });
+    if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
+      if (this.isCanvasBelowViewportTop(viewportBounds, canvasBounds)) {
+        rect = new Rect({
+          x: viewportBounds.x + viewportBounds.width / 2,
+          y: canvasBounds.y + viewportBounds.height / 2,
+        });
+      } else if (
+        this.isCanvasAboveViewportBottom(viewportBounds, canvasBounds)
+      ) {
+        rect = new Rect({
+          x: viewportBounds.x + viewportBounds.width / 2,
+          y: canvasBounds.y + canvasBounds.height - viewportBounds.height / 2,
+        });
+      }
     }
     this.panTo(rect, true);
   }
