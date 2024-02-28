@@ -15,6 +15,16 @@ Given('the viewer is in page view', async function (this: CustomWorld) {
   expect(await this.viewerPage.isPageMode()).toBeTruthy();
 });
 
+Given('the scroll direction is horizontal', async function (this: CustomWorld) {
+  await this.viewerPage.setHorizontalScrollDirection();
+  await this.animations.waitFor();
+});
+
+Given('the scroll direction is vertical', async function (this: CustomWorld) {
+  await this.viewerPage.setVerticalScrollDirection();
+  await this.animations.waitFor();
+});
+
 When('the user click in the viewer', async function (this: CustomWorld) {
   // TODO click page.getSVGElement() insted of first overlay
   // to be able to switch view mode when firste page is out of view

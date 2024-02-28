@@ -61,6 +61,8 @@ export class ViewerPage {
   private canvasGroupOverlay: Locator;
   private singlePageViewButton: Locator;
   private twoPageViewButton: Locator;
+  private horizontalScrollDirectionButton: Locator;
+  private verticalScrollDirectionButton: Locator;
   private modeDashboard: Locator;
   private modePage: Locator;
   private openseadragonCanvas: Locator;
@@ -123,6 +125,8 @@ export class ViewerPage {
     this.twoPageViewButton = this.page.getByTestId(
       'ngx-mime-two-page-view-button'
     );
+    this.horizontalScrollDirectionButton = this.page.getByTestId('ngx-mime-horizontal-scroll-button');
+    this.verticalScrollDirectionButton = this.page.getByTestId('ngx-mime-vertical-scroll-button');
     this.recognizedTextContentSplitViewButton = this.page.getByTestId(
       'ngx-mime-recognized-text-content-split-view-button'
     );
@@ -241,6 +245,14 @@ export class ViewerPage {
 
   async setTwoPageView() {
     await this.checkViewMenuToggle(this.twoPageViewButton);
+  }
+
+  async setHorizontalScrollDirection(): Promise<void> {
+    await this.checkViewMenuToggle(this.horizontalScrollDirectionButton)
+  }
+
+  async setVerticalScrollDirection(): Promise<void> {
+    await this.checkViewMenuToggle(this.verticalScrollDirectionButton);
   }
 
   setTestCustomElements(isElements: boolean) {
@@ -421,6 +433,12 @@ export class ViewerPage {
     );
   }
 
+  getHomeZoom(): Promise<number> {
+    return this.page.evaluate(
+      'window.openSeadragonViewer.viewport.getHomeZoom()'
+    );
+  }
+
   getMinZoom(): Promise<number> {
     return this.page.evaluate(
       'window.openSeadragonViewer.viewport.getMinZoom()'
@@ -584,6 +602,40 @@ export class ViewerPage {
       );
 
       return widthIsFitted || heightIsFitted;
+    } else {
+      throw new Error('Error finding bounding box');
+    }
+  }
+
+  async isCurrentCanvasEqualViewportWidth(): Promise<boolean> {
+    const svgParent = await this.getSVGElement();
+    const overlay = await this.getFirstCanvasGroupOverlay();
+    const svgParentDimensions = await svgParent.boundingBox();
+    const overlayDimensions = await overlay.boundingBox();
+
+    if (svgParentDimensions && overlayDimensions) {
+      return this.numbersAreClose(
+        svgParentDimensions.width,
+        overlayDimensions.width,
+        5
+      );
+    } else {
+      throw new Error('Error finding bounding box');
+    }
+  }
+
+  async isCurrentCanvasEqualViewportHeight(): Promise<boolean> {
+    const svgParent = await this.getSVGElement();
+    const overlay = await this.getFirstCanvasGroupOverlay();
+    const svgParentDimensions = await svgParent.boundingBox();
+    const overlayDimensions = await overlay.boundingBox();
+
+    if (svgParentDimensions && overlayDimensions) {
+      return this.numbersAreClose(
+        svgParentDimensions.height,
+        overlayDimensions.height,
+        5
+      );
     } else {
       throw new Error('Error finding bounding box');
     }
