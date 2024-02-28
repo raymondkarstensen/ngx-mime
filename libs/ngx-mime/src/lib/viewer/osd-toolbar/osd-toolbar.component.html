@@ -90,5 +90,10 @@
         <mat-icon>zoom_out</mat-icon>
       </button>
     </div>
+    <div class="osd-toolbar-row">
+      <button mat-icon-button data-testId='ngx-mimeFitToWidthButton' (click)='fitToWidth()'><mat-icon>width_full</mat-icon></button>
+      <button mat-icon-button data-testId='ngx-mimeFitToHeightButton' (click)='fitToHeight()'><mat-icon>height</mat-icon></button>
+      <button mat-icon-button (click)='printInfo()'><mat-icon>info</mat-icon></button>
+    </div>
   </div>
 </div>

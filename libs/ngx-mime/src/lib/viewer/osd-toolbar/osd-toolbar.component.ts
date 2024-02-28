@@ -181,6 +181,14 @@ export class OsdToolbarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+  fitToWidth() {
+    this.viewerService.fitToWidth();
+  }
+
+  fitToHeight() {
+    this.viewerService.fitToHeight();
+  }
+
   public goToPreviousCanvasGroup(): void {
     this.viewerService.goToPreviousCanvasGroup();
   }
@@ -195,5 +203,9 @@ export class OsdToolbarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private isOnLastCanvasGroup(currentCanvasGroupIndex: number): boolean {
     return currentCanvasGroupIndex === this.numberOfCanvasGroups - 1;
+  }
+
+  printInfo() {
+    this.viewerService.printInfo();
   }
 }

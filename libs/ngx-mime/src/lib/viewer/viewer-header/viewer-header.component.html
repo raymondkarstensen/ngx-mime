@@ -1,4 +1,4 @@
-<mat-toolbar>
+<mat-toolbar class='viewer-header-container'>
   <ng-template #mimeHeaderBefore></ng-template>
   <div
     *ngIf="manifest"
@@ -7,6 +7,9 @@
     [matTooltip]="manifest.label"
     >{{ manifest.label }}</div
   >
+  <button mat-icon-button data-testId='ngx-mimeFitToWidthButton' (click)='fitToWidth()'><mat-icon>width_full</mat-icon></button>
+  <button mat-icon-button data-testId='ngx-mimeFitToHeightButton' (click)='fitToHeight()'><mat-icon>height</mat-icon></button>
+  <button mat-icon-button (click)='printInfo()'><mat-icon>info</mat-icon></button>
   <button
     *ngIf="isPagedManifest || hasRecognizedTextContent"
     data-testid="ngx-mime-view-menu-button"

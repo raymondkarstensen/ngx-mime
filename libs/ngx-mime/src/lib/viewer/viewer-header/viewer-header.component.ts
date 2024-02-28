@@ -28,6 +28,7 @@ import { FullscreenService } from './../../core/fullscreen-service/fullscreen.se
 import { IiifManifestService } from './../../core/iiif-manifest-service/iiif-manifest-service';
 import { MimeViewerIntl } from './../../core/intl';
 import { Manifest } from './../../core/models/manifest';
+import { ViewerService } from '../../core/viewer-service/viewer.service';
 
 @Component({
   selector: 'mime-viewer-header',
@@ -86,7 +87,8 @@ export class ViewerHeaderComponent implements OnInit, OnDestroy {
     private helpDialogService: HelpDialogService,
     private iiifManifestService: IiifManifestService,
     private fullscreenService: FullscreenService,
-    private mimeDomHelper: MimeDomHelper
+    private mimeDomHelper: MimeDomHelper,
+    private viewerService: ViewerService
   ) {}
 
   @HostBinding('@headerState')
@@ -171,5 +173,17 @@ export class ViewerHeaderComponent implements OnInit, OnDestroy {
       ? this.intl.exitFullScreenLabel
       : this.intl.fullScreenLabel;
     this.changeDetectorRef.detectChanges();
+  }
+
+  fitToWidth() {
+    this.viewerService.fitToWidth();
+  }
+
+  fitToHeight() {
+    this.viewerService.fitToHeight();
+  }
+
+  printInfo() {
+    this.viewerService.printInfo();
   }
 }
