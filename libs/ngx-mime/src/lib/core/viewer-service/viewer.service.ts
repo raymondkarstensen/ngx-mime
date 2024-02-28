@@ -25,13 +25,13 @@ import {
   RecognizedTextMode,
   RecognizedTextModeChanges,
   ScrollDirection,
+  ViewerMode,
 } from '../models';
 import { Direction } from '../models/direction';
 import { Manifest, Resource } from '../models/manifest';
 import { PinchStatus } from '../models/pinchStatus';
 import { Side } from '../models/side';
 import { ViewerLayout } from '../models/viewer-layout';
-import { ViewerMode } from '../models/viewer-mode';
 import { ViewerOptions } from '../models/viewer-options';
 import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { StyleService } from '../style-service/style.service';
@@ -422,6 +422,10 @@ export class ViewerService {
               this.modeService.mode === ViewerMode.DASHBOARD
             ) {
               this.zoomStrategy.goToHomeZoom();
+            } else {
+              setTimeout(() => {
+                this.fitToWidth();
+              }, 1000);
             }
           }
         }
@@ -1229,7 +1233,7 @@ export class ViewerService {
     this.viewer.viewport.panBy(point, immediately);
   }
 
-  private panTo(rect: Rect | undefined, immediately = false): void {
+  panTo(rect: Rect | undefined, immediately = false): void {
     if (rect) {
       this.viewer.viewport.panTo(
         {
@@ -1239,6 +1243,16 @@ export class ViewerService {
         immediately
       );
     }
+  }
+
+  panToCenter(): void {
+    this.goToCanvasGroupStrategy.centerCurrentCanvas();
+    // const currentCanvasBounds = this.canvasService.getCurrentCanvasGroupRect();
+    // this.panTo({
+    //   ...currentCanvasBounds,
+    //   x: currentCanvasBounds.centerX,
+    //   y: currentCanvasBounds.centerY
+    // });
   }
 
   private rotateToRight() {
@@ -1261,9 +1275,53 @@ export class ViewerService {
     }
   }
 
+  private getFitToWidthZoomLevel(): number {
+    const viewportBounds = this.getViewportBounds();
+    const currentCanvasBounds = this.canvasService.getCurrentCanvasGroupRect();
+    return this.zoomStrategy.getFitToWidthZoomLevel(viewportBounds.width, currentCanvasBounds.width);
+  }
+
+  private getFitToHeightZoomLevel(): number {
+    const viewportBounds = this.getViewportBounds();
+    const currentCanvasBounds = this.canvasService.getCurrentCanvasGroupRect();
+    return this.zoomStrategy.getFitToHeightZoomLevel(viewportBounds.height, currentCanvasBounds.height);
+  }
+
+  fitToWidth() {
+    if (this.modeService.mode === ViewerMode.DASHBOARD) {
+      this.modeService.mode = ViewerMode.PAGE;
+    } else {
+      if (!this.modeService.isPageZoomed()) {
+        this.modeService.mode = ViewerMode.PAGE_ZOOMED;
+      }
+    }
+    this.zoomStrategy.zoomTo(this.getFitToWidthZoomLevel());
+    this.panToCenter();
+  }
+
+  fitToHeight() {
+    if (this.modeService.mode === ViewerMode.DASHBOARD) {
+      this.modeService.mode = ViewerMode.PAGE;
+    } else {
+      if (!this.modeService.isPageZoomed()) {
+        this.modeService.mode = ViewerMode.PAGE_ZOOMED;
+      }
+    }
+    this.zoomStrategy.zoomTo(this.getFitToHeightZoomLevel());
+    this.panToCenter();
+  }
+
   private unsubscribe() {
     if (this.subscriptions) {
       this.subscriptions.unsubscribe();
     }
+  }
+
+  printInfo() {
+    console.log('************* INFO *******************');
+    console.log('Current zoom ', this.getZoom());
+    console.log('Viewport Bounds', this.getViewportBounds());
+    console.log('Canvas Bounds', this.getCurrentCanvasBounds());
+    console.log('CanvasGroupRect', this.canvasService.getCurrentCanvasGroupRect());
   }
 }

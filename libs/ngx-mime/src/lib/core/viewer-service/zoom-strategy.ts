@@ -168,18 +168,23 @@ export class ZoomStrategy {
     canvasGroupHeight: number,
     canvasGroupWidth: number
   ) {
-    const currentZoom: number = this.viewer.viewport.getZoom();
     const resizeRatio: number = viewportBounds.height / canvasGroupHeight;
 
     if (resizeRatio * canvasGroupWidth <= viewportBounds.width) {
-      return Utils.shortenDecimals(resizeRatio * currentZoom, 5);
+      return this.getFitToHeightZoomLevel(viewportBounds.height, canvasGroupHeight);
     } else {
       // Canvas group at full height is wider than viewport.  Return fit by width instead.
-      return Utils.shortenDecimals(
-        (viewportBounds.width / canvasGroupWidth) * currentZoom,
-        5
-      );
+      return this.getFitToWidthZoomLevel(viewportBounds.width, canvasGroupWidth);
     }
+  }
+
+  getFitToHeightZoomLevel(viewportBoundsHeight: number, canvasGroupHeight: number): number {
+    const ratio: number = viewportBoundsHeight / canvasGroupHeight;
+    return Utils.shortenDecimals(ratio * this.viewer.viewport.getZoom(), 5);
+  }
+
+  getFitToWidthZoomLevel(viewportBoundsWidth: number, canvasGroupWidth: number): number {
+    return Utils.shortenDecimals((viewportBoundsWidth / canvasGroupWidth) * this.viewer.viewport.getZoom(), 5);
   }
 
   private zoomBy(zoomFactor: number, position?: Point): void {
