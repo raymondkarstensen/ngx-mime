@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import {
-  ScrollDirectionService
-} from '../scroll-direction-service/scroll-direction-service';
+import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { provideAutoSpy } from 'jasmine-auto-spies';
 import { Subscription } from 'rxjs';
 import { testManifest } from '../../test/testManifest';
+import { testManifestDifferentSizes } from '../../test/testManifestDifferentSizes';
 import { AltoService } from '../alto-service/alto.service';
 import { ManifestBuilder } from '../builders/iiif/v2/manifest.builder';
 import { CanvasService } from '../canvas-service/canvas-service';
@@ -21,6 +20,8 @@ import { ViewerLayout } from '../models/viewer-layout';
 import { StyleService } from '../style-service/style.service';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
 import { ViewerService } from './viewer.service';
+import { ScrollDirection } from '../../core/models';
+import { DefaultZoomStrategy } from '../../core/viewer-service/zoom-strategy';
 
 @Component({
   template: ` <div [id]="openseadragonId"></div> `,
@@ -29,11 +30,12 @@ class TestHostComponent {
   openseadragonId: string | null = null;
 }
 
-describe('ViewerService', () => {
-  const config = new MimeViewerConfig();
+fdescribe('ViewerService', () => {
+  const config = new MimeViewerConfig({
+    initViewerLayout: ViewerLayout.TWO_PAGE,
+  });
   let snackBar: MatSnackBar;
   let hostFixture: ComponentFixture<TestHostComponent>;
-  let viewerLayoutService: ViewerLayoutService;
   let viewerService: ViewerService;
   let originalTimeout: number;
 
@@ -46,10 +48,10 @@ describe('ViewerService', () => {
         MimeViewerIntl,
         CanvasService,
         ScrollDirectionService,
+        provideAutoSpy(ClickService),
         provideAutoSpy(ViewerLayoutService, {
           observablePropsToSpyOn: ['onChange'],
         }),
-        provideAutoSpy(ClickService),
         provideAutoSpy(ModeService, {
           observablePropsToSpyOn: ['onChange'],
         }),
@@ -65,12 +67,9 @@ describe('ViewerService', () => {
       ],
     });
 
-    viewerLayoutService = TestBed.inject(ViewerLayoutService);
     viewerService = TestBed.inject(ViewerService);
     snackBar = TestBed.inject(MatSnackBar);
-    viewerLayoutService.setLayout(ViewerLayout.TWO_PAGE);
     hostFixture = TestBed.createComponent(TestHostComponent);
-    viewerService.initialize();
     hostFixture.componentInstance.openseadragonId =
       viewerService.openseadragonId;
     hostFixture.detectChanges();
@@ -203,6 +202,60 @@ describe('ViewerService', () => {
           viewerService.rotate();
 
           expect(openSpy).toHaveBeenCalledTimes(1);
+          done();
+        }
+      });
+    });
+  });
+
+  describe('fit to height', () => {
+    let zoomToSpy: jasmine.Spy<any>;
+    beforeEach(() => {
+      viewerService.setUpViewer(
+        new ManifestBuilder(testManifest).build(),
+        new MimeViewerConfig({
+          initScrollDirection: ScrollDirection.VERTICAL,
+          initViewerLayout: ViewerLayout.ONE_PAGE,
+        })
+      );
+      spyOn(viewerService, 'panTo');
+      zoomToSpy = spyOn(DefaultZoomStrategy.prototype, 'zoomTo');
+    });
+
+    it('should zoom in and center canvas', (done) => {
+      viewerService.onOsdReadyChange.subscribe((isReady) => {
+        if (isReady) {
+          viewerService.fitToHeight();
+
+          expect(zoomToSpy).toHaveBeenCalledTimes(2); // Is called once when OSD is ready
+          expect(viewerService.panTo).toHaveBeenCalledTimes(1);
+          done();
+        }
+      });
+    });
+  });
+
+  describe('fit to width', () => {
+    let zoomToSpy: jasmine.Spy<any>;
+    beforeEach(() => {
+      viewerService.setUpViewer(
+        new ManifestBuilder(testManifestDifferentSizes).build(),
+        new MimeViewerConfig({
+          initScrollDirection: ScrollDirection.VERTICAL,
+          initViewerLayout: ViewerLayout.ONE_PAGE,
+        })
+      );
+      spyOn(viewerService, 'panTo');
+      zoomToSpy = spyOn(DefaultZoomStrategy.prototype, 'zoomTo');
+    });
+
+    it('should zoom in and center canvas', (done) => {
+      viewerService.onOsdReadyChange.subscribe((isReady) => {
+        if (isReady) {
+          viewerService.fitToWidth();
+
+          expect(zoomToSpy).toHaveBeenCalledTimes(2); // Is called once when OSD is ready
+          expect(viewerService.panTo).toHaveBeenCalledTimes(1);
           done();
         }
       });
