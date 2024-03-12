@@ -31,75 +31,27 @@ export class SwipeUtils {
     canvasGroupRect: Rect,
     vpBounds: Rect
   ): Side | null {
-    if (this.isPanningOutsideCanvasGroup(canvasGroupRect, vpBounds)) {
-      if (this.isCanvasOutsideViewportHorizontally(canvasGroupRect, vpBounds)) {
-        if (this.isPanningOutsideLeftOutsideViewport(canvasGroupRect, vpBounds)) {
-          return Side.LEFT;
-        } else if (
-          this.isPanningOutsideRightOutsideViewport(canvasGroupRect, vpBounds)
-        ) {
-          return Side.RIGHT;
-        }
-      } else {
-        if (this.isPanningOutsideLeftInsideViewport(canvasGroupRect, vpBounds)) {
-          return Side.LEFT;
-        } else if (
-          this.isPanningOutsideRightInsideViewport(canvasGroupRect, vpBounds)
-        ) {
-          return Side.RIGHT;
-        }
-      }
-    }
-    return null;
+    if (!this.isPanningOutsideCanvasGroup(canvasGroupRect, vpBounds))
+      return null;
+
+    const outSideLeft = vpBounds.x < canvasGroupRect.x;
+
+    return outSideLeft ? Side.LEFT : Side.RIGHT;
   }
 
   static isPanningOutsideCanvasGroup(
     canvasGroupRect: Rect,
     vpBounds: Rect
   ): boolean {
-    if (this.isCanvasOutsideViewportHorizontally(canvasGroupRect, vpBounds)) {
-      return (
-        this.isPanningOutsideLeftOutsideViewport(canvasGroupRect, vpBounds) ||
-        this.isPanningOutsideRightOutsideViewport(canvasGroupRect, vpBounds)
-      );
-    } else {
-      return (
-        this.isPanningOutsideLeftInsideViewport(canvasGroupRect, vpBounds) ||
-        this.isPanningOutsideRightInsideViewport(canvasGroupRect, vpBounds)
-      );
-    }
-  }
+    const isCanvasWiderThanViewport = canvasGroupRect.width > vpBounds.width;
 
-  static isPanningOutsideLeftOutsideViewport(
-    canvasGroupRect: Rect,
-    vpBounds: Rect
-  ): boolean {
-    return vpBounds.x < canvasGroupRect.x;
-  }
-
-  static isPanningOutsideRightOutsideViewport(
-    canvasGroupRect: Rect,
-    vpBounds: Rect
-  ): boolean {
-    return (
-      vpBounds.x + vpBounds.width > canvasGroupRect.x + canvasGroupRect.width
-    );
-  }
-
-  static isPanningOutsideLeftInsideViewport(
-    canvasGroupRect: Rect,
-    vpBounds: Rect
-  ): boolean {
-    return (
-      vpBounds.x + vpBounds.width < canvasGroupRect.x + canvasGroupRect.width
-    );
-  }
-
-  static isPanningOutsideRightInsideViewport(
-    canvasGroupRect: Rect,
-    vpBounds: Rect
-  ): boolean {
-    return vpBounds.x > canvasGroupRect.x;
+    return isCanvasWiderThanViewport
+      ? vpBounds.x < canvasGroupRect.x ||
+          vpBounds.x + vpBounds.width >
+            canvasGroupRect.x + canvasGroupRect.width
+      : vpBounds.x + vpBounds.width <
+          canvasGroupRect.x + canvasGroupRect.width ||
+          vpBounds.x > canvasGroupRect.x;
   }
 
   static isDirectionInRightSemicircle(direction: number): boolean {
@@ -108,12 +60,5 @@ export class SwipeUtils {
 
   static isDirectionInLeftSemicircle(direction: number): boolean {
     return !this.isDirectionInRightSemicircle(direction) || direction === 0;
-  }
-
-  private static isCanvasOutsideViewportHorizontally(
-    canvasGroupRect: Rect,
-    vpBounds: Rect
-  ): boolean {
-    return canvasGroupRect.width > vpBounds.width;
   }
 }
