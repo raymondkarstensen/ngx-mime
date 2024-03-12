@@ -40,7 +40,6 @@ export class HorizontalConstraintStrategy extends ConstraintStrategy implements 
   override constraintCanvas() {
     if (this.modeService.isPageZoomed()) {
       const viewportBounds: Rect = this.getViewportBounds();
-      // const currentCanvasBounds = this.getCurrentCanvasBounds();
       const currentCanvasBounds = this.canvasService.getCurrentCanvasGroupRect();
       this.isCanvasOutsideViewport(viewportBounds, currentCanvasBounds)
         ? this.constraintCanvasOutsideViewport(
