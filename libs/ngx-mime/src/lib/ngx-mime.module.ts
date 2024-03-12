@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
+import { MatIconRegistry } from '@angular/material/icon';
 import 'd3';
 import 'openseadragon';
+
 import { AttributionDialogComponent } from './attribution-dialog/attribution-dialog.component';
 import { CanvasGroupDialogComponent } from './canvas-group-dialog/canvas-group-dialog.component';
 import { ContentSearchDialogComponent } from './content-search-dialog/content-search-dialog.component';
@@ -45,4 +47,8 @@ import { MimeViewerIntl } from './core/intl';
   providers: [MimeViewerIntl],
   exports: [ViewerComponent],
 })
-export class MimeModule {}
+export class MimeModule {
+  constructor(iconRegistry: MatIconRegistry) {
+    iconRegistry.setDefaultFontSetClass('material-symbols-outlined');
+  }
+}
