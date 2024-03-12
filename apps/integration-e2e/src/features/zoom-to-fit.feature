@@ -14,9 +14,9 @@ Feature: Zoom to fit current page size in view
 #    Then the current page's size should be zoomed to fill the viewer
 
   Scenario Outline: Fit to width and height
-    Given the viewer is in <pageView> view
-    And the layout is <pageLayout>
+    Given the layout is <pageLayout>
     And the scroll direction is <scrollDirection>
+    And the viewer is in <pageView> view
     When the user click the fit to <dimension> button
     Then the current page size should equal the viewport <dimension>
     And should update the page size to fit to <dimension> when changing page

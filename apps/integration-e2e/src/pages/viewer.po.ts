@@ -1,6 +1,7 @@
 import { Locator, Page } from 'playwright';
 import { Animations } from '../helpers/animations';
 import { ParameterType } from '../support/ParameterType';
+import { ViewerUtil } from '../helpers/viewer.util';
 
 const thumbStartPosition = <any>{ x: 600, y: 300 };
 const pointerPosition1 = <any>{ x: 650, y: 275 };
@@ -55,10 +56,9 @@ export class ViewerPage {
   private contentSearchDialogButton: Locator;
   private contentSearchSubmitButton: Locator;
   private svg: Locator;
-  private canvasGroupOverlays: Locator;
+  private canvasGroupOverlay: Locator;
   private leftCanvasGroupMask: Locator;
   private rightCanvasGroupMask: Locator;
-  private canvasGroupOverlay: Locator;
   private singlePageViewButton: Locator;
   private twoPageViewButton: Locator;
   private horizontalScrollDirectionButton: Locator;
@@ -86,79 +86,42 @@ export class ViewerPage {
   ) {
     this.viewer = this.page.locator('mime-viewer');
     this.navigationSlider = this.page.locator('.navigation-slider');
-    this.navigationSliderContainer = this.page.getByTestId(
-      'navigation-slider-container'
-    );
+    this.navigationSliderContainer = this.page.getByTestId('navigation-slider-container');
     this.canvasGroupsButton = this.page.locator('button.canvasGroups');
     this.canvasGroupInput = this.page.locator('.go-to-canvas-group-input');
-    this.currentCanvasGroupLabel = this.page.getByTestId(
-      'currentCanvasGroupLabel'
-    );
+    this.currentCanvasGroupLabel = this.page.getByTestId('currentCanvasGroupLabel');
     this.numOfCanvasGroups = this.page.getByTestId('numOfCanvasGroups');
-    this.informationDialogButton = this.page.getByTestId(
-      'ngx-mimeInformationDialogButton'
-    );
+    this.informationDialogButton = this.page.getByTestId('ngx-mimeInformationDialogButton');
     this.informationContainer = this.page.locator('.information-container');
     this.tabs = this.page.locator('.mat-mdc-tab');
     this.helpDialogButton = this.page.getByTestId('ngx-mimeHelpDialogButton');
-    this.contentSearchDialogButton = this.page.getByTestId(
-      'ngx-mimeContentSearchDialogButton'
-    );
-    this.contentSearchSubmitButton = this.page.locator(
-      '.content-search-box button[type="submit"]'
-    );
+    this.contentSearchDialogButton = this.page.getByTestId('ngx-mimeContentSearchDialogButton');
+    this.contentSearchSubmitButton = this.page.locator('.content-search-box button[type="submit"]');
     this.fullscreenButton = this.page.getByTestId('ngx-mimeFullscreenButton');
     this.openseadragonContainer = this.page.locator('.openseadragon-container');
-    this.attribution = this.page.locator(
-      '.attribution-container > .mat-mdc-dialog-content'
-    );
+    this.attribution = this.page.locator('.attribution-container > .mat-mdc-dialog-content');
     this.svg = this.page.locator('.openseadragon svg');
-    this.canvasGroupOverlays = this.page.locator(
-      '.openseadragon svg g.page-group rect'
-    );
+    this.pageGroup = this.svg.locator('.page-group');
+    this.canvasGroupOverlay = this.pageGroup.locator('rect');
     this.leftCanvasGroupMask = this.page.getByTestId('mime-left-page-mask');
     this.rightCanvasGroupMask = this.page.getByTestId('mime-right-page-mask');
-    this.canvasGroupOverlay = this.page.locator('.openseadragon svg g rect');
-    this.singlePageViewButton = this.page.getByTestId(
-      'ngx-mime-single-page-view-button'
-    );
-    this.twoPageViewButton = this.page.getByTestId(
-      'ngx-mime-two-page-view-button'
-    );
+    this.singlePageViewButton = this.page.getByTestId('ngx-mime-single-page-view-button');
+    this.twoPageViewButton = this.page.getByTestId('ngx-mime-two-page-view-button');
     this.horizontalScrollDirectionButton = this.page.getByTestId('ngx-mime-horizontal-scroll-button');
     this.verticalScrollDirectionButton = this.page.getByTestId('ngx-mime-vertical-scroll-button');
-    this.recognizedTextContentSplitViewButton = this.page.getByTestId(
-      'ngx-mime-recognized-text-content-split-view-button'
-    );
-    this.recognizedTextContentOnlyButton = this.page.getByTestId(
-      'ngx-mime-recognized-text-content-only-button'
-    );
-    this.recognizedTextContentCloseButton = this.page.getByTestId(
-      'ngx-mime-recognized-text-content-close-button'
-    );
+    this.recognizedTextContentSplitViewButton = this.page.getByTestId('ngx-mime-recognized-text-content-split-view-button');
+    this.recognizedTextContentOnlyButton = this.page.getByTestId('ngx-mime-recognized-text-content-only-button');
+    this.recognizedTextContentCloseButton = this.page.getByTestId('ngx-mime-recognized-text-content-close-button');
     this.modeDashboard = this.page.locator('.mode-dashboard');
     this.modePage = this.page.locator('.mode-page');
-    this.openseadragonCanvas = this.page.locator(
-      '.openseadragon-canvas>>nth=0'
-    );
-    this.firstCanvasRecognizedTextContent = this.page.getByTestId(
-      'firstCanvasRecognizedTextContent'
-    );
-    this.secondCanvasRecognizedTextContent = this.page.getByTestId(
-      'secondCanvasRecognizedTextContent'
-    );
-    this.recognizedTextContentHits = this.page.locator(
-      '.recognized-text-content-container mark'
-    );
-    this.recognizedTextContentContainer = this.page.getByTestId(
-      'ngx-mime-recognized-text-content-container'
-    );
+    this.openseadragonCanvas = this.page.locator('.openseadragon-canvas>>nth=0');
+    this.firstCanvasRecognizedTextContent = this.page.getByTestId('firstCanvasRecognizedTextContent');
+    this.secondCanvasRecognizedTextContent = this.page.getByTestId('secondCanvasRecognizedTextContent');
+    this.recognizedTextContentHits = this.page.locator('.recognized-text-content-container mark');
+    this.recognizedTextContentContainer = this.page.getByTestId('ngx-mime-recognized-text-content-container');
     this.viewMenuButton = this.page.getByTestId('ngx-mime-view-menu-button');
-    this.viewMenuCloseButton = this.page.getByTestId(
-      'ngx-mime-view-dialog-close-button'
-    );
+    this.viewMenuCloseButton = this.page.getByTestId('ngx-mime-view-dialog-close-button');
     this.viewMenuDialog = this.page.locator('mime-view-dialog');
-    this.pageGroup = this.page.locator('.page-group');
   }
 
   getBookShelfUrl(manifestName: string): string {
@@ -378,13 +341,14 @@ export class ViewerPage {
         ' || document.msFullscreenElement != null)'
     );
   }
+
   async getSVGElement() {
     await this.svg.waitFor();
     return this.svg;
   }
 
   getAllCanvasGroupOverlays() {
-    return this.canvasGroupOverlays;
+    return this.canvasGroupOverlay;
   }
 
   async getLeftCanvasGroupMask() {
@@ -399,6 +363,20 @@ export class ViewerPage {
     const first = this.canvasGroupOverlay.first();
     await first.waitFor();
     return first;
+  }
+
+  async getCurrentCanvasGroupOverlay(): Promise<Locator> {
+    const currentCanvasGroupLabel = await this.getCurrentCanvasGroupLabel();
+    const page = Number(ViewerUtil.getFirstPartOfCurrentCanvasGroupLabel(currentCanvasGroupLabel));
+    let canvasGroup: Locator;
+    if (await this.isTwoPageView()) {
+      canvasGroup = this.pageGroup.nth(page - 1);
+    } else {
+      canvasGroup = this.canvasGroupOverlay.nth(page - 1);
+    }
+
+    await canvasGroup.waitFor();
+    return canvasGroup;
   }
 
   async openViewMenu(): Promise<void> {
@@ -609,7 +587,7 @@ export class ViewerPage {
 
   async isCurrentCanvasEqualViewportWidth(): Promise<boolean> {
     const svgParent = await this.getSVGElement();
-    const overlay = await this.getFirstCanvasGroupOverlay();
+    const overlay = await this.getCurrentCanvasGroupOverlay();
     const svgParentDimensions = await svgParent.boundingBox();
     const overlayDimensions = await overlay.boundingBox();
 
@@ -626,7 +604,7 @@ export class ViewerPage {
 
   async isCurrentCanvasEqualViewportHeight(): Promise<boolean> {
     const svgParent = await this.getSVGElement();
-    const overlay = await this.getFirstCanvasGroupOverlay();
+    const overlay = await this.getCurrentCanvasGroupOverlay();
     const svgParentDimensions = await svgParent.boundingBox();
     const overlayDimensions = await overlay.boundingBox();
 
