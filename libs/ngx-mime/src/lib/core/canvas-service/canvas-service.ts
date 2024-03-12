@@ -7,6 +7,7 @@ import { CanvasGroups } from './../models/canvas-groups';
 import { Point } from './../models/point';
 import { Rect } from './../models/rect';
 import { CanvasGroupStrategyFactory } from './canvas-groups-strategy.factory';
+import { FitTo } from '../../core/models';
 
 @Injectable()
 export class CanvasService {
@@ -17,6 +18,9 @@ export class CanvasService {
 
   protected canvasGroups: CanvasGroups = new CanvasGroups();
   protected _numberOfCanvases = 0;
+
+  fitTo$: BehaviorSubject<FitTo> = new BehaviorSubject<FitTo>(FitTo.NONE);
+  private _fitTo = FitTo.NONE;
 
   constructor(private scrollDirectionService: ScrollDirectionService) {}
 
@@ -72,6 +76,31 @@ export class CanvasService {
     const canvases =
       this.canvasGroups.canvasesPerCanvasGroup[this.currentCanvasGroupIndex];
     return canvases && canvases.length >= 1 ? canvases[0] : 0;
+  }
+
+  setFitToHeight() {
+    if (this._fitTo !== FitTo.HEIGHT) {
+      this._fitTo = FitTo.HEIGHT;
+      this.fitTo$.next(this._fitTo);
+    }
+  }
+
+  setFitToWidth(): void {
+    if (this._fitTo !== FitTo.WIDTH) {
+      this._fitTo = FitTo.WIDTH;
+      this.fitTo$.next(this._fitTo);
+    }
+  }
+
+  resetFitTo(): void {
+    if (this._fitTo !== FitTo.NONE) {
+      this._fitTo = FitTo.NONE;
+      this.fitTo$.next(this._fitTo);
+    }
+  }
+
+  getFitTo(): FitTo {
+    return this._fitTo;
   }
 
   isWithinBounds(canvasGroupIndex: number): boolean {
