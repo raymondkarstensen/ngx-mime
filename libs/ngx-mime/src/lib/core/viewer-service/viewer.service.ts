@@ -21,6 +21,7 @@ import { ManifestUtils } from '../iiif-manifest-service/iiif-manifest-utils';
 import { MimeViewerIntl } from '../intl';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import {
+  FitTo,
   ModeChanges,
   RecognizedTextMode,
   RecognizedTextModeChanges,
@@ -92,6 +93,7 @@ export class ViewerService {
   private isCanvasMaskEnabled = false;
   public id = 'ngx-mime-mimeViewer';
   public openseadragonId = 'openseadragon';
+  fitTo = FitTo.NONE;
 
   constructor(
     private zone: NgZone,
@@ -167,7 +169,8 @@ export class ViewerService {
 
     this.goToCanvasGroupStrategy.centerCurrentCanvas();
 
-    this.zoomStrategy.goToHomeZoom();
+    this.canvasService.resetFitTo();
+    this.goToHomeZoom();
   }
 
   goToPreviousCanvasGroup(): void {
@@ -352,10 +355,12 @@ export class ViewerService {
   }
 
   zoomIn(zoomFactor?: number, position?: Point): void {
+    this.canvasService.resetFitTo();
     this.zoomStrategy.zoomIn(zoomFactor, position);
   }
 
   zoomOut(zoomFactor?: number, position?: Point): void {
+    this.canvasService.resetFitTo();
     this.zoomStrategy.zoomOut(zoomFactor, position);
   }
 
@@ -418,15 +423,15 @@ export class ViewerService {
             this.canvasGroupMask.changeCanvasGroup(
               this.canvasService.getCanvasGroupRect(canvasGroupIndex)
             );
-            if (
-              this.modeService.mode === ViewerMode.PAGE ||
-              this.modeService.mode === ViewerMode.DASHBOARD
-            ) {
-              this.zoomStrategy.goToHomeZoom();
+
+            if (this.fitTo === FitTo.WIDTH) {
+              this.fitToWidth();
+            } else if (this.fitTo === FitTo.HEIGHT) {
+              this.fitToHeight();
             } else {
-              setTimeout(() => {
-                this.fitToWidth();
-              }, 1000);
+              if (this.modeService.mode === ViewerMode.PAGE || this.modeService.mode === ViewerMode.DASHBOARD) {
+                this.goToHomeZoom();
+              }
             }
           }
         }
@@ -521,6 +526,17 @@ export class ViewerService {
         }
       )
     );
+
+    this.subscriptions.add(
+      this.canvasService.fitTo$.subscribe((fitTo: FitTo) => {
+        this.fitTo = fitTo;
+        if (this.fitTo === FitTo.WIDTH) {
+          this.fitToWidth();
+        } else if (this.fitTo === FitTo.HEIGHT) {
+          this.fitToHeight();
+        }
+      })
+    );
   }
 
   private highlightCurrentHit() {
@@ -599,6 +615,7 @@ export class ViewerService {
       this.currentCenter.next(this.viewer?.viewport.getCenter(true));
     });
     this.viewer.addHandler('pan', this.panHandler);
+    this.viewer.addHandler('zoom', this.zoomHandler);
   }
 
   /**
@@ -646,16 +663,16 @@ export class ViewerService {
       this.modeService.mode = ViewerMode.PAGE;
     } else {
       if (position) {
-        this.zoomStrategy.zoomIn(zoomFactor, position);
+        this.zoomIn(zoomFactor, position);
       } else {
-        this.zoomStrategy.zoomIn();
+        this.zoomIn();
       }
     }
   }
 
   private zoomOutGesture(position: Point, zoomFactor?: number): void {
     if (this.modeService.isPageZoomed()) {
-      this.zoomStrategy.zoomOut(zoomFactor, position);
+      this.zoomOut(zoomFactor, position);
     } else if (this.modeService.mode === ViewerMode.PAGE) {
       this.modeService.mode = ViewerMode.DASHBOARD;
     }
@@ -688,7 +705,7 @@ export class ViewerService {
     const gestureId = event.gesturePoints[0].id;
     if (this.modeService.isPageZoomed()) {
       this.pinchStatus.shouldStop = true;
-      this.zoomStrategy.zoomOut(zoomFactor, event.center);
+      this.zoomOut(zoomFactor, event.center);
     } else if (this.modeService.mode === ViewerMode.PAGE) {
       if (
         !this.pinchStatus.shouldStop ||
@@ -878,10 +895,7 @@ export class ViewerService {
     // Page is fitted vertically, so dbl-click zooms in
     if (this.modeService.mode === ViewerMode.PAGE) {
       this.modeService.mode = ViewerMode.PAGE_ZOOMED;
-      this.zoomStrategy.zoomIn(
-        ViewerOptions.zoom.dblClickZoomFactor,
-        event.position
-      );
+      this.zoomIn(ViewerOptions.zoom.dblClickZoomFactor, event.position);
     } else {
       this.modeService.mode = ViewerMode.PAGE;
       const canvasIndex: number = this.getOverlayIndexFromClickEvent(event);
@@ -956,6 +970,12 @@ export class ViewerService {
     }
   };
 
+  private zoomHandler = (event: any) => {
+    if (event.refPoint) {
+      this.canvasService.resetFitTo();
+    }
+  };
+
   private pinchHandler = (event: any) => {
     this.pinchStatus.active = true;
     const zoomFactor = event.distance / event.lastDistance;
@@ -994,6 +1014,8 @@ export class ViewerService {
     if (!this.canvasService.isCurrentCanvasGroupValid()) {
       return;
     }
+
+    this.canvasService.resetFitTo();
     this.goToCanvasGroupStrategy.goToCanvasGroup({
       canvasGroupIndex: this.canvasService.currentCanvasGroupIndex,
       immediately: false,
@@ -1004,7 +1026,7 @@ export class ViewerService {
     }
 
     this.zoomStrategy.setMinZoom(ViewerMode.DASHBOARD);
-    this.zoomStrategy.goToHomeZoom();
+    this.goToHomeZoom();
   }
 
   /**
@@ -1014,6 +1036,7 @@ export class ViewerService {
     if (!this.canvasService.isCurrentCanvasGroupValid()) {
       return;
     }
+
     this.goToCanvasGroupStrategy.goToCanvasGroup({
       canvasGroupIndex: this.canvasService.currentCanvasGroupIndex,
       immediately: false,
@@ -1024,7 +1047,7 @@ export class ViewerService {
     }
 
     this.zoomStrategy.setMinZoom(ViewerMode.PAGE);
-    this.zoomStrategy.goToHomeZoom();
+    this.goToHomeZoom();
   }
 
   private zoomOnScroll(event: any): void {
@@ -1233,12 +1256,6 @@ export class ViewerService {
 
   panToCenter(): void {
     this.goToCanvasGroupStrategy.centerCurrentCanvas();
-    // const currentCanvasBounds = this.canvasService.getCurrentCanvasGroupRect();
-    // this.panTo({
-    //   ...currentCanvasBounds,
-    //   x: currentCanvasBounds.centerX,
-    //   y: currentCanvasBounds.centerY
-    // });
   }
 
   private rotateToRight() {
@@ -1261,40 +1278,16 @@ export class ViewerService {
     }
   }
 
-  private getFitToWidthZoomLevel(): number {
-    const viewportBounds = this.getViewportBounds();
-    const currentCanvasBounds = this.canvasService.getCurrentCanvasGroupRect();
-    return this.zoomStrategy.getFitToWidthZoomLevel(viewportBounds.width, currentCanvasBounds.width);
-  }
-
-  private getFitToHeightZoomLevel(): number {
-    const viewportBounds = this.getViewportBounds();
-    const currentCanvasBounds = this.canvasService.getCurrentCanvasGroupRect();
-    return this.zoomStrategy.getFitToHeightZoomLevel(viewportBounds.height, currentCanvasBounds.height);
+  fitToHeight() {
+    this.zoomStrategy.fitToHeight();
+    // this.goToCanvasGroupStrategy.panToCenterHorizontally();
+    this.panToCenter();
   }
 
   fitToWidth() {
-    if (this.modeService.mode === ViewerMode.DASHBOARD) {
-      this.modeService.mode = ViewerMode.PAGE;
-    } else {
-      if (!this.modeService.isPageZoomed()) {
-        this.modeService.mode = ViewerMode.PAGE_ZOOMED;
-      }
-    }
-    this.zoomStrategy.zoomTo(this.getFitToWidthZoomLevel());
-    this.panToCenter();
-  }
-
-  fitToHeight() {
-    if (this.modeService.mode === ViewerMode.DASHBOARD) {
-      this.modeService.mode = ViewerMode.PAGE;
-    } else {
-      if (!this.modeService.isPageZoomed()) {
-        this.modeService.mode = ViewerMode.PAGE_ZOOMED;
-      }
-    }
-    this.zoomStrategy.zoomTo(this.getFitToHeightZoomLevel());
-    this.panToCenter();
+    this.zoomStrategy.fitToWidth();
+    this.goToCanvasGroupStrategy.panToCenterVertically();
+    // this.panToCenter();
   }
 
   private unsubscribe() {
