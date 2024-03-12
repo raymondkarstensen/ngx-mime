@@ -6,12 +6,14 @@ import { ScrollDirection } from '../models';
 
 @Injectable()
 export class ScrollDirectionService {
-  private config = new MimeViewerConfig();
+  private config!: MimeViewerConfig;
   private _scrollDirection!: ScrollDirection;
-  private subject: BehaviorSubject<ScrollDirection> =
-    new BehaviorSubject<ScrollDirection>(this.config.initScrollDirection);
+  private subject: BehaviorSubject<ScrollDirection>;
 
-  constructor() {}
+  constructor() {
+    this.subject = new BehaviorSubject<ScrollDirection>(this._scrollDirection);
+    this.scrollDirection = new MimeViewerConfig().initScrollDirection;
+  }
 
   get onChange(): Observable<ScrollDirection> {
     return this.subject.asObservable().pipe(distinctUntilChanged());

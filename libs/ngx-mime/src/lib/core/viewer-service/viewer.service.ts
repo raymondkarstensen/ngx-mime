@@ -1,6 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ViewingDirection } from '../models/viewing-direction';
 import * as d3 from 'd3';
 import {
   BehaviorSubject,
@@ -34,6 +33,7 @@ import { PinchStatus } from '../models/pinchStatus';
 import { Side } from '../models/side';
 import { ViewerLayout } from '../models/viewer-layout';
 import { ViewerOptions } from '../models/viewer-options';
+import { ViewingDirection } from '../models/viewing-direction';
 import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { StyleService } from '../style-service/style.service';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
@@ -53,6 +53,11 @@ import { SwipeDragEndCounter } from './swipe-drag-end-counter';
 import { SwipeUtils } from './swipe-utils';
 import { TileSourceStrategyFactory } from './tile-source-strategy-factory';
 import { DefaultZoomStrategy, ZoomStrategy } from './zoom-strategy';
+import {
+  ConstraintStrategy,
+  HorizontalConstraintStrategy,
+  VerticalConstraintStrategy,
+} from './constraint-strategy';
 
 declare const OpenSeadragon: any;
 
@@ -86,6 +91,7 @@ export class ViewerService {
   public currentSearch: SearchResult | null = null;
   private zoomStrategy!: ZoomStrategy;
   private goToCanvasGroupStrategy!: GoToCanvasGroupStrategy;
+  private constraintStrategy!: ConstraintStrategy;
 
   private rotation: BehaviorSubject<number> = new BehaviorSubject(0);
   private dragStatus = false;
@@ -299,7 +305,11 @@ export class ViewerService {
           this.config,
           this.manifest.viewingDirection
         );
-
+        this.constraintStrategy = new HorizontalConstraintStrategy(
+          this.modeService,
+          this.canvasService,
+          this.viewer,
+        );
         /*
           This disables keyboard navigation in openseadragon.
           We use s for opening search dialog and OSD use the same key for panning.
@@ -510,6 +520,11 @@ export class ViewerService {
               this.config,
               this.manifest.viewingDirection
             );
+            this.constraintStrategy = new VerticalConstraintStrategy(
+              this.modeService,
+              this.canvasService,
+              this.viewer
+            );
           } else if (scrollDirection === ScrollDirection.HORIZONTAL) {
             this.isCanvasMaskEnabled = true;
             this.goToCanvasGroupStrategy =
@@ -521,6 +536,11 @@ export class ViewerService {
                 this.config,
                 this.manifest.viewingDirection
               );
+            this.constraintStrategy = new HorizontalConstraintStrategy(
+              this.modeService,
+              this.canvasService,
+              this.viewer,
+            );
           }
           this.layoutPages();
         }
@@ -935,7 +955,7 @@ export class ViewerService {
   private dragEndHandler = (event: any): void => {
     if (this.dragStatus) {
       if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
-        this.constraintCanvas();
+        this.constraintStrategy.constraintCanvas();
         this.swipeToCanvasGroup(event);
       } else {
         if (this.modeService.isPageZoomed()) {
@@ -961,12 +981,11 @@ export class ViewerService {
   };
 
   private panHandler = (event: any) => {
-    if (
-      this.scrollDirectionService.isVerticalScrollingDirection() &&
-      this.modeService.isPageZoomed() &&
-      !this.dragStatus
-    ) {
-      this.updateCurrentCanvasIndex(event);
+    if (!this.dragStatus) {
+      this.constraintStrategy.constraintCanvas();
+      if (this.scrollDirectionService.isVerticalScrollingDirection()) {
+        this.updateCurrentCanvasIndex(event);
+      }
     }
   };
 
@@ -1083,87 +1102,6 @@ export class ViewerService {
       this.currentCanvasIndex.getValue();
   }
 
-  private constraintCanvas() {
-    if (this.modeService.isPageZoomed()) {
-      const viewportBounds: Rect = this.getViewportBounds();
-      const currentCanvasBounds = this.getCurrentCanvasBounds();
-      this.isCanvasOutsideViewport(viewportBounds, currentCanvasBounds)
-        ? this.constraintCanvasOutsideViewport(
-            viewportBounds,
-            currentCanvasBounds
-          )
-        : this.constraintCanvasInsideViewport(viewportBounds);
-    }
-  }
-
-  private getCurrentCanvasBounds(): Rect {
-    return this.viewer.world
-      .getItemAt(this.canvasService.currentCanvasGroupIndex)
-      .getBounds();
-  }
-
-  private isCanvasOutsideViewport(
-    viewportBounds: Rect,
-    canvasBounds: Rect
-  ): boolean {
-    if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
-      return viewportBounds.height < canvasBounds.height;
-    } else {
-      return viewportBounds.width < canvasBounds.width;
-    }
-  }
-
-  private constraintCanvasOutsideViewport(
-    viewportBounds: Rect,
-    canvasBounds: Rect
-  ): void {
-    let rect: Rect | undefined = undefined;
-    if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
-      if (this.isCanvasBelowViewportTop(viewportBounds, canvasBounds)) {
-        rect = new Rect({
-          x: viewportBounds.x + viewportBounds.width / 2,
-          y: canvasBounds.y + viewportBounds.height / 2,
-        });
-      } else if (
-        this.isCanvasAboveViewportBottom(viewportBounds, canvasBounds)
-      ) {
-        rect = new Rect({
-          x: viewportBounds.x + viewportBounds.width / 2,
-          y: canvasBounds.y + canvasBounds.height - viewportBounds.height / 2,
-        });
-      }
-    }
-    this.panTo(rect, true);
-  }
-
-  private constraintCanvasInsideViewport(viewportBounds: Rect): void {
-    const canvasGroupRect = this.canvasService.getCanvasGroupRect(
-      this.canvasService.currentCanvasGroupIndex
-    );
-    const rect = new Rect({
-      x: viewportBounds.x + viewportBounds.width / 2,
-      y: canvasGroupRect.centerY,
-    });
-    this.panTo(rect, true);
-  }
-
-  private isCanvasBelowViewportTop(
-    viewportBounds: Rect,
-    canvasBounds: Rect
-  ): boolean {
-    return viewportBounds.y < canvasBounds.y;
-  }
-
-  private isCanvasAboveViewportBottom(
-    viewportBounds: Rect,
-    canvasBounds: Rect
-  ): boolean {
-    return (
-      canvasBounds.y + canvasBounds.height <
-      viewportBounds.y + viewportBounds.height
-    );
-  }
-
   private swipeToCanvasGroup(e: any) {
     // Don't swipe on pinch actions
     if (this.pinchStatus.active) {
@@ -1240,18 +1178,6 @@ export class ViewerService {
 
   private panBy(point: Point, immediately = false): void {
     this.viewer.viewport.panBy(point, immediately);
-  }
-
-  panTo(rect: Rect | undefined, immediately = false): void {
-    if (rect) {
-      this.viewer.viewport.panTo(
-        {
-          x: rect.x,
-          y: rect.y,
-        },
-        immediately
-      );
-    }
   }
 
   panToCenter(): void {
