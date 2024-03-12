@@ -129,7 +129,7 @@ export class ZoomStrategy {
       }
     }
 
-    if (this.isViewportLargerThanCanvasGroup()) {
+    if (this.isViewportLargerThanCanvasGroup() && this.modeService.isPageZoomed()) {
       this.modeService.mode = ViewerMode.PAGE;
     } else {
       this.zoomBy(zoomFactor, position);
@@ -185,6 +185,40 @@ export class ZoomStrategy {
 
   getFitToWidthZoomLevel(viewportBoundsWidth: number, canvasGroupWidth: number): number {
     return Utils.shortenDecimals((viewportBoundsWidth / canvasGroupWidth) * this.viewer.viewport.getZoom(), 5);
+  }
+
+  fitToHeight(): void {
+    const viewportBounds = this.viewer.viewport.getBounds();
+    let canvasGroupRect = this.canvasService.getCurrentCanvasGroupRect();
+    const homeZoomLevel = this.getHomeZoomLevel(this.modeService.mode);
+    const zoomLevel = this.getFitToHeightZoomLevel(viewportBounds.height, canvasGroupRect.height);
+    if (zoomLevel > homeZoomLevel) {
+      if (!this.modeService.isPageZoomed()) {
+        this.modeService.mode = ViewerMode.PAGE_ZOOMED;
+      }
+    } else { // Less or Equal
+      if (this.modeService.mode !== ViewerMode.PAGE) {
+        this.modeService.mode = ViewerMode.PAGE;
+      }
+    }
+    this.zoomTo(zoomLevel);
+  }
+
+  fitToWidth(): void {
+    const viewportBounds = this.viewer.viewport.getBounds();
+    let canvasGroupRect = this.canvasService.getCurrentCanvasGroupRect();
+    const homeZoomLevel = this.getHomeZoomLevel(this.modeService.mode);
+    const zoomLevel = this.getFitToWidthZoomLevel(viewportBounds.width, canvasGroupRect.width)
+    if (zoomLevel > homeZoomLevel) {
+      if (!this.modeService.isPageZoomed()) {
+        this.modeService.mode = ViewerMode.PAGE_ZOOMED;
+      }
+    } else { // Less or Equal
+      if (this.modeService.mode !== ViewerMode.PAGE) {
+        this.modeService.mode = ViewerMode.PAGE;
+      }
+    }
+    this.zoomTo(zoomLevel);
   }
 
   private zoomBy(zoomFactor: number, position?: Point): void {
