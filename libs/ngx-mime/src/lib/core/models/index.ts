@@ -5,3 +5,4 @@ export {
 } from './recognized-text-mode';
 export { ScrollDirection } from './scroll-direction';
 export { ViewerMode } from './viewer-mode';
+export { FitTo } from './fit-to';
