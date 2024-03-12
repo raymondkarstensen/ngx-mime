@@ -23,7 +23,7 @@ import {
   Renderer2,
   ViewChild,
 } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
 import { Manifest } from '../../core/models/manifest';
 import { ViewerOptions } from '../../core/models/viewer-options';
@@ -34,6 +34,7 @@ import { MimeViewerIntl } from './../../core/intl';
 import { MimeResizeService } from './../../core/mime-resize-service/mime-resize.service';
 import { Dimensions } from './../../core/models/dimensions';
 import { ViewerService } from './../../core/viewer-service/viewer.service';
+import { FitTo } from '../../core/models';
 
 @Component({
   selector: 'mime-osd-toolbar',
@@ -82,6 +83,8 @@ export class OsdToolbarComponent implements OnInit, AfterViewInit, OnDestroy {
   public state = 'hide';
   invert = false;
   isWeb = false;
+  protected readonly FitTo = FitTo;
+  fitToValue = FitTo.NONE;
   private subscriptions = new Subscription();
 
   constructor(
@@ -141,6 +144,13 @@ export class OsdToolbarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptions.add(
       this.intl.changes.subscribe(() => this.changeDetectorRef.markForCheck())
     );
+
+    this.subscriptions.add(
+      this.canvasService.fitTo$.subscribe((fitTo: FitTo) => {
+        this.fitToValue = fitTo;
+        this.changeDetectorRef.detectChanges();
+      })
+    );
   }
 
   ngAfterViewInit() {
@@ -182,11 +192,11 @@ export class OsdToolbarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   fitToWidth() {
-    this.viewerService.fitToWidth();
+    this.canvasService.setFitToWidth();
   }
 
   fitToHeight() {
-    this.viewerService.fitToHeight();
+    this.canvasService.setFitToHeight();
   }
 
   public goToPreviousCanvasGroup(): void {
