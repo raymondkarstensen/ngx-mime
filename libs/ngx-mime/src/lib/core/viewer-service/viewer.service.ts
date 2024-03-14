@@ -399,6 +399,14 @@ export class ViewerService {
     return -1;
   }
 
+  /**
+   * Checks if hit element is a <rect>-element
+   * @param target
+   */
+  isCanvasGroupHit(target: HTMLElement): boolean {
+    return target instanceof SVGRectElement;
+  }
+
   private addSubscriptions(): void {
     this.initialize();
     this.subscriptions.add(
@@ -715,14 +723,6 @@ export class ViewerService {
       }
       this.pinchStatus.previousGestureId = gestureId;
     }
-  }
-
-  /**
-   * Checks if hit element is a <rect>-element
-   * @param target
-   */
-  private isCanvasGroupHit(target: HTMLElement): boolean {
-    return target instanceof SVGRectElement;
   }
 
   /**
