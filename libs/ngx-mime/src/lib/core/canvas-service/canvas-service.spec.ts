@@ -1,20 +1,25 @@
 import {
   ScrollDirectionService
 } from '../scroll-direction-service/scroll-direction-service';
-import { CanvasService } from './canvas-service';
+import { TestBed } from '@angular/core/testing';
 import { Rect } from '../models/rect';
 import { ViewerLayout } from '../models/viewer-layout';
+import { CanvasService } from './canvas-service';
 
 describe('CanvasService', () => {
   let service: CanvasService;
 
   beforeEach(() => {
-    service = new CanvasService(new ScrollDirectionService());
-
     const canvases: Rect[] = [];
     for (let i = 0; i < 100; i++) {
       canvases.push(new Rect());
     }
+
+    // TODO Provide scrolldirectionservice?
+    TestBed.configureTestingModule({
+      providers: [CanvasService],
+    });
+    service = TestBed.inject(CanvasService);
     service.addAll(canvases, ViewerLayout.ONE_PAGE);
   });
 

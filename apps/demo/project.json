@@ -56,16 +56,16 @@
     "serve": {
       "executor": "@angular-devkit/build-angular:dev-server",
       "options": {
-        "browserTarget": "demo:build",
         "host": "0.0.0.0",
-        "disableHostCheck": true
+        "disableHostCheck": true,
+        "buildTarget": "demo:build"
       },
       "configurations": {
         "production": {
-          "browserTarget": "demo:build:production"
+          "buildTarget": "demo:build:production"
         },
         "development": {
-          "browserTarget": "demo:build:development"
+          "buildTarget": "demo:build:development"
         }
       },
       "defaultConfiguration": "development"
@@ -73,27 +73,18 @@
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
-        "browserTarget": "demo:build"
+        "buildTarget": "demo:build"
       }
     },
     "test": {
-      "executor": "@angular-devkit/build-angular:karma",
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "tsConfig": "apps/demo/tsconfig.spec.json",
-        "karmaConfig": "apps/demo/karma.conf.js",
-        "polyfills": ["zone.js", "zone.js/testing"],
-        "scripts": [
-          "./node_modules/openseadragon/build/openseadragon/openseadragon.min.js"
-        ],
-        "assets": ["apps/demo/src/favicon.ico", "apps/demo/src/assets"]
-      },
-      "outputs": ["{workspaceRoot}/coverage/apps/demo/"]
+        "jestConfig": "apps/demo/jest.config.ts"
+      }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
-      "options": {
-        "lintFilePatterns": ["apps/demo/src/**/*.ts", "apps/demo/src/**/*.html"]
-      },
+      "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
     }
   },

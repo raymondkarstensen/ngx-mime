@@ -65,48 +65,32 @@
     "serve": {
       "executor": "@angular-devkit/build-angular:dev-server",
       "options": {
-        "browserTarget": "integration:build",
         "proxyConfig": "apps/integration/src/proxy.conf.json",
         "host": "0.0.0.0",
-        "disableHostCheck": true
+        "disableHostCheck": true,
+        "buildTarget": "integration:build"
       },
       "configurations": {
         "production": {
-          "browserTarget": "integration:build:production"
+          "buildTarget": "integration:build:production"
         }
       }
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
-        "browserTarget": "integration:build"
+        "buildTarget": "integration:build"
       }
     },
     "test": {
-      "executor": "@angular-devkit/build-angular:karma",
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "tsConfig": "apps/integration/tsconfig.spec.json",
-        "karmaConfig": "apps/integration/karma.conf.js",
-        "polyfills": ["zone.js", "zone.js/testing"],
-        "styles": ["apps/integration/src/styles.scss"],
-        "scripts": [
-          "./node_modules/openseadragon/build/openseadragon/openseadragon.min.js"
-        ],
-        "assets": [
-          "apps/integration/src/favicon.ico",
-          "apps/integration/src/assets"
-        ]
-      },
-      "outputs": ["{workspaceRoot}/coverage/apps/integration/"]
+        "jestConfig": "apps/integration/jest.config.ts"
+      }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
-      "options": {
-        "lintFilePatterns": [
-          "apps/integration/src/**/*.ts",
-          "apps/integration/src/**/*.html"
-        ]
-      },
+      "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
     }
   },

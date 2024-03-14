@@ -6,7 +6,6 @@ import { By } from '@angular/platform-browser';
 import {
   ScrollDirectionService
 } from '../core/scroll-direction-service/scroll-direction-service';
-import { injectedStub } from '../../testing/injected-stub';
 import { TestManifests } from '../../testing/test-manifests';
 import { AltoService } from '../core/alto-service/alto.service';
 import { CanvasService } from '../core/canvas-service/canvas-service';
@@ -58,8 +57,10 @@ describe('ViewDialogComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ViewDialogComponent);
     component = fixture.componentInstance;
-    iiifManifestService = injectedStub(IiifManifestService);
-    breakpointObserver = injectedStub(BreakpointObserver);
+    iiifManifestService = TestBed.inject<any>(IiifManifestService);
+    breakpointObserver = TestBed.inject(
+      BreakpointObserver,
+    ) as MockBreakpointObserver;
     fixture.detectChanges();
   });
 
@@ -74,7 +75,7 @@ describe('ViewDialogComponent', () => {
       fixture.detectChanges();
 
       const heading: DebugElement = fixture.debugElement.query(
-        By.css('[data-testid="ngx-mime-heading-desktop"]')
+        By.css('[data-testid="ngx-mime-heading-desktop"]'),
       );
       expect(heading).not.toBeNull();
     });
@@ -87,7 +88,7 @@ describe('ViewDialogComponent', () => {
       fixture.detectChanges();
 
       const heading: DebugElement = fixture.debugElement.query(
-        By.css('[data-testid="ngx-mime-heading-desktop"]')
+        By.css('[data-testid="ngx-mime-heading-desktop"]'),
       );
       expect(heading).toBeNull();
     });
@@ -100,7 +101,7 @@ describe('ViewDialogComponent', () => {
       fixture.detectChanges();
 
       const pageLayoutSection = fixture.debugElement.query(
-        By.css('[data-testid="page-layout"]')
+        By.css('[data-testid="page-layout"]'),
       );
       expect(pageLayoutSection).not.toBeNull();
     });
@@ -113,7 +114,7 @@ describe('ViewDialogComponent', () => {
       fixture.detectChanges();
 
       const pageLayoutSection = fixture.debugElement.query(
-        By.css('[data-testid="page-layout"]')
+        By.css('[data-testid="page-layout"]'),
       );
       expect(pageLayoutSection).toBeNull();
     });
@@ -121,14 +122,14 @@ describe('ViewDialogComponent', () => {
 
   it('should show digital text toggle group if digital text is available', waitForAsync(() => {
     iiifManifestService._currentManifest.next(
-      TestManifests.withDigitalTextContent()
+      TestManifests.withDigitalTextContent(),
     );
 
     fixture.whenStable().then(() => {
       fixture.detectChanges();
 
       const recognizedTextContentSection = fixture.debugElement.query(
-        By.css('[data-testid="recognized-text-content"]')
+        By.css('[data-testid="recognized-text-content"]'),
       );
       expect(recognizedTextContentSection).not.toBeNull();
     });
@@ -141,7 +142,7 @@ describe('ViewDialogComponent', () => {
       fixture.detectChanges();
 
       const recognizedTextContentSection = fixture.debugElement.query(
-        By.css('[data-testid="recognized-text-content"]')
+        By.css('[data-testid="recognized-text-content"]'),
       );
       expect(recognizedTextContentSection).toBeNull();
     });
