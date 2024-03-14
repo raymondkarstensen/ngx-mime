@@ -17,10 +17,10 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { interval, Subscription } from 'rxjs';
 import {
   ScrollDirectionService
 } from '../core/scroll-direction-service/scroll-direction-service';
-import { Subscription, interval } from 'rxjs';
 import { take, throttle } from 'rxjs/operators';
 import { AttributionDialogService } from '../attribution-dialog/attribution-dialog.service';
 import { CanvasGroupDialogService } from '../canvas-group-dialog/canvas-group-dialog.service';
@@ -52,15 +52,16 @@ import { InformationDialogService } from '../information-dialog/information-dial
 import { ViewDialogService } from '../view-dialog/view-dialog.service';
 import { IiifContentSearchService } from './../core/iiif-content-search-service/iiif-content-search.service';
 import { SearchResult } from './../core/models/search-result';
-import { OsdToolbarComponent } from './osd-toolbar/osd-toolbar.component';
 import { ViewerFooterComponent } from './viewer-footer/viewer-footer.component';
 import { ViewerHeaderComponent } from './viewer-header/viewer-header.component';
 import { VIEWER_PROVIDERS } from './viewer.providers';
+import { slideInLeft } from './../shared/animations';
 
 @Component({
   selector: 'mime-viewer',
   templateUrl: './viewer.component.html',
   styleUrls: ['./viewer.component.scss'],
+  animations: [slideInLeft],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: VIEWER_PROVIDERS,
 })
@@ -89,6 +90,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
 
   recognizedTextContentMode: RecognizedTextMode = RecognizedTextMode.NONE;
   showHeaderAndFooterState = 'hide';
+  osdToolbarState = 'hide';
   public errorMessage: string | null = null;
 
   // Viewchilds
@@ -96,8 +98,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   private header!: ViewerHeaderComponent;
   @ViewChild('mimeFooter', { static: true })
   private footer!: ViewerFooterComponent;
-  @ViewChild('mimeOsdToolbar')
-  private osdToolbar!: OsdToolbarComponent;
 
   constructor(
     public snackBar: MatSnackBar,
@@ -423,8 +423,8 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
             this.header.state =
             this.footer.state =
               'show';
-          if (this.config.navigationControlEnabled && this.osdToolbar) {
-            this.osdToolbar.state = 'hide';
+          if (this.config.navigationControlEnabled && this.osdToolbarState) {
+            this.osdToolbarState = 'hide';
           }
           break;
         case ViewerMode.PAGE:
@@ -432,8 +432,8 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
             this.header.state =
             this.footer.state =
               'hide';
-          if (this.config.navigationControlEnabled && this.osdToolbar) {
-            this.osdToolbar.state = 'show';
+          if (this.config.navigationControlEnabled && this.osdToolbarState) {
+            this.osdToolbarState = 'show';
           }
           break;
         case ViewerMode.PAGE_ZOOMED:

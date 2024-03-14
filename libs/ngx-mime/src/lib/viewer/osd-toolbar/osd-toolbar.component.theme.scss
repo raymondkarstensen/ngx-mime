@@ -3,11 +3,15 @@
 @mixin osd-toolbar-component-theme($theme) {
   $accent: map-get($theme, accent);
 
-  .osd-toolbar-container {
+  .osd-toolbar {
     .osd-toolbar-row {
       button.selected {
         background-color: mat.get-color-from-palette($accent);
       }
+    }
+    .mat-mdc-fab,
+    .mat-mdc-mini-fab {
+      background-color: mat.get-color-from-palette($accent, 0.5);
     }
   }
 }

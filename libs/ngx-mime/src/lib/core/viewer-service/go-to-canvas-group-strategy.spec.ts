@@ -8,9 +8,9 @@ import { HorizontalGoToCanvasGroupStrategy } from './go-to-canvas-group-strategy
 describe('DefaultGoToCanvasGroupStrategy ', () => {
   let strategy: HorizontalGoToCanvasGroupStrategy;
   const viewport: any = {
-    getCenter: {},
-    getBounds: {},
-    panTo: {},
+    getCenter: () => {},
+    getBounds: () => {},
+    panTo: () => {},
   };
   const viewer: any = {
     viewport: viewport,
@@ -29,7 +29,7 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
       canvasService,
       modeService,
       config,
-      ViewingDirection.LTR
+      ViewingDirection.LTR,
     );
   });
 
@@ -41,8 +41,8 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
         canvasService.currentCanvasGroupIndex = 10;
         modeService.mode = ViewerMode.PAGE_ZOOMED;
 
-        spy = spyOn(canvasService, 'constrainToRange').and.returnValue(9);
-        spy = spyOn(canvasService, 'getCanvasGroupRect').and.returnValue({
+        spy = jest.spyOn(canvasService, 'constrainToRange').mockReturnValue(9);
+        spy = jest.spyOn(canvasService, 'getCanvasGroupRect').mockReturnValue({
           x: 0,
           y: 0,
           width: 100,
@@ -50,11 +50,11 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
           centerX: 50,
           centerY: 50,
         });
-        spy = spyOn(viewport, 'getCenter').and.returnValue({
+        spy = jest.spyOn(viewport, 'getCenter').mockReturnValue({
           x: 50,
           y: 50,
         });
-        spy = spyOn(viewport, 'getBounds').and.returnValue({
+        spy = jest.spyOn(viewport, 'getBounds').mockReturnValue({
           x: 0,
           y: 0,
           width: 100,
@@ -62,14 +62,14 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
           centerX: 50,
           centerY: 50,
         });
-        spy = spyOn(viewport, 'panTo');
+        spy = jest.spyOn(viewport, 'panTo');
 
         const res = strategy.goToCanvasGroup({
           canvasGroupIndex: 9,
           immediately: false,
         });
 
-        const args = viewport.panTo.calls.mostRecent().args;
+        const args = spy.mock.calls.pop();
         expect(args[0].x).toEqual(50);
         expect(args[0].y).toEqual(-30);
       });
@@ -80,8 +80,8 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
         canvasService.currentCanvasGroupIndex = 10;
         modeService.mode = ViewerMode.PAGE_ZOOMED;
 
-        spy = spyOn(canvasService, 'constrainToRange').and.returnValue(12);
-        spy = spyOn(canvasService, 'getCanvasGroupRect').and.returnValue({
+        spy = jest.spyOn(canvasService, 'constrainToRange').mockReturnValue(12);
+        spy = jest.spyOn(canvasService, 'getCanvasGroupRect').mockReturnValue({
           x: 100,
           y: 0,
           width: 100,
@@ -89,11 +89,11 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
           centerX: 50,
           centerY: 50,
         });
-        spy = spyOn(viewport, 'getCenter').and.returnValue({
+        spy = jest.spyOn(viewport, 'getCenter').mockReturnValue({
           x: 50,
           y: 50,
         });
-        spy = spyOn(viewport, 'getBounds').and.returnValue({
+        spy = jest.spyOn(viewport, 'getBounds').mockReturnValue({
           x: 0,
           y: 0,
           width: 100,
@@ -101,14 +101,14 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
           centerX: 50,
           centerY: 50,
         });
-        spy = spyOn(viewport, 'panTo');
+        spy = jest.spyOn(viewport, 'panTo');
 
         const res = strategy.goToCanvasGroup({
           canvasGroupIndex: 12,
           immediately: false,
         });
 
-        const args = viewport.panTo.calls.mostRecent().args;
+        const args = spy.mock.calls.pop();
         expect(args[0].x).toEqual(150);
         expect(args[0].y).toEqual(-30);
       });
