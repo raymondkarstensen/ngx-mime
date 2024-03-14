@@ -1226,7 +1226,6 @@ export class ViewerService {
     console.log('************* INFO *******************');
     console.log('Current zoom ', this.getZoom());
     console.log('Viewport Bounds', this.getViewportBounds());
-    console.log('Canvas Bounds', this.getCurrentCanvasBounds());
     console.log('CanvasGroupRect', this.canvasService.getCurrentCanvasGroupRect());
   }
 }
