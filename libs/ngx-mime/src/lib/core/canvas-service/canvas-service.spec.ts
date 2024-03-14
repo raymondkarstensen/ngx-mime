@@ -15,9 +15,8 @@ describe('CanvasService', () => {
       canvases.push(new Rect());
     }
 
-    // TODO Provide scrolldirectionservice?
     TestBed.configureTestingModule({
-      providers: [CanvasService],
+      providers: [CanvasService, ScrollDirectionService],
     });
     service = TestBed.inject(CanvasService);
     service.addAll(canvases, ViewerLayout.ONE_PAGE);
