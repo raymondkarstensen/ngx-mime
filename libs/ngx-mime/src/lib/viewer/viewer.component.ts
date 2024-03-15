@@ -441,8 +441,8 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
             this.header.state =
               this.footer.state =
                 'hide';
-          if (this.config.navigationControlEnabled && this.osdToolbar) {
-            this.osdToolbar.state = 'show';
+          if (this.config.navigationControlEnabled && this.osdToolbarState) {
+            this.osdToolbarState = 'show';
           }
           break;
       }
