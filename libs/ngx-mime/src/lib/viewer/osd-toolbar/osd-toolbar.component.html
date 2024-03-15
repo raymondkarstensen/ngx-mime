@@ -32,7 +32,7 @@
           [disabled]="isFirstCanvasGroup"
           [@easeInWithDelay]="{
             value: '',
-            params: { delayEnter: 0, delayLeave: baseAnimationDelay * 5 }
+            params: { delayEnter: 0, delayLeave: baseAnimationDelay * 7 }
           }"
           (click)="goToPreviousCanvasGroup()"
         >
@@ -49,7 +49,7 @@
           [disabled]="isLastCanvasGroup"
           [@easeInWithDelay]="{
             value: '',
-            params: { delayEnter: 0, delayLeave: baseAnimationDelay * 5 }
+            params: { delayEnter: 0, delayLeave: baseAnimationDelay * 7 }
           }"
           (click)="goToNextCanvasGroup()"
         >
@@ -68,7 +68,7 @@
             value: '',
             params: {
               delayEnter: baseAnimationDelay,
-              delayLeave: baseAnimationDelay * 4
+              delayLeave: baseAnimationDelay * 6
             }
           }"
           (click)="goToNextCanvasGroup()"
@@ -88,7 +88,7 @@
             value: '',
             params: {
               delayEnter: baseAnimationDelay,
-              delayLeave: baseAnimationDelay * 4
+              delayLeave: baseAnimationDelay * 6
             }
           }"
           (click)="goToPreviousCanvasGroup()"
@@ -107,7 +107,7 @@
           value: '',
           params: {
             delayEnter: baseAnimationDelay * 2,
-            delayLeave: baseAnimationDelay * 3
+            delayLeave: baseAnimationDelay * 5
           }
         }"
       >
@@ -125,7 +125,7 @@
           value: '',
           params: {
             delayEnter: baseAnimationDelay * 3,
-            delayLeave: baseAnimationDelay * 2
+            delayLeave: baseAnimationDelay * 4
           }
         }"
       >
@@ -142,7 +142,7 @@
           value: '',
           params: {
             delayEnter: baseAnimationDelay * 4,
-            delayLeave: baseAnimationDelay
+            delayLeave: baseAnimationDelay * 3
           }
         }"
       >
@@ -157,16 +157,36 @@
         [matTooltip]="intl.rotateCwLabel"
         [@easeInWithDelay]="{
           value: '',
-          params: { delayEnter: baseAnimationDelay * 5, delayLeave: 0 }
+          params: { delayEnter: baseAnimationDelay * 5, delayLeave: baseAnimationDelay * 2 }
         }"
       >
         <mat-icon>rotate_right</mat-icon>
       </button>
-    </div>
-    <div class="osd-toolbar-row">
-      <button [ngClass]="{'selected': fitToValue === FitTo.WIDTH}" mat-icon-button data-testId='ngx-mimeFitToWidthButton' (click)='fitToWidth()'><mat-icon>fit_width</mat-icon></button>
-      <button [ngClass]="{'selected': fitToValue === FitTo.HEIGHT}" mat-icon-button data-testId='ngx-mimeFitToHeightButton' (click)='fitToHeight()'><mat-icon class='ngx-mime-rotate-90'>fit_width</mat-icon></button>
-<!--      <button mat-icon-button (click)='printInfo()'><mat-icon>info</mat-icon></button>-->
+
+      <button
+        *ngIf="showControlButtons"
+        [ngClass]="{ selected: fitToValue === FitTo.WIDTH }"
+        mat-mini-fab
+        data-testId="ngx-mimeFitToWidthButton"
+        (click)="fitToWidth()"
+        [@easeInWithDelay]="{
+          value: '',
+          params: { delayEnter: baseAnimationDelay * 6, delayLeave: baseAnimationDelay }
+        }"
+        ><mat-icon>fit_width</mat-icon></button
+      >
+      <button
+        *ngIf="showControlButtons"
+        [ngClass]="{ selected: fitToValue === FitTo.HEIGHT }"
+        mat-mini-fab
+        data-testId="ngx-mimeFitToHeightButton"
+        (click)="fitToHeight()"
+        [@easeInWithDelay]="{
+          value: '',
+          params: { delayEnter: baseAnimationDelay * 7, delayLeave: 0 }
+        }"
+        ><mat-icon class="ngx-mime-rotate-90">fit_width</mat-icon></button
+      >
     </div>
   </div>
 </div>
