@@ -267,6 +267,8 @@ export class AccessKeysService {
     this.disabledKeys = this.disabledKeys
       .concat(AccessKeys.ARROWLEFT)
       .concat(AccessKeys.ARROWRIGHT)
+      .concat(AccessKeys.ARROWUP)
+      .concat(AccessKeys.ARROWDOWN)
       .concat(AccessKeys.firstCanvasGroupCodes)
       .concat(AccessKeys.lastCanvasGroupCodes)
       .concat(AccessKeys.zoomInCodes)

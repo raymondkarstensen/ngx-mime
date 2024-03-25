@@ -41,4 +41,18 @@ export class TestManifests {
       ],
     };
   }
+
+  public static withMultipleCanvas(): Manifest {
+    return {
+      ...new Manifest(),
+      sequences: [
+        new Sequence({
+          canvases: [
+            new Canvas(),
+            new Canvas(),
+          ],
+        }),
+      ],
+    }
+  }
 }

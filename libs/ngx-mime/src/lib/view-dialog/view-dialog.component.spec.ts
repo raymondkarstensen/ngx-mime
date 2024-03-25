@@ -94,8 +94,8 @@ describe('ViewDialogComponent', () => {
     });
   }));
 
-  it('should show page layout toggle group if manifest is paged', waitForAsync(() => {
-    iiifManifestService._currentManifest.next(TestManifests.aDefault());
+  it('should show page layout toggle group if manifest has more than 1 canvas', waitForAsync(() => {
+    iiifManifestService._currentManifest.next(TestManifests.withMultipleCanvas());
 
     fixture.whenStable().then(() => {
       fixture.detectChanges();

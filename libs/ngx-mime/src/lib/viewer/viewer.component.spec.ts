@@ -183,6 +183,29 @@ describe('ViewerComponent', () => {
     );
   });
 
+  it('should zoom in when ctrl is pressed and scrolling up', () => {
+    testHostFixture.detectChanges();
+    const viewer = viewerService.getViewer();
+    const startZoom = viewer.viewport.getZoom(false);
+
+    viewer.raiseEvent('canvas-scroll', { scroll: 1, originalEvent: { ctrlKey: true } });
+    const newZoom = viewer.viewport.getZoom(false);
+
+    expect(newZoom).toBeGreaterThan(startZoom);
+  });
+
+  it('should zoom out when ctrl is pressed and scrolling down', () => {
+    testHostFixture.detectChanges();
+    const viewer = viewerService.getViewer();
+
+    viewer.raiseEvent('canvas-scroll', { scroll: 1, originalEvent: { ctrlKey: true } });
+    const startZoom = viewer.viewport.getZoom(false);
+    viewer.raiseEvent('canvas-scroll', { scroll: -1, originalEvent: { ctrlKey: true } });
+    const newZoom = viewer.viewport.getZoom(false);
+
+    expect(newZoom).toBeLessThan(startZoom);
+  });
+
   it('should return to home zoom', (done) => {
     testHostFixture.detectChanges();
 

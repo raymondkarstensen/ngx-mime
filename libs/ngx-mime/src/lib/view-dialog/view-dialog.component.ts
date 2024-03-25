@@ -28,7 +28,7 @@ export class ViewDialogComponent implements OnInit, OnDestroy {
   isHandsetOrTabletInPortrait = false;
   viewerLayout: ViewerLayout = ViewerLayout.ONE_PAGE;
   ViewerLayout: typeof ViewerLayout = ViewerLayout;
-  isPagedManifest = false;
+  isSinglePagedManifest = false;
   hasRecognizedTextContent = false;
   recognizedTextMode = RecognizedTextMode.NONE;
   RecognizedTextMode: typeof RecognizedTextMode = RecognizedTextMode;
@@ -74,9 +74,9 @@ export class ViewDialogComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.iiifManifestService.currentManifest.subscribe(
         (manifest: Manifest | null) => {
-          this.isPagedManifest = manifest
-            ? ManifestUtils.isManifestPaged(manifest)
-            : false;
+          this.isSinglePagedManifest = manifest
+            ? ManifestUtils.isManifestSinglePaged(manifest)
+            : true;
           this.hasRecognizedTextContent = manifest
             ? ManifestUtils.hasRecognizedTextContent(manifest)
             : false;

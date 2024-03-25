@@ -29,4 +29,14 @@ export class ManifestUtils {
     }
     return false;
   }
+
+  static isManifestSinglePaged(manifest: Manifest): boolean {
+    if (manifest.sequences && manifest.sequences.length > 0) {
+      const firstSequence = manifest.sequences[0];
+      if (firstSequence.canvases) {
+        return firstSequence.canvases.length <= 1;
+      }
+    }
+    return true;
+  }
 }
