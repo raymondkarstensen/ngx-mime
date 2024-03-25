@@ -11,6 +11,7 @@ import { ViewerOptions } from '../models/viewer-options';
 import { Utils } from '../utils';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
 import { ZoomUtils } from './zoom-utils';
+import { Rect } from 'openseadragon';
 
 export interface CanvasGroup {
   canvasGroupIndex: number;
@@ -190,25 +191,21 @@ export class ZoomStrategy {
   fitToHeight(): void {
     const viewportBounds = this.viewer.viewport.getBounds();
     let canvasGroupRect = this.canvasService.getCurrentCanvasGroupRect();
-    const homeZoomLevel = this.getHomeZoomLevel(this.modeService.mode);
     const zoomLevel = this.getFitToHeightZoomLevel(viewportBounds.height, canvasGroupRect.height);
-    if (zoomLevel > homeZoomLevel) {
-      if (!this.modeService.isPageZoomed()) {
-        this.modeService.mode = ViewerMode.PAGE_ZOOMED;
-      }
-    } else { // Less or Equal
-      if (this.modeService.mode !== ViewerMode.PAGE) {
-        this.modeService.mode = ViewerMode.PAGE;
-      }
-    }
+    this.updateViewerMode(zoomLevel);
     this.zoomTo(zoomLevel);
   }
 
   fitToWidth(): void {
-    const viewportBounds = this.viewer.viewport.getBounds();
+    const viewportBounds: Rect = this.viewer.viewport.getBounds();
     let canvasGroupRect = this.canvasService.getCurrentCanvasGroupRect();
-    const homeZoomLevel = this.getHomeZoomLevel(this.modeService.mode);
     const zoomLevel = this.getFitToWidthZoomLevel(viewportBounds.width, canvasGroupRect.width)
+    this.updateViewerMode(zoomLevel);
+    this.zoomTo(zoomLevel);
+  }
+
+  private updateViewerMode(zoomLevel: number): void {
+    const homeZoomLevel = this.getHomeZoomLevel(this.modeService.mode);
     if (zoomLevel > homeZoomLevel) {
       if (!this.modeService.isPageZoomed()) {
         this.modeService.mode = ViewerMode.PAGE_ZOOMED;
@@ -218,7 +215,6 @@ export class ZoomStrategy {
         this.modeService.mode = ViewerMode.PAGE;
       }
     }
-    this.zoomTo(zoomLevel);
   }
 
   private zoomBy(zoomFactor: number, position?: Point): void {

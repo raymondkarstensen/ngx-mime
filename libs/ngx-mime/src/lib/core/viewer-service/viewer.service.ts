@@ -303,7 +303,7 @@ export class ViewerService {
           this.canvasService,
           this.modeService,
           this.config,
-          this.manifest.viewingDirection
+          this.manifest.viewingDirection,
         );
         this.constraintStrategy = new HorizontalConstraintStrategy(
           this.modeService,
@@ -435,7 +435,7 @@ export class ViewerService {
 
     this.subscriptions.add(
       this.canvasService.onCanvasGroupIndexChange.subscribe(
-        (canvasGroupIndex: number) => {
+        async (canvasGroupIndex: number) => {
           this.swipeDragEndCounter.reset();
           if (canvasGroupIndex !== -1) {
             this.canvasGroupMask.changeCanvasGroup(
@@ -443,9 +443,13 @@ export class ViewerService {
             );
 
             if (this.fitTo === FitTo.WIDTH) {
-              this.fitToWidth();
+              await this.waitForAnimation();
+              this.zoomStrategy.fitToWidth();
+              this.goToCanvasGroupStrategy.panToCenterHorizontally();
             } else if (this.fitTo === FitTo.HEIGHT) {
-              this.fitToHeight();
+              await this.waitForAnimation();
+              this.zoomStrategy.fitToHeight();
+              this.goToCanvasGroupStrategy.panToCenterHorizontally();
             } else {
               if (this.modeService.mode === ViewerMode.PAGE || this.modeService.mode === ViewerMode.DASHBOARD) {
                 this.goToHomeZoom();
@@ -526,7 +530,7 @@ export class ViewerService {
               this.canvasService,
               this.modeService,
               this.config,
-              this.manifest.viewingDirection
+              this.manifest.viewingDirection,
             );
             this.constraintStrategy = new VerticalConstraintStrategy(
               this.modeService,
@@ -542,7 +546,7 @@ export class ViewerService {
                 this.canvasService,
                 this.modeService,
                 this.config,
-                this.manifest.viewingDirection
+                this.manifest.viewingDirection,
               );
             this.constraintStrategy = new HorizontalConstraintStrategy(
               this.modeService,
@@ -556,12 +560,14 @@ export class ViewerService {
     );
 
     this.subscriptions.add(
-      this.canvasService.fitTo$.subscribe((fitTo: FitTo) => {
+      this.canvasService.fitTo$.subscribe(async (fitTo: FitTo) => {
         this.fitTo = fitTo;
         if (this.fitTo === FitTo.WIDTH) {
-          this.fitToWidth();
+          this.zoomStrategy.fitToWidth();
+          this.goToCanvasGroupStrategy.panToCenterHorizontally();
         } else if (this.fitTo === FitTo.HEIGHT) {
-          this.fitToHeight();
+          this.zoomStrategy.fitToHeight();
+          this.goToCanvasGroupStrategy.panToCenterHorizontally();
         }
       })
     );
@@ -972,7 +978,7 @@ export class ViewerService {
     if (event.originalEvent.ctrlKey) {
       this.zoomOnScroll(event);
     } else {
-      if (this.modeService.isPageZoomed()) {
+      if (this.modeService.isPageZoomed() || this.isFitToEnabled()) {
         this.panOnScroll(event);
       } else {
         this.navigateOnScroll(event);
@@ -1204,16 +1210,28 @@ export class ViewerService {
     }
   }
 
-  fitToHeight() {
+  async fitToHeight() {
     this.zoomStrategy.fitToHeight();
-    // this.goToCanvasGroupStrategy.panToCenterHorizontally();
-    this.panToCenter();
+    if (this.isFitToEnabled()) {
+      await this.waitForAnimation();
+      this.goToCanvasGroupStrategy.panToCenterVertically();
+    }
   }
 
-  fitToWidth() {
+  async fitToWidth() {
     this.zoomStrategy.fitToWidth();
-    this.goToCanvasGroupStrategy.panToCenterVertically();
-    // this.panToCenter();
+    if (this.isFitToEnabled()) {
+      await this.waitForAnimation();
+      this.goToCanvasGroupStrategy.panToCenterHorizontally();
+    }
+  }
+
+  private isFitToEnabled(): boolean {
+    return this.fitTo !== FitTo.NONE;
+  }
+
+  waitForAnimation = async ():Promise<void> => {
+    return new Promise((resolve) => setTimeout(resolve, ViewerOptions.transitions.OSDAnimationTime));
   }
 
   private unsubscribe() {
@@ -1224,7 +1242,7 @@ export class ViewerService {
 
   printInfo() {
     console.log('************* INFO *******************');
-    console.log('Current zoom ', this.getZoom());
+    console.log('Current zoom ', this.getZoom(), this.getMinZoom());
     console.log('Viewport Bounds', this.getViewportBounds());
     console.log('CanvasGroupRect', this.canvasService.getCurrentCanvasGroupRect());
   }

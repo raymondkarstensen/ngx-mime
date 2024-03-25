@@ -44,10 +44,8 @@ export class HorizontalGoToCanvasGroupStrategy implements GoToCanvasGroupStrateg
 
     if (this.canvasService.getFitTo() === FitTo.WIDTH) {
       this.zoomStrategy.fitToWidth();
-      this.centerCurrentCanvas();
     } else if (this.canvasService.getFitTo() === FitTo.HEIGHT) {
       this.zoomStrategy.fitToHeight();
-      this.centerCurrentCanvas();
     } else {
 
       if (this.modeService.isPageZoomed() && this.config.preserveZoomOnCanvasGroupChange) {
@@ -159,13 +157,11 @@ export class HorizontalGoToCanvasGroupStrategy implements GoToCanvasGroupStrateg
   }
 
   panToCenterVertically(immediately = false): void {
-    const canvasGroup = this.getCurrentCanvasGroup();
-    this.panTo(canvasGroup.x, canvasGroup.centerY, immediately);
+    this.panTo(this.getViewportCenter().x, 0, immediately);
   }
 
   panToCenterHorizontally(immediately = false): void {
-    const canvasGroup = this.getCurrentCanvasGroup();
-    this.panTo(canvasGroup.centerX, canvasGroup.y, immediately);
+    this.panTo(0, this.getViewportCenter().y, immediately);
   }
 
   private getCurrentCanvasGroup(): Rect {
@@ -199,7 +195,7 @@ export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy 
     private canvasService: CanvasService,
     private modeService: ModeService,
     private config: MimeViewerConfig,
-    private viewingDirection: ViewingDirection
+    private viewingDirection: ViewingDirection,
   ) {}
 
   goToCanvasGroup(canvasGroup: CanvasGroup) {
@@ -212,10 +208,8 @@ export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy 
 
     if (this.canvasService.getFitTo() === FitTo.WIDTH) {
       this.zoomStrategy.fitToWidth();
-      this.centerCurrentCanvas();
     } else if (this.canvasService.getFitTo() === FitTo.HEIGHT) {
       this.zoomStrategy.fitToHeight();
-      this.centerCurrentCanvas();
     } else {
 
       if (
@@ -333,7 +327,7 @@ export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy 
   }
 
   private topY(canvas: Rect): number {
-    return canvas.y + this.getViewportBounds().height / 2;
+    return canvas.y + (this.getViewportBounds().height / 2);
   }
 
   private bottomY(canvas: Rect): number {
@@ -345,13 +339,11 @@ export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy 
   }
 
   panToCenterVertically(immediately = false): void {
-    const canvasGroup = this.getCurrentCanvasGroup();
-    this.panTo(canvasGroup.centerX, canvasGroup.centerY, immediately);
+    this.panTo(this.getViewportCenter().x, 0, immediately);
   }
 
   panToCenterHorizontally(immediately = false): void {
-    const canvasGroup = this.getCurrentCanvasGroup();
-    this.panTo(canvasGroup.centerX, canvasGroup.y, immediately);
+    this.panTo(0, this.getViewportCenter().y, immediately);
   }
 
   private getCurrentCanvasGroup(): Rect {

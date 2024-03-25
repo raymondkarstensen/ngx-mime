@@ -187,6 +187,16 @@
         }"
         ><mat-icon class="ngx-mime-rotate-90">fit_width</mat-icon></button
       >
+      <button
+        *ngIf="showControlButtons"
+        mat-mini-fab
+        (click)="printInfo()"
+        [@easeInWithDelay]="{
+          value: '',
+          params: { delayEnter: baseAnimationDelay * 7, delayLeave: 0 }
+        }"
+      ><mat-icon class="ngx-mime-rotate-90">info</mat-icon></button
+      >
     </div>
   </div>
 </div>
