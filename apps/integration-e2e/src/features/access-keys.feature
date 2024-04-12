@@ -6,41 +6,51 @@ Feature: Access Keys
 
   Scenario Outline: Next Page on key <keys>
     Given the viewer is opened with a publication with viewing hint "individuals"
+    And the scroll direction is <scrollDirection>
     When the user hits key <keys>
     Then the viewer should go to next page
 
     Examples:
-      | keys       |
-      | PageDown   |
-      | ArrowRight |
+      | keys       | scrollDirection |
+      | PageDown   | horizontal      |
+      | ArrowRight | horizontal      |
+      | PageDown   | vertical        |
+      | ArrowDown  | vertical        |
 
   Scenario Outline: Previous Page on key <keys>
     Given the viewer is opened with a publication with viewing hint "individuals" on page 5
+    And the scroll direction is <scrollDirection>
     When the user hits key <keys>
     Then the viewer should go to previous page
 
     Examples:
-      | keys      |
-      | PageUp    |
-      | ArrowLeft |
+      | keys      | scrollDirection |
+      | PageUp    | horizontal      |
+      | ArrowLeft | horizontal      |
+      | PageUp    | vertical        |
+      | ArrowUp   | vertical        |
 
   Scenario Outline: Last Page on key <keys>
     Given the viewer is opened with a publication with viewing hint "individuals"
+    And the scroll direction is <scrollDirection>
     When the user hits key <keys>
     Then the viewer should go to last page
 
     Examples:
-      | keys |
-      | End  |
+      | keys | scrollDirection |
+      | End  | horizontal      |
+      | End  | vertical        |
 
   Scenario Outline: First Page on key <keys>
     Given the viewer is opened with a publication with viewing hint "individuals" on page 5
+    And the scroll direction is <scrollDirection>
     When the user hits key <keys>
     Then the viewer should go to first page
 
     Examples:
-      | keys |
-      | Home |
+      | keys | scrollDirection |
+      | Home | horizontal      |
+      | Home | vertical        |
 
   Scenario Outline: Zoom In on key <keys>
     Given the viewer is opened with a publication with viewing hint "individuals"
@@ -148,18 +158,25 @@ Feature: Access Keys
 
   Scenario Outline: Disable <keys> when Content Search Dialog is open
     Given the viewer is opened with a publication with viewing hint "individuals" on page 5
+    And the scroll direction is <scrollDirection>
     And the content search dialog is open
     When the user hits key <keys>
     Then the viewer should not change page
 
     Examples:
-      | keys       |
-      | ArrowRight |
-      | n          |
-      | ArrowLeft  |
-      | p          |
-      | Home       |
-      | End        |
+      | keys       | scrollDirection |
+      | ArrowRight | horizontal      |
+      | n          | horizontal      |
+      | ArrowLeft  | horizontal      |
+      | p          | horizontal      |
+      | Home       | horizontal      |
+      | End        | vertical        |
+      | ArrowDown  | vertical        |
+      | n          | vertical        |
+      | ArrowUp    | vertical        |
+      | p          | vertical        |
+      | Home       | vertical        |
+      | End        | vertical        |
 
   Scenario Outline: Next hit on <keys>
     Given the viewer is opened with a publication with the word "africa" 7 times inside

@@ -82,51 +82,91 @@ export class ViewerPage {
   constructor(
     private parameters: ParameterType,
     private page: Page,
-    private animations: Animations
+    private animations: Animations,
   ) {
     this.viewer = this.page.locator('mime-viewer');
     this.navigationSlider = this.page.locator('.navigation-slider');
-    this.navigationSliderContainer = this.page.getByTestId('navigation-slider-container');
+    this.navigationSliderContainer = this.page.getByTestId(
+      'navigation-slider-container',
+    );
     this.canvasGroupsButton = this.page.locator('button.canvasGroups');
     this.canvasGroupInput = this.page.locator('.go-to-canvas-group-input');
-    this.currentCanvasGroupLabel = this.page.getByTestId('currentCanvasGroupLabel');
+    this.currentCanvasGroupLabel = this.page.getByTestId(
+      'currentCanvasGroupLabel',
+    );
     this.numOfCanvasGroups = this.page.getByTestId('numOfCanvasGroups');
-    this.informationDialogButton = this.page.getByTestId('ngx-mimeInformationDialogButton');
+    this.informationDialogButton = this.page.getByTestId(
+      'ngx-mimeInformationDialogButton',
+    );
     this.informationContainer = this.page.locator('.information-container');
     this.tabs = this.page.locator('.mat-mdc-tab');
     this.helpDialogButton = this.page.getByTestId('ngx-mimeHelpDialogButton');
-    this.contentSearchDialogButton = this.page.getByTestId('ngx-mimeContentSearchDialogButton');
-    this.contentSearchSubmitButton = this.page.locator('.content-search-box button[type="submit"]');
+    this.contentSearchDialogButton = this.page.getByTestId(
+      'ngx-mimeContentSearchDialogButton',
+    );
+    this.contentSearchSubmitButton = this.page.locator(
+      '.content-search-box button[type="submit"]',
+    );
     this.fullscreenButton = this.page.getByTestId('ngx-mimeFullscreenButton');
     this.openseadragonContainer = this.page.locator('.openseadragon-container');
-    this.attribution = this.page.locator('.attribution-container > .mat-mdc-dialog-content');
+    this.attribution = this.page.locator(
+      '.attribution-container > .mat-mdc-dialog-content',
+    );
     this.svg = this.page.locator('.openseadragon svg');
-    this.pageGroup = this.svg.locator('.page-group');
-    this.canvasGroupOverlay = this.pageGroup.locator('rect');
+    this.canvasGroupOverlays = this.page.locator(
+      '.openseadragon svg g.page-group rect',
+    );
     this.leftCanvasGroupMask = this.page.getByTestId('mime-left-page-mask');
     this.rightCanvasGroupMask = this.page.getByTestId('mime-right-page-mask');
-    this.singlePageViewButton = this.page.getByTestId('ngx-mime-single-page-view-button');
-    this.twoPageViewButton = this.page.getByTestId('ngx-mime-two-page-view-button');
-    this.horizontalScrollDirectionButton = this.page.getByTestId('ngx-mime-horizontal-scroll-button');
-    this.verticalScrollDirectionButton = this.page.getByTestId('ngx-mime-vertical-scroll-button');
-    this.recognizedTextContentSplitViewButton = this.page.getByTestId('ngx-mime-recognized-text-content-split-view-button');
-    this.recognizedTextContentOnlyButton = this.page.getByTestId('ngx-mime-recognized-text-content-only-button');
-    this.recognizedTextContentCloseButton = this.page.getByTestId('ngx-mime-recognized-text-content-close-button');
+    this.canvasGroupOverlay = this.page.locator('.openseadragon svg g rect');
+    this.singlePageViewButton = this.page.getByTestId(
+      'ngx-mime-single-page-view-button',
+    );
+    this.twoPageViewButton = this.page.getByTestId(
+      'ngx-mime-two-page-view-button',
+    );
+    this.horizontalScrollDirectionButton = this.page.getByTestId(
+      'ngx-mime-horizontal-scroll-button',
+    );
+    this.verticalScrollDirectionButton = this.page.getByTestId(
+      'ngx-mime-vertical-scroll-button',
+    );
+    this.recognizedTextContentSplitViewButton = this.page.getByTestId(
+      'ngx-mime-recognized-text-content-split-view-button',
+    );
+    this.recognizedTextContentOnlyButton = this.page.getByTestId(
+      'ngx-mime-recognized-text-content-only-button',
+    );
+    this.recognizedTextContentCloseButton = this.page.getByTestId(
+      'ngx-mime-recognized-text-content-close-button',
+    );
     this.modeDashboard = this.page.locator('.mode-dashboard');
     this.modePage = this.page.locator('.mode-page');
-    this.openseadragonCanvas = this.page.locator('.openseadragon-canvas>>nth=0');
-    this.firstCanvasRecognizedTextContent = this.page.getByTestId('firstCanvasRecognizedTextContent');
-    this.secondCanvasRecognizedTextContent = this.page.getByTestId('secondCanvasRecognizedTextContent');
-    this.recognizedTextContentHits = this.page.locator('.recognized-text-content-container mark');
-    this.recognizedTextContentContainer = this.page.getByTestId('ngx-mime-recognized-text-content-container');
+    this.openseadragonCanvas = this.page.locator(
+      '.openseadragon-canvas>>nth=0',
+    );
+    this.firstCanvasRecognizedTextContent = this.page.getByTestId(
+      'firstCanvasRecognizedTextContent',
+    );
+    this.secondCanvasRecognizedTextContent = this.page.getByTestId(
+      'secondCanvasRecognizedTextContent',
+    );
+    this.recognizedTextContentHits = this.page.locator(
+      '.recognized-text-content-container mark',
+    );
+    this.recognizedTextContentContainer = this.page.getByTestId(
+      'ngx-mime-recognized-text-content-container',
+    );
     this.viewMenuButton = this.page.getByTestId('ngx-mime-view-menu-button');
-    this.viewMenuCloseButton = this.page.getByTestId('ngx-mime-view-dialog-close-button');
+    this.viewMenuCloseButton = this.page.getByTestId(
+      'ngx-mime-view-dialog-close-button',
+    );
     this.viewMenuDialog = this.page.locator('mime-view-dialog');
   }
 
   getBookShelfUrl(manifestName: string): string {
     const manifest = ViewerPage.bookShelf.find(
-      (b) => b.manifestName === manifestName
+      (b) => b.manifestName === manifestName,
     );
     if (manifest) {
       return manifest.url;
@@ -211,7 +251,7 @@ export class ViewerPage {
   }
 
   async setHorizontalScrollDirection(): Promise<void> {
-    await this.checkViewMenuToggle(this.horizontalScrollDirectionButton)
+    await this.checkViewMenuToggle(this.horizontalScrollDirectionButton);
   }
 
   async setVerticalScrollDirection(): Promise<void> {
@@ -229,7 +269,7 @@ export class ViewerPage {
       manifestNames.forEach((manifestName) => {
         params.push(
           'manifestUri=' +
-            encodeURIComponent(this.getBookShelfUrl(manifestName))
+            encodeURIComponent(this.getBookShelfUrl(manifestName)),
         );
       });
     }
@@ -338,7 +378,7 @@ export class ViewerPage {
       '(document.fullscreenElement != null' +
         ' || document.mozFullScreenElement != null' +
         ' || document.webkitFullscreenElement != null' +
-        ' || document.msFullscreenElement != null)'
+        ' || document.msFullscreenElement != null)',
     );
   }
 
@@ -407,7 +447,7 @@ export class ViewerPage {
 
   getZoomLevel(): Promise<number> {
     return this.page.evaluate(
-      'window.openSeadragonViewer.viewport.getZoom(true)'
+      'window.openSeadragonViewer.viewport.getZoom(true)',
     );
   }
 
@@ -419,19 +459,19 @@ export class ViewerPage {
 
   getMinZoom(): Promise<number> {
     return this.page.evaluate(
-      'window.openSeadragonViewer.viewport.getMinZoom()'
+      'window.openSeadragonViewer.viewport.getMinZoom()',
     );
   }
 
   getMaxZoom(): Promise<number> {
     return this.page.evaluate(
-      'window.openSeadragonViewer.viewport.getMaxZoom()'
+      'window.openSeadragonViewer.viewport.getMaxZoom()',
     );
   }
 
   getCenter(): Promise<Point> {
     return this.page.evaluate(
-      'window.openSeadragonViewer.viewport.getCenter(false)'
+      'window.openSeadragonViewer.viewport.getCenter(false)',
     );
   }
 
@@ -470,21 +510,21 @@ export class ViewerPage {
 
   pan(point: Point): Promise<any> {
     return this.page.evaluate(
-      `window.openSeadragonViewer.viewport.panTo({x: ${point.x}, y: ${point.y}});`
+      `window.openSeadragonViewer.viewport.panTo({x: ${point.x}, y: ${point.y}});`,
     );
   }
 
   async zoomIn(): Promise<void> {
     const newZoomLevel = (await this.getZoomLevel()) * 2;
     return this.page.evaluate(
-      'window.openSeadragonViewer.viewport.zoomTo(' + newZoomLevel + ');'
+      'window.openSeadragonViewer.viewport.zoomTo(' + newZoomLevel + ');',
     );
   }
 
   async zoomOut(): Promise<void> {
     const newZoomLevel = (await this.getZoomLevel()) / 2;
     return this.page.evaluate(
-      'window.openSeadragonViewer.viewport.zoomTo(' + newZoomLevel + ');'
+      'window.openSeadragonViewer.viewport.zoomTo(' + newZoomLevel + ');',
     );
   }
 
@@ -580,12 +620,12 @@ export class ViewerPage {
       const widthIsFitted = this.numbersAreClose(
         svgParentDimensions.width,
         overlayDimensions.width,
-        5
+        5,
       );
       const heightIsFitted = this.numbersAreClose(
         svgParentDimensions.height,
         overlayDimensions.height,
-        5
+        5,
       );
 
       return widthIsFitted || heightIsFitted;
@@ -668,7 +708,7 @@ export class ViewerPage {
       const isVisible = await this.isElementVisibleInReadersViewport(
         canvasGroup,
         leftCanvasGroupMaskSize,
-        rightCanvasGroupMaskSize
+        rightCanvasGroupMaskSize,
       );
       result.push(isVisible);
     }
@@ -686,7 +726,7 @@ export class ViewerPage {
   async isElementVisibleInReadersViewport(
     el: Locator,
     leftCanvasGroupMask: any,
-    rightCanvasGroupMask: any
+    rightCanvasGroupMask: any,
   ): Promise<boolean> {
     try {
       const elementSize = await el.boundingBox();
@@ -709,8 +749,23 @@ export class ViewerPage {
   async setFocusOnViewer() {
     await this.openseadragonCanvas.waitFor();
     await this.page.evaluate(
-      `document.querySelectorAll('.openseadragon-canvas')[0].focus();`
+      `document.querySelectorAll('.openseadragon-canvas')[0].focus();`,
     );
+  }
+
+  async getCanvasBoundingBox(): Promise<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }> {
+    const g = this.svg.locator('g').first();
+    const boundingBox = await g?.boundingBox();
+    if (boundingBox === null) {
+      return { x: 0, y: 0, width: 0, height: 0 };
+    } else {
+      return boundingBox;
+    }
   }
 
   private async checkViewMenuToggle(l: Locator): Promise<void> {
@@ -733,7 +788,7 @@ export class ViewerPage {
   private numbersAreClose(
     thing: number,
     realThing: number,
-    epsilon: number
+    epsilon: number,
   ): boolean {
     return Math.abs(thing - realThing) <= epsilon;
   }

@@ -74,7 +74,7 @@ export class ViewerHeaderComponent implements OnInit, OnDestroy {
   isFullscreenEnabled = false;
   isInFullscreen = false;
   fullscreenLabel = '';
-  isPagedManifest = false;
+  isSinglePagedManifest = false;
   hasRecognizedTextContent = false;
 
   private subscriptions = new Subscription();
@@ -115,9 +115,9 @@ export class ViewerHeaderComponent implements OnInit, OnDestroy {
           this.manifest = manifest;
           this.isContentSearchEnabled =
             manifest && manifest.service ? true : false;
-          this.isPagedManifest = manifest
-            ? ManifestUtils.isManifestPaged(manifest)
-            : false;
+          this.isSinglePagedManifest = manifest
+            ? ManifestUtils.isManifestSinglePaged(manifest)
+            : true;
           this.hasRecognizedTextContent = manifest
             ? ManifestUtils.hasRecognizedTextContent(manifest)
             : false;

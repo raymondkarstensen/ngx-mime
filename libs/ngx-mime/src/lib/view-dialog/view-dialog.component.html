@@ -35,7 +35,7 @@
   </mat-toolbar>
 </ng-container>
 <mat-dialog-content [ngStyle]="contentStyle">
-  <ng-container *ngIf="isPagedManifest">
+  <ng-container *ngIf="!isSinglePagedManifest">
     <section data-testid="page-layout">
       <h2>{{ intl.pageLayoutLabel }}</h2>
       <div
@@ -84,7 +84,7 @@
             [checked]="scrollDirection === ScrollDirection.HORIZONTAL"
             (click)="setScrollDirectionHorizontal()"
           >
-            <mat-icon>block</mat-icon>
+            <mat-icon>swipe_horizontal</mat-icon>
           </mat-button-toggle>
           <div class="label">{{ intl.scrollDirectionHorizontalLabel }}</div>
         </div>
@@ -96,7 +96,7 @@
             [checked]="scrollDirection === ScrollDirection.VERTICAL"
             (click)="setScrollDirectionVertical()"
           >
-            <mat-icon>block</mat-icon>
+            <mat-icon>swipe_vertical</mat-icon>
           </mat-button-toggle>
           <div class="label">{{ intl.scrollDirectionVerticalLabel }}</div>
         </div>

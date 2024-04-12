@@ -151,7 +151,7 @@ describe('ViewerHeaderComponent', () => {
   }));
 
   it('should open view dialog', async () => {
-    setCurrentManifest(TestManifests.aDefault());
+    setCurrentManifest(TestManifests.withMultipleCanvas());
 
     await openViewMenuDialog();
 
@@ -288,8 +288,8 @@ describe('ViewerHeaderComponent', () => {
     });
   }));
 
-  it('should show view menu button if manifest is paged', waitForAsync(() => {
-    setCurrentManifest(TestManifests.aDefault());
+  it('should show view menu button if manifest has more than 1 canvas', waitForAsync(() => {
+    setCurrentManifest(TestManifests.withMultipleCanvas());
 
     testHostFixture.whenStable().then(async () => {
       testHostFixture.detectChanges();
@@ -298,7 +298,7 @@ describe('ViewerHeaderComponent', () => {
     });
   }));
 
-  it('should hide view menu button if manifest is not paged and digital text is not available', waitForAsync(() => {
+  it('should hide view menu button if manifest is singlepaged and digital text is not available', waitForAsync(() => {
     setCurrentManifest(TestManifests.aEmpty());
 
     testHostFixture.whenStable().then(async () => {
