@@ -441,23 +441,24 @@ export class ViewerService {
             this.canvasGroupMask.changeCanvasGroup(
               this.canvasService.getCanvasGroupRect(canvasGroupIndex)
             );
-
-            if (this.fitTo === FitTo.WIDTH) {
-              await this.waitForAnimation();
-              this.zoomStrategy.fitToWidth();
-              this.goToCanvasGroupStrategy.panToCenterHorizontally();
-            } else if (this.fitTo === FitTo.HEIGHT) {
-              await this.waitForAnimation();
-              this.zoomStrategy.fitToHeight();
-              this.goToCanvasGroupStrategy.panToCenterHorizontally();
-            } else {
-              if (this.modeService.mode === ViewerMode.PAGE || this.modeService.mode === ViewerMode.DASHBOARD) {
-                this.goToHomeZoom();
-              }
+            if (this.modeService.mode === ViewerMode.PAGE || this.modeService.mode === ViewerMode.DASHBOARD) {
+              this.goToHomeZoom();
             }
           }
         }
       )
+    );
+
+    this.subscriptions.add(
+      this.onCanvasGroupIndexChange.subscribe(async (canvasGroupIndex: number) => {
+        if (this.fitTo === FitTo.WIDTH) {
+          await this.waitForAnimation();
+          this.zoomStrategy.fitToWidth();
+        } else if (this.fitTo === FitTo.HEIGHT) {
+          await this.waitForAnimation();
+          this.zoomStrategy.fitToHeight();
+        }
+      })
     );
 
     this.subscriptions.add(
@@ -564,10 +565,8 @@ export class ViewerService {
         this.fitTo = fitTo;
         if (this.fitTo === FitTo.WIDTH) {
           this.zoomStrategy.fitToWidth();
-          this.goToCanvasGroupStrategy.panToCenterHorizontally();
         } else if (this.fitTo === FitTo.HEIGHT) {
           this.zoomStrategy.fitToHeight();
-          this.goToCanvasGroupStrategy.panToCenterHorizontally();
         }
       })
     );
@@ -1207,22 +1206,6 @@ export class ViewerService {
         const item = this.viewer.world.getItemAt(i);
         item.setOpacity(opacity);
       }
-    }
-  }
-
-  async fitToHeight() {
-    this.zoomStrategy.fitToHeight();
-    if (this.isFitToEnabled()) {
-      await this.waitForAnimation();
-      this.goToCanvasGroupStrategy.panToCenterVertically();
-    }
-  }
-
-  async fitToWidth() {
-    this.zoomStrategy.fitToWidth();
-    if (this.isFitToEnabled()) {
-      await this.waitForAnimation();
-      this.goToCanvasGroupStrategy.panToCenterHorizontally();
     }
   }
 
