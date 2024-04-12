@@ -6,7 +6,6 @@ import { Direction } from '../models/direction';
 import { Point } from '../models/point';
 import { Rect } from '../models/rect';
 import { ViewerMode } from '../models/viewer-mode';
-import { ViewerOptions } from '../models/viewer-options';
 import { ViewingDirection } from '../models/viewing-direction';
 import { CalculateNextCanvasGroupFactory } from './calculate-next-canvas-group-factory';
 import { ZoomStrategy } from './zoom-strategy';
@@ -27,63 +26,87 @@ export interface GoToCanvasGroupStrategy {
   panToCenterHorizontally(immediately?: boolean): void;
 }
 
-export class HorizontalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
+export class HorizontalGoToCanvasGroupStrategy
+  implements GoToCanvasGroupStrategy
+{
   constructor(
     private viewer: any,
-    private zoomStrategy: ZoomStrategy,
     private canvasService: CanvasService,
     private modeService: ModeService,
     private config: MimeViewerConfig,
     private viewingDirection: ViewingDirection,
   ) {}
 
+  private getPreviousCanvasGroup(canvasGroup: CanvasGroup): Rect {
+    const canvasGroupIndexes = this.canvasService.getCanvasesPerCanvasGroup(
+      canvasGroup.canvasGroupIndex,
+    );
+    const previousCanvasIndex =
+      canvasGroupIndexes[canvasGroupIndexes.length - 1];
+    return this.canvasService.getCanvasRect(previousCanvasIndex);
+  }
+
+  private updateCurrentCanvasGroupIndex(canvasGroupIndex: number) {
+    this.canvasService.currentCanvasGroupIndex =
+      this.canvasService.constrainToRange(canvasGroupIndex);
+  }
+
+  private shouldPanToCenter(): boolean {
+    return (
+      (!this.modeService.isPageZoomed() &&
+        this.canvasService.getFitTo() === FitTo.NONE) || // If the viewer is in PAGE mode and is NOT fitted to width or height
+      (this.modeService.isPageZoomed() &&
+        !this.config.preserveZoomOnCanvasGroupChange)
+    ); // If the viewer is ZOOMED and zoom should be preservedd
+  }
+
   goToCanvasGroup(canvasGroup: CanvasGroup) {
-    const oldCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
-    this.canvasService.currentCanvasGroupIndex = this.canvasService.constrainToRange(canvasGroup.canvasGroupIndex);
-    const newCanvasGroup = this.canvasService.getCanvasGroupRect(this.canvasService.currentCanvasGroupIndex);
+    const currentCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
+    this.updateCurrentCanvasGroupIndex(canvasGroup.canvasGroupIndex);
+    const newCanvasGroup = this.canvasService.getCanvasGroupRect(
+      this.canvasService.currentCanvasGroupIndex,
+    );
+    const isNavigatingToPreviousCanvas =
+      currentCanvasGroupIndex > canvasGroup.canvasGroupIndex;
+    let y = 0;
+    let x: number;
 
-    if (this.canvasService.getFitTo() === FitTo.WIDTH) {
-      this.zoomStrategy.fitToWidth();
-    } else if (this.canvasService.getFitTo() === FitTo.HEIGHT) {
-      this.zoomStrategy.fitToHeight();
+    if (this.shouldPanToCenter()) {
+      this.panToCenter(newCanvasGroup, canvasGroup.immediately);
     } else {
-
-      if (this.modeService.isPageZoomed() && this.config.preserveZoomOnCanvasGroupChange) {
-        let x: number;
-
-        if (oldCanvasGroupIndex > canvasGroup.canvasGroupIndex) {
-          if (this.config.startOnTopOnCanvasGroupChange) {
-            const canvasGroupIndexes = this.canvasService.getCanvasesPerCanvasGroup(canvasGroup.canvasGroupIndex);
-            const previousCanvasIndex = canvasGroupIndexes[ canvasGroupIndexes.length - 1 ];
-            const previousCanvasRect = this.canvasService.getCanvasRect(previousCanvasIndex);
-            x = this.viewingDirection === ViewingDirection.LTR ? this.leftX(previousCanvasRect) : this.rightX(newCanvasGroup);
-          } else {
-            x = this.viewingDirection === ViewingDirection.LTR ? this.rightX(newCanvasGroup) : this.leftX(newCanvasGroup);
-          }
-        } else {
-          x = this.viewingDirection === ViewingDirection.LTR ? this.leftX(newCanvasGroup) : this.rightX(newCanvasGroup);
-        }
-
-        const y =
-          this.config.startOnTopOnCanvasGroupChange &&
-          oldCanvasGroupIndex !== canvasGroup.canvasGroupIndex
+      if (
+        this.modeService.isPageZoomed() &&
+        this.config.preserveZoomOnCanvasGroupChange
+      ) {
+        y =
+          currentCanvasGroupIndex !== canvasGroup.canvasGroupIndex
             ? newCanvasGroup.y +
-            this.getViewportBounds().height / 2 -
-            this.viewer.collectionTileMargin
+              this.getViewportBounds().height / 2 -
+              this.viewer.collectionTileMargin
             : this.getViewportCenter().y;
-
-        this.panTo(x, y, canvasGroup.immediately);
-      } else if (this.modeService.isPageZoomed()) {
-        const oldCanvasGroupCenter = this.canvasService.getCanvasGroupRect(oldCanvasGroupIndex);
-        this.panToCenter(oldCanvasGroupCenter, canvasGroup.immediately);
-        this.zoomStrategy.goToHomeZoom();
-        setTimeout(() => {
-          this.panToCenter(newCanvasGroup, canvasGroup.immediately);
-          this.modeService.mode = ViewerMode.PAGE;
-        }, ViewerOptions.transitions.OSDAnimationTime);
-      } else {
-        this.panToCenter(newCanvasGroup, canvasGroup.immediately);
       }
+
+      if (isNavigatingToPreviousCanvas) {
+        if (this.config.startOnTopOnCanvasGroupChange) {
+          const previousCanvasGroup = this.getPreviousCanvasGroup(canvasGroup);
+          x =
+            this.viewingDirection === ViewingDirection.LTR
+              ? this.leftX(previousCanvasGroup)
+              : this.rightX(newCanvasGroup);
+        } else {
+          x =
+            this.viewingDirection === ViewingDirection.LTR
+              ? this.rightX(newCanvasGroup)
+              : this.leftX(newCanvasGroup);
+        }
+      } else {
+        x =
+          this.viewingDirection === ViewingDirection.LTR
+            ? this.leftX(newCanvasGroup)
+            : this.rightX(newCanvasGroup);
+      }
+
+      this.panTo(x, y, canvasGroup.immediately);
     }
   }
 
@@ -101,7 +124,7 @@ export class HorizontalGoToCanvasGroupStrategy implements GoToCanvasGroupStrateg
           currentCanvasGroupIndex: currentCanvasGroupIndex,
           currentCanvasGroupCenter: currentCanvasIndex,
           viewingDirection: this.viewingDirection,
-          scrollDirection: ScrollDirection.HORIZONTAL
+          scrollDirection: ScrollDirection.HORIZONTAL,
         });
       this.goToCanvasGroup({
         canvasGroupIndex: newCanvasGroupIndex,
@@ -127,7 +150,7 @@ export class HorizontalGoToCanvasGroupStrategy implements GoToCanvasGroupStrateg
           currentCanvasGroupIndex: currentCanvasGroupIndex,
           currentCanvasGroupCenter: currentCanvasIndex,
           viewingDirection: this.viewingDirection,
-          scrollDirection: ScrollDirection.HORIZONTAL
+          scrollDirection: ScrollDirection.HORIZONTAL,
         });
       this.goToCanvasGroup({
         canvasGroupIndex: newCanvasGroupIndex,
@@ -139,7 +162,7 @@ export class HorizontalGoToCanvasGroupStrategy implements GoToCanvasGroupStrateg
   public centerCurrentCanvas(): void {
     const currentCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
     const currentCanvasGroupCenter = this.canvasService.getCanvasGroupRect(
-      currentCanvasGroupIndex
+      currentCanvasGroupIndex,
     );
     this.panToCenter(currentCanvasGroupCenter, false);
   }
@@ -157,11 +180,15 @@ export class HorizontalGoToCanvasGroupStrategy implements GoToCanvasGroupStrateg
   }
 
   panToCenterVertically(immediately = false): void {
-    this.panTo(this.getViewportCenter().x, 0, immediately);
+    const x = this.getViewportCenter().x;
+    const y = 0;
+    this.panTo(x, y, immediately);
   }
 
   panToCenterHorizontally(immediately = false): void {
-    this.panTo(0, this.getViewportCenter().y, immediately);
+    const x = 0;
+    const y = this.getViewportCenter().y;
+    this.panTo(x, y, immediately);
   }
 
   private getCurrentCanvasGroup(): Rect {
@@ -175,12 +202,12 @@ export class HorizontalGoToCanvasGroupStrategy implements GoToCanvasGroupStrateg
         x: x,
         y: y,
       },
-      immediately
+      immediately,
     );
   }
 
   private getViewportCenter(): Point {
-    return this.viewer.viewport.getCenter(true);
+    return this.viewer.viewport.getCenter();
   }
 
   private getViewportBounds(): Rect {
@@ -188,84 +215,87 @@ export class HorizontalGoToCanvasGroupStrategy implements GoToCanvasGroupStrateg
   }
 }
 
-export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
+export class VerticalGoToCanvasGroupStrategy
+  implements GoToCanvasGroupStrategy
+{
   constructor(
     private viewer: any,
-    private zoomStrategy: ZoomStrategy,
     private canvasService: CanvasService,
     private modeService: ModeService,
     private config: MimeViewerConfig,
     private viewingDirection: ViewingDirection,
   ) {}
 
-  goToCanvasGroup(canvasGroup: CanvasGroup) {
-    const oldCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
-    this.canvasService.currentCanvasGroupIndex =
-      this.canvasService.constrainToRange(canvasGroup.canvasGroupIndex);
-    const newCanvasGroup = this.canvasService.getCanvasGroupRect(
-      this.canvasService.currentCanvasGroupIndex
+  private getPreviousCanvasGroup(canvasGroup: CanvasGroup): Rect {
+    const canvasGroupIndexes = this.canvasService.getCanvasesPerCanvasGroup(
+      canvasGroup.canvasGroupIndex,
     );
+    const previousCanvasIndex =
+      canvasGroupIndexes[canvasGroupIndexes.length - 1];
+    return this.canvasService.getCanvasRect(previousCanvasIndex);
+  }
 
-    if (this.canvasService.getFitTo() === FitTo.WIDTH) {
-      this.zoomStrategy.fitToWidth();
-    } else if (this.canvasService.getFitTo() === FitTo.HEIGHT) {
-      this.zoomStrategy.fitToHeight();
+  private updateCurrentCanvasGroupIndex(canvasGroupIndex: number) {
+    this.canvasService.currentCanvasGroupIndex =
+      this.canvasService.constrainToRange(canvasGroupIndex);
+  }
+
+  private shouldPanToCenter(): boolean {
+    return (
+      (!this.modeService.isPageZoomed() &&
+        this.canvasService.getFitTo() === FitTo.NONE) || // If the viewer is in PAGE mode and is NOT fitted to width or height
+      (this.modeService.isPageZoomed() &&
+        !this.config.preserveZoomOnCanvasGroupChange)
+    ); // If the viewer is ZOOMED and zoom should be preservedd
+  }
+
+  goToCanvasGroup(canvasGroup: CanvasGroup) {
+    const currentCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
+    this.updateCurrentCanvasGroupIndex(canvasGroup.canvasGroupIndex);
+    const newCanvasGroup = this.canvasService.getCanvasGroupRect(
+      this.canvasService.currentCanvasGroupIndex,
+    );
+    const isNavigatingToPreviousCanvas =
+      currentCanvasGroupIndex > canvasGroup.canvasGroupIndex;
+    let y: number; // Change x to y
+    let x = 0;
+
+    if (this.shouldPanToCenter()) {
+      this.panToCenter(newCanvasGroup, canvasGroup.immediately);
     } else {
-
       if (
         this.modeService.isPageZoomed() &&
         this.config.preserveZoomOnCanvasGroupChange
       ) {
-        let y: number; // Change x to y
+        x =
+          currentCanvasGroupIndex !== canvasGroup.canvasGroupIndex
+            ? newCanvasGroup.x +
+              this.getViewportBounds().width / 2 -
+              this.viewer.collectionTileMargin
+            : this.getViewportCenter().x;
+      }
 
-        if (oldCanvasGroupIndex > canvasGroup.canvasGroupIndex) {
-          if (this.config.startOnTopOnCanvasGroupChange) {
-            const canvasGroupIndexes =
-              this.canvasService.getCanvasesPerCanvasGroup(
-                canvasGroup.canvasGroupIndex
-              );
-            const previousCanvasIndex =
-              canvasGroupIndexes[ canvasGroupIndexes.length - 1 ];
-            const previousCanvasRect =
-              this.canvasService.getCanvasRect(previousCanvasIndex);
-            y =
-              this.viewingDirection === ViewingDirection.LTR
-                ? this.topY(previousCanvasRect)
-                : this.bottomY(newCanvasGroup);
-          } else {
-            y =
-              this.viewingDirection === ViewingDirection.LTR
-                ? this.bottomY(newCanvasGroup)
-                : this.topY(newCanvasGroup);
-          }
+      if (isNavigatingToPreviousCanvas) {
+        if (this.config.startOnTopOnCanvasGroupChange) {
+          const previousCanvasGroup = this.getPreviousCanvasGroup(canvasGroup);
+          y =
+            this.viewingDirection === ViewingDirection.LTR
+              ? this.topY(previousCanvasGroup)
+              : this.bottomY(newCanvasGroup);
         } else {
           y =
             this.viewingDirection === ViewingDirection.LTR
-              ? this.topY(newCanvasGroup)
-              : this.bottomY(newCanvasGroup);
+              ? this.bottomY(newCanvasGroup)
+              : this.topY(newCanvasGroup);
         }
-
-        const x =
-          this.config.startOnTopOnCanvasGroupChange &&
-          oldCanvasGroupIndex !== canvasGroup.canvasGroupIndex
-            ? newCanvasGroup.x +
-            this.getViewportBounds().width / 2 -
-            this.viewer.collectionTileMargin
-            : this.getViewportCenter().x;
-
-        this.panTo(x, y, canvasGroup.immediately);
-      } else if (this.modeService.isPageZoomed()) {
-        const oldCanvasGroupCenter =
-          this.canvasService.getCanvasGroupRect(oldCanvasGroupIndex);
-        this.panToCenter(oldCanvasGroupCenter, canvasGroup.immediately);
-        this.zoomStrategy.goToHomeZoom();
-        setTimeout(() => {
-          this.panToCenter(newCanvasGroup, canvasGroup.immediately);
-          this.modeService.mode = ViewerMode.PAGE;
-        }, ViewerOptions.transitions.OSDAnimationTime);
       } else {
-        this.panToCenter(newCanvasGroup, canvasGroup.immediately);
+        y =
+          this.viewingDirection === ViewingDirection.LTR
+            ? this.topY(newCanvasGroup)
+            : this.bottomY(newCanvasGroup);
       }
+
+      this.panTo(x, y, canvasGroup.immediately);
     }
   }
 
@@ -297,13 +327,13 @@ export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy 
       this.canvasService.currentCanvasGroupIndex <
       this.canvasService.numberOfCanvasGroups
     ) {
-      const viewportCenter = this.getViewportCenter();
       const currentCanvasGroupIndex =
-        this.canvasService.findClosestCanvasGroupIndex(viewportCenter);
-
+        this.canvasService.findClosestCanvasGroupIndex(
+          this.getViewportCenter(),
+        );
       const calculateNextCanvasGroupStrategy =
         CalculateNextCanvasGroupFactory.create(ViewerMode.NAVIGATOR);
-      const newCanvasGroupIndex =
+      const nextCanvasGroupIndex =
         calculateNextCanvasGroupStrategy.calculateNextCanvasGroup({
           direction: Direction.NEXT,
           currentCanvasGroupIndex: currentCanvasGroupIndex,
@@ -312,7 +342,7 @@ export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy 
           scrollDirection: ScrollDirection.VERTICAL,
         });
       this.goToCanvasGroup({
-        canvasGroupIndex: newCanvasGroupIndex,
+        canvasGroupIndex: nextCanvasGroupIndex,
         immediately: false,
       });
     }
@@ -321,13 +351,13 @@ export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy 
   public centerCurrentCanvas(): void {
     const currentCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
     const currentCanvasGroupCenter = this.canvasService.getCanvasGroupRect(
-      currentCanvasGroupIndex
+      currentCanvasGroupIndex,
     );
     this.panToCenter(currentCanvasGroupCenter, false);
   }
 
   private topY(canvas: Rect): number {
-    return canvas.y + (this.getViewportBounds().height / 2);
+    return canvas.y + this.getViewportBounds().height / 2;
   }
 
   private bottomY(canvas: Rect): number {
@@ -339,11 +369,15 @@ export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy 
   }
 
   panToCenterVertically(immediately = false): void {
-    this.panTo(this.getViewportCenter().x, 0, immediately);
+    const x = this.getViewportCenter().x;
+    const y = 0;
+    this.panTo(x, y, immediately);
   }
 
   panToCenterHorizontally(immediately = false): void {
-    this.panTo(0, this.getViewportCenter().y, immediately);
+    const x = 0;
+    const y = this.getViewportCenter().y;
+    this.panTo(x, y, immediately);
   }
 
   private getCurrentCanvasGroup(): Rect {
@@ -357,7 +391,7 @@ export class VerticalGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy 
         x: x,
         y: y,
       },
-      immediately
+      immediately,
     );
   }
 
