@@ -56,6 +56,7 @@ export class ViewerPage {
   private contentSearchDialogButton: Locator;
   private contentSearchSubmitButton: Locator;
   private svg: Locator;
+  private canvasGroupOverlays: Locator;
   private canvasGroupOverlay: Locator;
   private leftCanvasGroupMask: Locator;
   private rightCanvasGroupMask: Locator;
@@ -162,6 +163,7 @@ export class ViewerPage {
       'ngx-mime-view-dialog-close-button',
     );
     this.viewMenuDialog = this.page.locator('mime-view-dialog');
+    this.pageGroup = this.page.locator('.page-group');
   }
 
   getBookShelfUrl(manifestName: string): string {
