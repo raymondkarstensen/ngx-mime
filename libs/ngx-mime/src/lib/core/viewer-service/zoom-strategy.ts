@@ -3,7 +3,6 @@ import * as OpenSeadragon from 'openseadragon';
 import { CanvasService } from '../canvas-service/canvas-service';
 import { ModeService } from '../mode-service/mode.service';
 import { Dimensions } from '../models/dimensions';
-import { Direction } from '../models/direction';
 import { Point } from '../models/point';
 import { ViewerLayout } from '../models/viewer-layout';
 import { ViewerMode } from '../models/viewer-mode';
@@ -12,13 +11,6 @@ import { Utils } from '../utils';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
 import { ZoomUtils } from './zoom-utils';
 import { Rect } from 'openseadragon';
-
-export interface CanvasGroup {
-  canvasGroupIndex: number;
-  canvasGroupEndHitCountReached?: boolean;
-  direction: Direction;
-  immediately: boolean;
-}
 
 export interface Strategy {
   setMinZoom(mode: ViewerMode): void;

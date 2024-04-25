@@ -6,3 +6,4 @@ export {
 export { ScrollDirection } from './scroll-direction';
 export { ViewerMode } from './viewer-mode';
 export { FitTo } from './fit-to';
+export { CanvasGroup } from './canvas-group';
