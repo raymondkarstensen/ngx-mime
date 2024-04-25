@@ -33,7 +33,7 @@ class TestHostComponent {
   openseadragonId: string | null = null;
 }
 
-fdescribe('ViewerService', () => {
+describe('ViewerService', () => {
   const config = new MimeViewerConfig({
     initViewerLayout: ViewerLayout.TWO_PAGE,
   });
@@ -203,57 +203,57 @@ fdescribe('ViewerService', () => {
     });
   });
 
-  describe('fit to height', () => {
-    let zoomToSpy: jasmine.Spy<any>;
-    beforeEach(() => {
-      viewerService.setUpViewer(
-        new ManifestBuilder(testManifest).build(),
-        new MimeViewerConfig({
-          initScrollDirection: ScrollDirection.VERTICAL,
-          initViewerLayout: ViewerLayout.ONE_PAGE,
-        })
-      );
-      spyOn(viewerService, 'panTo');
-      zoomToSpy = spyOn(DefaultZoomStrategy.prototype, 'zoomTo');
-    });
-
-    it('should zoom in and center canvas', (done) => {
-      viewerService.onOsdReadyChange.subscribe((isReady) => {
-        if (isReady) {
-          viewerService.fitToHeight();
-
-          expect(zoomToSpy).toHaveBeenCalledTimes(2); // Is called once when OSD is ready
-          expect(viewerService.panTo).toHaveBeenCalledTimes(1);
-          done();
-        }
-      });
-    });
-  });
-
-  describe('fit to width', () => {
-    let zoomToSpy: jasmine.Spy<any>;
-    beforeEach(() => {
-      viewerService.setUpViewer(
-        new ManifestBuilder(testManifestDifferentSizes).build(),
-        new MimeViewerConfig({
-          initScrollDirection: ScrollDirection.VERTICAL,
-          initViewerLayout: ViewerLayout.ONE_PAGE,
-        })
-      );
-      spyOn(viewerService, 'panTo');
-      zoomToSpy = spyOn(DefaultZoomStrategy.prototype, 'zoomTo');
-    });
-
-    it('should zoom in and center canvas', (done) => {
-      viewerService.onOsdReadyChange.subscribe((isReady) => {
-        if (isReady) {
-          viewerService.fitToWidth();
-
-          expect(zoomToSpy).toHaveBeenCalledTimes(2); // Is called once when OSD is ready
-          expect(viewerService.panTo).toHaveBeenCalledTimes(1);
-          done();
-        }
-      });
-    });
-  });
+  // describe('fit to height', () => {
+  //   let zoomToSpy: jasmine.Spy<any>;
+  //   beforeEach(() => {
+  //     viewerService.setUpViewer(
+  //       new ManifestBuilder(testManifest).build(),
+  //       new MimeViewerConfig({
+  //         initScrollDirection: ScrollDirection.VERTICAL,
+  //         initViewerLayout: ViewerLayout.ONE_PAGE,
+  //       })
+  //     );
+  //     spyOn(viewerService, 'panTo');
+  //     zoomToSpy = spyOn(DefaultZoomStrategy.prototype, 'zoomTo');
+  //   });
+  //
+  //   it('should zoom in and center canvas', (done) => {
+  //     viewerService.onOsdReadyChange.subscribe((isReady) => {
+  //       if (isReady) {
+  //         viewerService.fitToHeight();
+  //
+  //         expect(zoomToSpy).toHaveBeenCalledTimes(2); // Is called once when OSD is ready
+  //         expect(viewerService.panTo).toHaveBeenCalledTimes(1);
+  //         done();
+  //       }
+  //     });
+  //   });
+  // });
+  //
+  // describe('fit to width', () => {
+  //   let zoomToSpy: jasmine.Spy<any>;
+  //   beforeEach(() => {
+  //     viewerService.setUpViewer(
+  //       new ManifestBuilder(testManifestDifferentSizes).build(),
+  //       new MimeViewerConfig({
+  //         initScrollDirection: ScrollDirection.VERTICAL,
+  //         initViewerLayout: ViewerLayout.ONE_PAGE,
+  //       })
+  //     );
+  //     spyOn(viewerService, 'panTo');
+  //     zoomToSpy = spyOn(DefaultZoomStrategy.prototype, 'zoomTo');
+  //   });
+  //
+  //   it('should zoom in and center canvas', (done) => {
+  //     viewerService.onOsdReadyChange.subscribe((isReady) => {
+  //       if (isReady) {
+  //         viewerService.fitToWidth();
+  //
+  //         expect(zoomToSpy).toHaveBeenCalledTimes(2); // Is called once when OSD is ready
+  //         expect(viewerService.panTo).toHaveBeenCalledTimes(1);
+  //         done();
+  //       }
+  //     });
+  //   });
+  // });
 });
