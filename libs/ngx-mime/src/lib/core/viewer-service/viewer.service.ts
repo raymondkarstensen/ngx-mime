@@ -181,13 +181,14 @@ export class ViewerService {
 
   goToPreviousCanvasGroup(): void {
     this.goToCanvasGroupStrategy.goToPreviousCanvasGroup(
-      this.currentCanvasIndex.getValue()
+      this.currentCanvasIndex.getValue(), true
     );
   }
 
   goToNextCanvasGroup(): void {
+    // TODO Must pass an argument for forcing panToCenter
     this.goToCanvasGroupStrategy.goToNextCanvasGroup(
-      this.currentCanvasIndex.getValue()
+      this.currentCanvasIndex.getValue(), true
     );
   }
 
@@ -441,7 +442,7 @@ export class ViewerService {
             this.canvasGroupMask.changeCanvasGroup(
               this.canvasService.getCanvasGroupRect(canvasGroupIndex)
             );
-            if (this.modeService.mode === ViewerMode.PAGE || this.modeService.mode === ViewerMode.DASHBOARD) {
+            if ((this.modeService.isPage() || this.modeService.isDashBoard()) && !this.isFitToEnabled()) {
               this.goToHomeZoom();
             }
           }
@@ -451,13 +452,7 @@ export class ViewerService {
 
     this.subscriptions.add(
       this.onCanvasGroupIndexChange.subscribe(async (canvasGroupIndex: number) => {
-        if (this.fitTo === FitTo.WIDTH) {
-          await this.waitForAnimation();
-          this.zoomStrategy.fitToWidth();
-        } else if (this.fitTo === FitTo.HEIGHT) {
-          await this.waitForAnimation();
-          this.zoomStrategy.fitToHeight();
-        }
+        await this.updateFitTo(true);
       })
     );
 
@@ -563,11 +558,7 @@ export class ViewerService {
     this.subscriptions.add(
       this.canvasService.fitTo$.subscribe(async (fitTo: FitTo) => {
         this.fitTo = fitTo;
-        if (this.fitTo === FitTo.WIDTH) {
-          this.zoomStrategy.fitToWidth();
-        } else if (this.fitTo === FitTo.HEIGHT) {
-          this.zoomStrategy.fitToHeight();
-        }
+        await this.updateFitTo();
       })
     );
   }
@@ -1064,7 +1055,7 @@ export class ViewerService {
     this.goToCanvasGroupStrategy.goToCanvasGroup({
       canvasGroupIndex: this.canvasService.currentCanvasGroupIndex,
       immediately: false,
-    });
+    }, true);
 
     if (this.isCanvasMaskEnabled) {
       this.canvasGroupMask.show();
@@ -1167,7 +1158,7 @@ export class ViewerService {
         canvasGroupIndex: newCanvasGroupIndex,
         immediately: false,
         direction: direction,
-      });
+      }, true);
     }
   }
 
@@ -1206,6 +1197,17 @@ export class ViewerService {
         const item = this.viewer.world.getItemAt(i);
         item.setOpacity(opacity);
       }
+    }
+  }
+
+  private async updateFitTo(waitForAnimation = false): Promise<void> {
+    if (waitForAnimation) {
+      await this.waitForAnimation();
+    }
+    if (this.fitTo === FitTo.WIDTH) {
+      this.zoomStrategy.fitToWidth();
+    } else if (this.fitTo === FitTo.HEIGHT) {
+      this.zoomStrategy.fitToHeight();
     }
   }
 
