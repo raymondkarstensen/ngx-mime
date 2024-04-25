@@ -45,6 +45,11 @@ import { IiifManifestService } from './../../core/iiif-manifest-service/iiif-man
 import { MimeViewerIntl } from './../../core/intl';
 import { IiifManifestServiceStub } from './../../test/iiif-manifest-service-stub';
 import { ViewerHeaderComponent } from './viewer-header.component';
+import { ViewerService } from '../../core/viewer-service/viewer.service';
+import { ClickService } from '../../core/click-service/click.service';
+import { CanvasService } from '../../core/canvas-service/canvas-service';
+import { ModeService } from '../../core/mode-service/mode.service';
+import { StyleService } from '../../core/style-service/style.service';
 
 @Component({
   template: `<mime-viewer-header #viewer></mime-viewer-header>`,
@@ -91,6 +96,11 @@ describe('ViewerHeaderComponent', () => {
         HelpDialogConfigStrategyFactory,
         HelpDialogService,
         ScrollDirectionService,
+        ViewerService,
+        ClickService,
+        CanvasService,
+        ModeService,
+        StyleService,
         provideAutoSpy(ElementRef),
         provideAutoSpy(FullscreenService, {
           observablePropsToSpyOn: ['onChange'],
