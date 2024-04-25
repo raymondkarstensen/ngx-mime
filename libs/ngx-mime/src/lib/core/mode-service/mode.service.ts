@@ -20,8 +20,11 @@ export class ModeService {
   }
 
   set mode(mode: ViewerMode) {
-    this._mode = mode;
-    this.change();
+    if (this.mode !== mode) {
+      // TODO Not needed because of distinctUntilChanged?
+      this._mode = mode;
+      this.change();
+    }
   }
 
   get mode(): ViewerMode {
@@ -51,8 +54,21 @@ export class ModeService {
     }
   }
 
+  isDashBoard(): boolean {
+    return this.mode === ViewerMode.DASHBOARD;
+  }
+
+  isPage(): boolean {
+    return this.mode === ViewerMode.PAGE;
+  }
+
   isPageZoomed(): boolean {
     return this.mode === ViewerMode.PAGE_ZOOMED;
+  }
+
+  setPageModeByZoomLevel(zoomLevel: number, homeZoomLevel: number): void {
+    this.mode =
+      zoomLevel > homeZoomLevel ? ViewerMode.PAGE_ZOOMED : ViewerMode.PAGE;
   }
 
   private change() {

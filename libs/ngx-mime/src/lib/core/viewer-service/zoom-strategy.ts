@@ -17,6 +17,8 @@ export interface Strategy {
   getMinZoom(): number;
   getMaxZoom(): number;
   getZoom(): number;
+  getHomeZoomLevel(mode: ViewerMode): number;
+  getFittedZoomLevel(viewportBounds: any, canvasGroupHeight: number, canvasGroupWidth: number): number;
   goToHomeZoom(): void;
   zoomTo(level: number, position?: Point): void;
   zoomIn(zoomFactor?: number, position?: Point): void;
@@ -60,7 +62,7 @@ export class ZoomStrategy {
     }
   }
 
-  private getHomeZoomLevel(mode: ViewerMode): number {
+  getHomeZoomLevel(mode: ViewerMode): number {
     if (!this.viewer || !this.canvasService || !this.viewer.container) {
       return 1;
     }
@@ -156,7 +158,7 @@ export class ZoomStrategy {
     );
   }
 
-  private getFittedZoomLevel(
+  getFittedZoomLevel(
     viewportBounds: any,
     canvasGroupHeight: number,
     canvasGroupWidth: number
@@ -198,15 +200,7 @@ export class ZoomStrategy {
 
   private updateViewerMode(zoomLevel: number): void {
     const homeZoomLevel = this.getHomeZoomLevel(this.modeService.mode);
-    if (zoomLevel > homeZoomLevel) {
-      if (!this.modeService.isPageZoomed()) {
-        this.modeService.mode = ViewerMode.PAGE_ZOOMED;
-      }
-    } else { // Less or Equal
-      if (this.modeService.mode !== ViewerMode.PAGE) {
-        this.modeService.mode = ViewerMode.PAGE;
-      }
-    }
+    this.modeService.setPageModeByZoomLevel(zoomLevel, homeZoomLevel);
   }
 
   private zoomBy(zoomFactor: number, position?: Point): void {
