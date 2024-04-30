@@ -6,12 +6,15 @@ import { Point } from '../models/point';
 import { Rect } from '../models/rect';
 import { ViewingDirection } from '../models/viewing-direction';
 import { CalculateNextCanvasGroupFactory } from './calculate-next-canvas-group-factory';
-import { CanvasGroup, FitTo, ViewerMode, ScrollDirection } from '../models';
+import { CanvasGroup, FitTo, ScrollDirection, ViewerMode } from '../models';
 import { ZoomStrategy } from './zoom-strategy';
 
 export interface GoToCanvasGroupStrategy {
   goToCanvasGroup(canvasGroup: CanvasGroup, panToCenter?: boolean): void;
-  goToPreviousCanvasGroup(currentCanvasIndex: number, panToCenter?: boolean): void;
+  goToPreviousCanvasGroup(
+    currentCanvasIndex: number,
+    panToCenter?: boolean,
+  ): void;
   goToNextCanvasGroup(currentCanvasIndex: number, panToCenter?: boolean): void;
   centerCurrentCanvas(): void;
   panToCenterVertically(immediately?: boolean): void;
@@ -147,13 +150,11 @@ export class HorizontalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStr
   }
 
   override goToPreviousCanvasGroup(currentCanvasIndex: number, panToCenter = false): void {
-    if (this.canvasService.currentCanvasGroupIndex > 0) {
+    if (this.canvasService.isPreviousCanvasGroupValid()) {
       const viewportCenter = this.getViewportCenter();
-      const currentCanvasGroupIndex =
-        this.canvasService.findClosestCanvasGroupIndex(viewportCenter);
+      const currentCanvasGroupIndex = this.canvasService.findClosestCanvasGroupIndex(viewportCenter);
 
-      const calculateNextCanvasGroupStrategy =
-        CalculateNextCanvasGroupFactory.create(ViewerMode.NAVIGATOR);
+      const calculateNextCanvasGroupStrategy = CalculateNextCanvasGroupFactory.create(ViewerMode.NAVIGATOR);
       const newCanvasGroupIndex =
         calculateNextCanvasGroupStrategy.calculateNextCanvasGroup({
           direction: Direction.PREVIOUS,
@@ -170,16 +171,11 @@ export class HorizontalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStr
   }
 
   override goToNextCanvasGroup(currentCanvasIndex: number, panToCenter = false): void {
-    if (
-      this.canvasService.currentCanvasGroupIndex <
-      this.canvasService.numberOfCanvasGroups
-    ) {
+    if (this.canvasService.isNextCanvasGroupValid()) {
       const viewportCenter = this.getViewportCenter();
-      const currentCanvasGroupIndex =
-        this.canvasService.findClosestCanvasGroupIndex(viewportCenter);
+      const currentCanvasGroupIndex = this.canvasService.findClosestCanvasGroupIndex(viewportCenter);
 
-      const calculateNextCanvasGroupStrategy =
-        CalculateNextCanvasGroupFactory.create(ViewerMode.NAVIGATOR);
+      const calculateNextCanvasGroupStrategy = CalculateNextCanvasGroupFactory.create(ViewerMode.NAVIGATOR);
       const newCanvasGroupIndex =
         calculateNextCanvasGroupStrategy.calculateNextCanvasGroup({
           direction: Direction.NEXT,
@@ -252,7 +248,7 @@ export class VerticalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStrat
   }
 
   override goToPreviousCanvasGroup(currentCanvasIndex: number, panToCenter = false): void {
-    if (this.canvasService.currentCanvasGroupIndex > 0) {
+    if (this.canvasService.isPreviousCanvasGroupValid()) {
       const viewportCenter = this.getViewportCenter();
       const currentCanvasGroupIndex =
         this.canvasService.findClosestCanvasGroupIndex(viewportCenter);
@@ -275,7 +271,7 @@ export class VerticalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStrat
   }
 
   override goToNextCanvasGroup(currentCanvasIndex: number, panToCenter = false): void {
-    if (this.canvasService.currentCanvasGroupIndex < this.canvasService.numberOfCanvasGroups) {
+    if (this.canvasService.isNextCanvasGroupValid()) {
       const currentCanvasGroupIndex = this.canvasService.findClosestCanvasGroupIndex(this.getViewportCenter(),);
       const calculateNextCanvasGroupStrategy = CalculateNextCanvasGroupFactory.create(ViewerMode.NAVIGATOR);
       const nextCanvasGroupIndex =

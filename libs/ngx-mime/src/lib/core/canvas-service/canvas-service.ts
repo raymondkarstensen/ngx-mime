@@ -113,9 +113,17 @@ export class CanvasService {
     return this.isWithinBounds(this.currentCanvasGroupIndex);
   }
 
+  isNextCanvasGroupValid(): boolean {
+    return this.isWithinBounds(this.currentCanvasGroupIndex + 1)
+  }
+
+  isPreviousCanvasGroupValid(): boolean {
+    return this.isWithinBounds(this.currentCanvasGroupIndex - 1)
+  }
+
   // Returns -1 if next canvas index is out of bounds
   getNextCanvasGroupIndex(): number {
-    if (!this.isWithinBounds(this.currentCanvasGroupIndex + 1)) {
+    if (!this.isNextCanvasGroupValid()) {
       return -1;
     }
     this.currentCanvasGroupIndex++;
@@ -124,7 +132,7 @@ export class CanvasService {
 
   // Returns -1 if previous canvas index is out of bounds
   getPrevCanvasGroupIndex(): number {
-    if (!this.isWithinBounds(this.currentCanvasGroupIndex - 1)) {
+    if (!this.isPreviousCanvasGroupValid()) {
       return -1;
     }
     this.currentCanvasGroupIndex--;
