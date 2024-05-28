@@ -50,7 +50,7 @@ export class CanvasService {
   }
 
   set currentCanvasGroupIndex(currentCanvasGroupIndex: number) {
-    if (!this.isWithinBounds(currentCanvasGroupIndex)) {
+    if (!this.isCanvasGroupWithinRange(currentCanvasGroupIndex)) {
       return;
     }
     this._currentCanvasGroupIndex.next(currentCanvasGroupIndex);
@@ -103,7 +103,19 @@ export class CanvasService {
     return this._fitTo;
   }
 
-  isWithinBounds(canvasGroupIndex: number): boolean {
+  isFitToEnabled(): boolean {
+    return this._fitTo !== FitTo.NONE;
+  }
+
+  isFitToWidthEnabled(): boolean {
+    return this._fitTo === FitTo.WIDTH;
+  }
+
+  isFitToHeightEnabled(): boolean {
+    return this._fitTo === FitTo.HEIGHT;
+  }
+
+  isCanvasGroupWithinRange(canvasGroupIndex: number): boolean {
     return (
       canvasGroupIndex > -1 && canvasGroupIndex <= this.numberOfCanvasGroups - 1
     );
