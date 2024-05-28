@@ -122,15 +122,15 @@ export class CanvasService {
   }
 
   isCurrentCanvasGroupValid(): boolean {
-    return this.isWithinBounds(this.currentCanvasGroupIndex);
+    return this.isCanvasGroupWithinRange(this.currentCanvasGroupIndex);
   }
 
   isNextCanvasGroupValid(): boolean {
-    return this.isWithinBounds(this.currentCanvasGroupIndex + 1)
+    return this.isCanvasGroupWithinRange(this.currentCanvasGroupIndex + 1)
   }
 
   isPreviousCanvasGroupValid(): boolean {
-    return this.isWithinBounds(this.currentCanvasGroupIndex - 1)
+    return this.isCanvasGroupWithinRange(this.currentCanvasGroupIndex - 1)
   }
 
   // Returns -1 if next canvas index is out of bounds
