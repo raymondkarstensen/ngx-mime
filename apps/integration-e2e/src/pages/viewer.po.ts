@@ -572,6 +572,14 @@ export class ViewerPage {
     return (await this.modePage.count()) > 0;
   }
 
+  async isOnePageView(): Promise<boolean> {
+    const secondPageGroupCount = await this.pageGroup
+      .nth(1)
+      .locator('rect')
+      .count();
+    return secondPageGroupCount === 1;
+  }
+
   async isTwoPageView(): Promise<boolean> {
     const secondPageGroupCount = await this.pageGroup
       .nth(1)
@@ -582,11 +590,6 @@ export class ViewerPage {
 
   async isViewDialogOpen(): Promise<boolean> {
     return this.viewMenuDialog.isVisible();
-  }
-
-  async isOnePageView(): Promise<boolean> {
-    const singlePageGroupCount = await this.pageGroup.count();
-    return singlePageGroupCount === 1;
   }
 
   async isCurrentCanvasGroupFittedViewport(): Promise<boolean> {

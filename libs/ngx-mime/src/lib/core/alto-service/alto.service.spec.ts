@@ -3,6 +3,7 @@ import {
   HttpTestingController,
 } from '@angular/common/http/testing';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { provideAutoSpy } from 'jest-auto-spies';
 import {
   ScrollDirectionService
 } from '../scroll-direction-service/scroll-direction-service';
@@ -15,6 +16,7 @@ import { HighlightService } from '../highlight-service/highlight.service';
 import { IiifManifestService } from '../iiif-manifest-service/iiif-manifest-service';
 import { MimeViewerIntl } from '../intl';
 import { RecognizedTextMode } from '../models';
+import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
 import { testAlto } from './../../test/testAltos';
 import { AltoService } from './alto.service';
 
@@ -36,6 +38,7 @@ describe('AltoService', () => {
         ScrollDirectionService,
         { provide: CanvasService, useClass: CanvasServiceStub },
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },
+        provideAutoSpy(ViewerLayoutService),
       ],
     });
     service = TestBed.inject(AltoService);

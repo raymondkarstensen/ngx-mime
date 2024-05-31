@@ -11,6 +11,7 @@ describe('canvasRectFromCriteria', () => {
   const canvasGroupsPositionCriteria: CanvasGroupPositionCriteria = {
     canvasGroupIndex: 0,
     canvasSource: new Resource({
+      id: 'fakeId',
       width: 100,
       height: 200,
       service: new Service({
@@ -38,11 +39,11 @@ describe('canvasRectFromCriteria', () => {
         canvasGroupsPositionCriteria,
         10,
         false,
-        scrollDirection
+        scrollDirection,
       );
 
       expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -100, width: 100, height: 200 })
+        new Rect({ x: 10, y: -100, width: 100, height: 200 }),
       );
     });
 
@@ -52,11 +53,11 @@ describe('canvasRectFromCriteria', () => {
         canvasGroupsPositionCriteria,
         10,
         false,
-        scrollDirection
+        scrollDirection,
       );
 
       expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -50, width: 200, height: 100 })
+        new Rect({ x: 10, y: -50, width: 200, height: 100 }),
       );
     });
 
@@ -66,11 +67,11 @@ describe('canvasRectFromCriteria', () => {
         canvasGroupsPositionCriteria,
         10,
         false,
-        scrollDirection
+        scrollDirection,
       );
 
       expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -100, width: 100, height: 200 })
+        new Rect({ x: 10, y: -100, width: 100, height: 200 }),
       );
     });
 
@@ -80,11 +81,11 @@ describe('canvasRectFromCriteria', () => {
         canvasGroupsPositionCriteria,
         10,
         false,
-        scrollDirection
+        scrollDirection,
       );
 
       expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -50, width: 200, height: 100 })
+        new Rect({ x: 10, y: -50, width: 200, height: 100 }),
       );
     });
     it('should rotate 360 degrees', () => {
@@ -93,11 +94,11 @@ describe('canvasRectFromCriteria', () => {
         canvasGroupsPositionCriteria,
         10,
         false,
-        scrollDirection
+        scrollDirection,
       );
 
       expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -100, width: 100, height: 200 })
+        new Rect({ x: 10, y: -100, width: 100, height: 200 }),
       );
     });
   });
@@ -108,11 +109,11 @@ describe('canvasRectFromCriteria', () => {
         canvasGroupsPositionCriteria,
         10,
         true,
-        scrollDirection
+        scrollDirection,
       );
 
       expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -100, width: 100, height: 200 })
+        new Rect({ x: 10, y: -100, width: 100, height: 200 }),
       );
     });
 
@@ -122,11 +123,11 @@ describe('canvasRectFromCriteria', () => {
         canvasGroupsPositionCriteria,
         10,
         true,
-        scrollDirection
+        scrollDirection,
       );
 
       expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -50, width: 200, height: 100 })
+        new Rect({ x: 10, y: -50, width: 200, height: 100 }),
       );
     });
 
@@ -136,11 +137,11 @@ describe('canvasRectFromCriteria', () => {
         canvasGroupsPositionCriteria,
         10,
         true,
-        scrollDirection
+        scrollDirection,
       );
 
       expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -100, width: 100, height: 200 })
+        new Rect({ x: 10, y: -100, width: 100, height: 200 }),
       );
     });
 
@@ -150,11 +151,11 @@ describe('canvasRectFromCriteria', () => {
         canvasGroupsPositionCriteria,
         10,
         true,
-        scrollDirection
+        scrollDirection,
       );
 
       expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -50, width: 200, height: 100 })
+        new Rect({ x: 10, y: -50, width: 200, height: 100 }),
       );
     });
     it('should rotate 360 degrees', () => {
@@ -163,11 +164,11 @@ describe('canvasRectFromCriteria', () => {
         canvasGroupsPositionCriteria,
         10,
         true,
-        scrollDirection
+        scrollDirection,
       );
 
       expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -100, width: 100, height: 200 })
+        new Rect({ x: 10, y: -100, width: 100, height: 200 }),
       );
     });
   });

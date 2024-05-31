@@ -2,6 +2,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { provideAutoSpy } from 'jest-auto-spies';
 import {
   ScrollDirectionService
 } from '../../core/scroll-direction-service/scroll-direction-service';
@@ -29,7 +30,7 @@ describe('TocComponent', () => {
       declarations: [TocComponent],
       providers: [
         ClickService,
-        CanvasService,
+        provideAutoSpy(CanvasService),
         ModeService,
         MimeViewerIntl,
         ScrollDirectionService,
