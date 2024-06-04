@@ -1193,8 +1193,20 @@ export class ViewerService {
     return this.scrollDirectionService.isHorizontalScrollingDirection();
   }
 
+  private enableHorizontalPanning(): void {
+    this.viewer.panHorizontal = true;
   }
 
+  private disableHorizontalPanning(): void {
+    this.viewer.panHorizontal = false;
+  }
+
+  private enableVerticalPanning(): void {
+    this.viewer.panVertical = true;
+  }
+
+  private disableVerticalPanning(): void {
+    this.viewer.panVertical = false;
   }
 
   private unsubscribe() {
