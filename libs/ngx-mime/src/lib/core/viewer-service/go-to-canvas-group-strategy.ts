@@ -158,7 +158,7 @@ export class HorizontalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStr
   }
 
   override goToCanvasGroup(canvasGroup: CanvasGroup, panToCenter = false) {
-    const previousCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
+    this.previousCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
     this.updateCurrentCanvasGroupIndex(canvasGroup.canvasGroupIndex);
 
     if (this.canvasService.isFitToEnabled()) {
@@ -168,7 +168,7 @@ export class HorizontalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStr
     if (panToCenter || this.shouldPanToCenter()) {
       this.panToCenter(this.canvasService.getCanvasGroupRect(canvasGroup.canvasGroupIndex), canvasGroup.immediately);
     } else {
-      const rect = this.getRect(previousCanvasGroupIndex, canvasGroup);
+      const rect = this.getRect(this.previousCanvasGroupIndex, canvasGroup.canvasGroupIndex);
       this.panTo(rect.x, rect.y, canvasGroup.immediately);
     }
   }
@@ -263,7 +263,7 @@ export class VerticalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStrat
   }
 
   override goToCanvasGroup(canvasGroup: CanvasGroup, panToCenter = false) {
-    const previousCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
+    this.previousCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
     this.updateCurrentCanvasGroupIndex(canvasGroup.canvasGroupIndex);
 
     if (this.canvasService.isFitToEnabled()) {
