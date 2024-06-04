@@ -1152,7 +1152,7 @@ export class ViewerService {
     this.viewer.viewport.panBy(point, immediately);
   }
 
-  panToCenter(): void {
+  private panToCenter(): void {
     this.goToCanvasGroupStrategy.centerCurrentCanvas();
   }
 
