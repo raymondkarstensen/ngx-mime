@@ -111,12 +111,14 @@ export class VerticalConstraintStrategy extends ConstraintStrategy implements St
   override constraintCanvas(): void {
     if (!this.panStatus) {
       const viewportBounds: Rect = this.getViewportBounds();
-      const currentCanvasGroupBounds =
-        this.canvasService.getCurrentCanvasGroupRect();
-
-      this.isCanvasOutsideViewport(viewportBounds, currentCanvasGroupBounds)
-        ? this.constraintCanvasOutsideViewport(viewportBounds, currentCanvasGroupBounds)
-        : this.constraintCanvasInsideViewport(viewportBounds);
+      const currentCanvasGroupBounds = this.canvasService.getCurrentCanvasGroupRect();
+      if (this.modeService.isPageZoomed()) {
+        this.isCanvasOutsideViewport(viewportBounds, currentCanvasGroupBounds)
+          ? this.constraintCanvasOutsideViewport(viewportBounds, currentCanvasGroupBounds)
+          : this.constraintCanvasInsideViewport(viewportBounds);
+      } else {
+        this.snapToCenter(currentCanvasGroupBounds, viewportBounds);
+      }
     }
   }
 
