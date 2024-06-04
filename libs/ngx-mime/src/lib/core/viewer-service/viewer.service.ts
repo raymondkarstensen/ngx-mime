@@ -1193,12 +1193,8 @@ export class ViewerService {
     return this.scrollDirectionService.isHorizontalScrollingDirection();
   }
 
-  private isFitToEnabled(): boolean {
-    return this.fitTo !== FitTo.NONE;
   }
 
-  waitForAnimation = async ():Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, ViewerOptions.transitions.OSDAnimationTime));
   }
 
   private unsubscribe() {
