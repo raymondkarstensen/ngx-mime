@@ -452,8 +452,10 @@ export class ViewerService {
 
     this.subscriptions.add(
       this.onCanvasGroupIndexChange.subscribe(async (canvasGroupIndex: number) => {
-        await this.updateFitTo(true);
         this.canvasService.currentCanvasGroupIndex = canvasGroupIndex;
+        if (this.canvasService.isFitToEnabled()) {
+          await this.updateFitTo(false);
+        }
       })
     );
 
