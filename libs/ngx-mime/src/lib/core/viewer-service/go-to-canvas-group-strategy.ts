@@ -248,11 +248,19 @@ export class HorizontalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStr
   }
 
   private leftX(canvas: Rect): number {
-    return canvas.x + this.getViewportBounds().width / 2;
+    const x = canvas.x + this.getViewportBounds().width / 2;
+
+    return this.isCanvasWiderThanViewport(canvas) ? x : canvas.centerX;
   }
 
   private rightX(canvas: Rect): number {
-    return canvas.x + canvas.width - this.getViewportBounds().width / 2;
+    const x = canvas.x + canvas.width - this.getViewportBounds().width / 2;
+
+    return this.isCanvasWiderThanViewport(canvas) ? x : canvas.centerX;
+  }
+
+  private isCanvasWiderThanViewport(canvas: Rect): boolean {
+    return canvas.width > this.getViewportBounds().width;
   }
 }
 
