@@ -932,7 +932,6 @@ export class ViewerService {
   private dragEndHandler = (event: any): void => {
     if (this.dragStatus) {
       if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
-        this.constraintStrategy.constraintCanvas();
         this.swipeToCanvasGroup(event);
       } else {
         if (this.modeService.isPageZoomed()) {
@@ -959,7 +958,6 @@ export class ViewerService {
 
   private panHandler = (event: any) => {
     if (!this.dragStatus) {
-      this.constraintStrategy.constraintCanvas();
       if (this.scrollDirectionService.isVerticalScrollingDirection()) {
         this.updateCurrentCanvasIndex(event);
       }
