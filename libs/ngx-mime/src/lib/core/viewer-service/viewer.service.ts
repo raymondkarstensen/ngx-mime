@@ -560,8 +560,9 @@ export class ViewerService {
 
     this.subscriptions.add(
       this.canvasService.fitTo$.subscribe(async (fitTo: FitTo) => {
+        const initialToggle: boolean = this.fitTo === FitTo.NONE && fitTo !== this.fitTo;
         this.fitTo = fitTo;
-        await this.updateFitTo();
+        await this.updateFitTo(initialToggle);
       })
     );
   }
