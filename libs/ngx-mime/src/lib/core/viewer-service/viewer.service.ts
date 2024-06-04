@@ -652,31 +652,32 @@ export class ViewerService {
     if (!this.viewer) {
       return;
     }
-    const isHorizontalScrollingDirection =
-      this.scrollDirectionService.isHorizontalScrollingDirection();
+    this.updatePanningConstraints();
     if (mode.currentValue === ViewerMode.DASHBOARD) {
-      if (isHorizontalScrollingDirection) {
-        this.viewer.panVertical = false;
-      } else {
-        this.viewer.panHorizontal = false;
-      }
       this.toggleToDashboard();
       this.disableKeyDownHandler();
     } else if (mode.currentValue === ViewerMode.PAGE) {
-      if (isHorizontalScrollingDirection) {
-        this.viewer.panVertical = false;
-      } else {
-        this.viewer.panHorizontal = false;
-      }
       this.toggleToPage();
       this.disableKeyDownHandler();
     } else if (mode.currentValue === ViewerMode.PAGE_ZOOMED) {
-      if (isHorizontalScrollingDirection) {
-        this.viewer.panVertical = true;
-      } else {
-        this.viewer.panHorizontal = true;
-      }
+      this.zoomStrategy.setMinZoom(ViewerMode.PAGE_ZOOMED);
       this.resetKeyDownHandler();
+    }
+  }
+
+  private updatePanningConstraints(): void {
+    if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
+      this.enableHorizontalPanning();
+      this.enableVerticalPanning();
+      if (this.modeService.isPage() || this.canvasService.isFitToHeightEnabled()) {
+        this.disableVerticalPanning();
+      }
+    } else {
+      this.enableHorizontalPanning();
+      this.enableVerticalPanning();
+      if (this.modeService.isPage() || this.canvasService.isFitToWidthEnabled()) {
+        this.disableHorizontalPanning();
+      }
     }
   }
 
