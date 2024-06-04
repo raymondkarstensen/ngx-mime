@@ -15,10 +15,8 @@ export class CanvasService {
     new BehaviorSubject(0);
   protected _currentCanvasGroupIndex: BehaviorSubject<number> =
     new BehaviorSubject(0);
-
   protected canvasGroups: CanvasGroups = new CanvasGroups();
   protected _numberOfCanvases = 0;
-
   fitTo$: BehaviorSubject<FitTo> = new BehaviorSubject<FitTo>(FitTo.NONE);
 
   constructor(private scrollDirectionService: ScrollDirectionService) {}
