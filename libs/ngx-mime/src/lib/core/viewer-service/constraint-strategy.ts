@@ -85,9 +85,7 @@ export class HorizontalConstraintStrategy extends ConstraintStrategy implements 
       x: viewportBounds.x + viewportBounds.width / 2,
       y: canvasGroupRect.centerY,
     });
-    // TODO Not sure yet if this is correct
-    this.snapToCenter(canvasGroupRect, viewportBounds);
-    // this.panTo(rect, false);
+    this.panTo(rect, false);
     this.panStatus = false;
   }
 
