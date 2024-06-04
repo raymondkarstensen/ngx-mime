@@ -1128,6 +1128,7 @@ export class ViewerService {
         immediately: false,
         direction: direction,
       }, true);
+        false,
     }
   }
 
