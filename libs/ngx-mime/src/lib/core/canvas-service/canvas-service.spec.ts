@@ -23,16 +23,16 @@ describe('CanvasService', () => {
   });
 
   it('should return true when requested canvas group index is within bounds', () => {
-    expect(service.isWithinBounds(0)).toBe(true);
-    expect(service.isWithinBounds(10)).toBe(true);
-    expect(service.isWithinBounds(99)).toBe(true);
+    expect(service.isCanvasGroupWithinRange(0)).toBe(true);
+    expect(service.isCanvasGroupWithinRange(10)).toBe(true);
+    expect(service.isCanvasGroupWithinRange(99)).toBe(true);
   });
 
   it('should return false when requested canvas group index is outside bounds', () => {
-    expect(service.isWithinBounds(-1)).toBe(false);
-    expect(service.isWithinBounds(100)).toBe(false);
-    expect(service.isWithinBounds(101)).toBe(false);
-    expect(service.isWithinBounds(1000)).toBe(false);
+    expect(service.isCanvasGroupWithinRange(-1)).toBe(false);
+    expect(service.isCanvasGroupWithinRange(100)).toBe(false);
+    expect(service.isCanvasGroupWithinRange(101)).toBe(false);
+    expect(service.isCanvasGroupWithinRange(1000)).toBe(false);
   });
 
   it('should set canvas group index', () => {
