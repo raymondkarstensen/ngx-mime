@@ -1214,11 +1214,4 @@ export class ViewerService {
       this.subscriptions.unsubscribe();
     }
   }
-
-  printInfo() {
-    console.log('************* INFO *******************');
-    console.log('Current zoom ', this.getZoom(), this.getMinZoom());
-    console.log('Viewport Bounds', this.getViewportBounds());
-    console.log('CanvasGroupRect', this.canvasService.getCurrentCanvasGroupRect());
-  }
 }
