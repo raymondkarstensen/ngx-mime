@@ -635,7 +635,6 @@ export class ViewerService {
 
     this.viewer.addHandler('canvas-drag', (e: any) => {
       this.dragStatus = true;
-      this.dragHandler(e);
     });
     this.viewer.addHandler('canvas-drag-end', this.dragEndHandler);
     this.viewer.addHandler('animation', (e: any) => {
@@ -924,29 +923,6 @@ export class ViewerService {
         this.canvasService.currentCanvasGroupIndex = requestedCanvasGroupIndex;
       } else {
         this.calculateCurrentCanvasGroup(this.viewer?.viewport.getCenter(true));
-      }
-    }
-  };
-
-  private dragHandler = (e: any) => {
-    this.viewer.panHorizontal = true;
-    if (this.modeService.isPageZoomed()) {
-      const canvasGroupRect: Rect =
-        this.canvasService.getCurrentCanvasGroupRect();
-      const vpBounds: Rect = this.getViewportBounds();
-      const pannedPastCanvasGroup =
-        SwipeUtils.getSideIfPanningPastEndOfCanvasGroup(
-          canvasGroupRect,
-          vpBounds
-        );
-      const direction: number = e.direction;
-      if (
-        (pannedPastCanvasGroup === Side.LEFT &&
-          SwipeUtils.isDirectionInRightSemicircle(direction)) ||
-        (pannedPastCanvasGroup === Side.RIGHT &&
-          SwipeUtils.isDirectionInLeftSemicircle(direction))
-      ) {
-        this.viewer.panHorizontal = false;
       }
     }
   };
