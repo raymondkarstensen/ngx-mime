@@ -98,10 +98,6 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
     this.panTo(canvasGroupRect.centerX, canvasGroupRect.centerY, immediately);
   }
 
-  protected isFitToEnabled(): boolean {
-    return this.canvasService.getFitTo() !== FitTo.NONE;
-  }
-
   protected isNewCanvasGroup(previous: number, current: number): boolean {
     return previous !== current;
   }
