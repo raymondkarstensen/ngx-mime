@@ -1078,18 +1078,15 @@ export class ViewerService {
     }
 
     const speed: number = e.speed;
-    const dragEndPosision = e.position;
-
+    const dragEndPosition = e.position;
     const canvasGroupRect: Rect =
       this.canvasService.getCurrentCanvasGroupRect();
     const viewportBounds: Rect = this.getViewportBounds();
-
     const direction: Direction = SwipeUtils.getSwipeDirection(
       this.dragStartPosition,
-      dragEndPosision,
-      this.modeService.isPageZoomed()
+      dragEndPosition,
+      this.modeService.isPageZoomed(),
     );
-
     const currentCanvasGroupIndex: number =
       this.canvasService.currentCanvasGroupIndex;
     const calculateNextCanvasGroupStrategy =
