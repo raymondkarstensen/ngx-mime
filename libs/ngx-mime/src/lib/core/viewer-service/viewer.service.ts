@@ -1172,10 +1172,7 @@ export class ViewerService {
     }
   }
 
-  private async updateFitTo(waitForAnimation = false): Promise<void> {
-    if (waitForAnimation) {
-      await this.waitForAnimation();
-    }
+  private async updateFitTo(initialToggle = false): Promise<void> {
     if (this.fitTo === FitTo.WIDTH) {
       this.zoomStrategy.fitToWidth();
     } else if (this.fitTo === FitTo.HEIGHT) {
