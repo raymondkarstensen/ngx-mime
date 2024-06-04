@@ -935,11 +935,7 @@ export class ViewerService {
       if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
         this.swipeToCanvasGroup(event);
       } else {
-        if (this.modeService.isPageZoomed()) {
-          this.updateCurrentCanvasIndex(event);
-        } else {
-          this.swipeToCanvasGroup(event);
-        }
+        this.updateCurrentCanvasIndex(event);
       }
     }
     this.dragStatus = false;
@@ -1123,12 +1119,14 @@ export class ViewerService {
       this.modeService.isPage() ||
       (canvasGroupEndHitCountReached && (direction === Direction.RIGHT || direction === Direction.LEFT))
     ) {
-      this.goToCanvasGroupStrategy.goToCanvasGroup({
-        canvasGroupIndex: newCanvasGroupIndex,
-        immediately: false,
-        direction: direction,
-      }, true);
+      this.goToCanvasGroupStrategy.goToCanvasGroup(
+        {
+          canvasGroupIndex: newCanvasGroupIndex,
+          immediately: false,
+          direction: direction,
+        },
         false,
+      );
     }
   }
 
