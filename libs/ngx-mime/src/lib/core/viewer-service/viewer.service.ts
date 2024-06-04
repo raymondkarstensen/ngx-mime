@@ -159,14 +159,6 @@ export class ViewerService {
     return this.zoomStrategy.getZoom();
   }
 
-  getMinZoom(): number {
-    return this.zoomStrategy.getMinZoom();
-  }
-
-  getMaxZoom(): number {
-    return this.zoomStrategy.getMaxZoom();
-  }
-
   home(): void {
     if (!this.osdIsReady.getValue()) {
       return;
