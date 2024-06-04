@@ -10,6 +10,7 @@ import { CanvasGroup, FitTo, ScrollDirection, ViewerMode } from '../models';
 import { ZoomStrategy } from './zoom-strategy';
 
 export interface GoToCanvasGroupStrategy {
+  adjustPosition(): void;
   goToCanvasGroup(canvasGroup: CanvasGroup, panToCenter?: boolean): void;
   goToPreviousCanvasGroup(
     currentCanvasIndex: number,
@@ -22,6 +23,7 @@ export interface GoToCanvasGroupStrategy {
 }
 
 export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
+  private _previousCanvasGroupIndex = 0;
   constructor(
     protected viewer: any,
     protected zoomStrategy: ZoomStrategy,
@@ -30,6 +32,8 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
     protected config: MimeViewerConfig,
     protected viewingDirection: ViewingDirection,
   ) {}
+
+  adjustPosition(): void {}
 
   goToCanvasGroup(canvasGroup: CanvasGroup): void {}
 
@@ -137,9 +141,22 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
     }
     return zoomLevel;
   }
+
+  set previousCanvasGroupIndex(previousCanvasGroupIndex: number) {
+    this._previousCanvasGroupIndex = previousCanvasGroupIndex;
+  }
+
+  get previousCanvasGroupIndex(): number {
+    return this._previousCanvasGroupIndex;
+  }
 }
 
 export class HorizontalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStrategy {
+  override adjustPosition(): void {
+    const rect = this.getRect(this.previousCanvasGroupIndex, this.canvasService.currentCanvasGroupIndex);
+    this.panTo(rect.x, rect.y, false);
+  }
+
   override goToCanvasGroup(canvasGroup: CanvasGroup, panToCenter = false) {
     const previousCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
     this.updateCurrentCanvasGroupIndex(canvasGroup.canvasGroupIndex);
@@ -240,6 +257,11 @@ export class HorizontalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStr
 }
 
 export class VerticalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStrategy {
+  override adjustPosition(): void {
+    const rect = this.getRect(this.previousCanvasGroupIndex, this.canvasService.currentCanvasGroupIndex);
+    this.panTo(rect.x, rect.y, false);
+  }
+
   override goToCanvasGroup(canvasGroup: CanvasGroup, panToCenter = false) {
     const previousCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
     this.updateCurrentCanvasGroupIndex(canvasGroup.canvasGroupIndex);
@@ -251,7 +273,7 @@ export class VerticalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStrat
     if (panToCenter || this.shouldPanToCenter()) {
       this.panToCenter(this.canvasService.getCanvasGroupRect(canvasGroup.canvasGroupIndex), canvasGroup.immediately);
     } else {
-      const rect = this.getRect(previousCanvasGroupIndex, canvasGroup);
+      const rect = this.getRect(this.previousCanvasGroupIndex, canvasGroup.canvasGroupIndex);
       this.panTo(rect.x, rect.y, canvasGroup.immediately);
     }
   }
