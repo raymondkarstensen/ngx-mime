@@ -1176,9 +1176,17 @@ export class ViewerService {
   private async updateFitTo(initialToggle = false): Promise<void> {
     if (this.fitTo === FitTo.WIDTH) {
       this.zoomStrategy.fitToWidth();
+      if (!initialToggle && this.shouldAdjustPosition()) {
+        this.goToCanvasGroupStrategy.adjustPosition();
+      }
     } else if (this.fitTo === FitTo.HEIGHT) {
       this.zoomStrategy.fitToHeight();
+      if (!initialToggle && this.shouldAdjustPosition()) {
+        this.goToCanvasGroupStrategy.adjustPosition();
+      }
     }
+  private shouldAdjustPosition(): boolean {
+    return this.scrollDirectionService.isHorizontalScrollingDirection();
   }
 
   private isFitToEnabled(): boolean {
