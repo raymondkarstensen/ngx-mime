@@ -184,8 +184,4 @@ export class ViewerHeaderComponent implements OnInit, OnDestroy {
   toggleFitToHeight() {
     this.canvasService.toggleFitToHeight();
   }
-
-  printInfo() {
-    this.viewerService.printInfo();
-  }
 }
