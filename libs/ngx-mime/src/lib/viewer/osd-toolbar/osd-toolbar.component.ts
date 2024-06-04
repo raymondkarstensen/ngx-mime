@@ -146,11 +146,11 @@ export class OsdToolbarComponent implements OnInit, OnDestroy {
   }
 
   public goToPreviousCanvasGroup(): void {
-    this.viewerService.goToPreviousCanvasGroup();
+    this.viewerService.goToPreviousCanvasGroup(true);
   }
 
   public goToNextCanvasGroup(): void {
-    this.viewerService.goToNextCanvasGroup();
+    this.viewerService.goToNextCanvasGroup(true);
   }
 
   private isOnFirstCanvasGroup(currentCanvasGroupIndex: number): boolean {

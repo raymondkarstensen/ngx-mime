@@ -179,16 +179,17 @@ export class ViewerService {
     this.goToHomeZoom();
   }
 
-  goToPreviousCanvasGroup(): void {
+  goToPreviousCanvasGroup(panToCenter = false): void {
     this.goToCanvasGroupStrategy.goToPreviousCanvasGroup(
-      this.currentCanvasIndex.getValue(), true
+      this.currentCanvasIndex.getValue(),
+      panToCenter,
     );
   }
 
-  goToNextCanvasGroup(): void {
-    // TODO Must pass an argument for forcing panToCenter
+  goToNextCanvasGroup(panToCenter = false): void {
     this.goToCanvasGroupStrategy.goToNextCanvasGroup(
-      this.currentCanvasIndex.getValue(), true
+      this.currentCanvasIndex.getValue(),
+      panToCenter,
     );
   }
 
