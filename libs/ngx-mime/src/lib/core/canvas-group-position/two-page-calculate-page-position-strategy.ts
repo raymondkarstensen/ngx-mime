@@ -1,8 +1,6 @@
 import { MimeViewerConfig } from '../mime-viewer-config';
-import { Rect } from '../models/rect';
 import { ViewerOptions } from '../models/viewer-options';
-import { ViewingDirection } from '../models/viewing-direction';
-import { ScrollDirection } from '../models/scroll-direction';
+import { Rect, ScrollDirection, ViewingDirection } from '../models';
 import {
   CalculateCanvasGroupPositionStrategy,
   CanvasGroupPositionCriteria,
@@ -12,9 +10,15 @@ import { canvasRectFromCriteria } from './calculate-canvas-group-position-utils'
 export class TwoPageCalculateCanvasGroupPositionStrategy
   implements CalculateCanvasGroupPositionStrategy
 {
-  constructor(private config: MimeViewerConfig, private scrollDirection: ScrollDirection) {}
+  constructor(
+    private config: MimeViewerConfig,
+    private scrollDirection: ScrollDirection,
+  ) {}
 
-  calculateCanvasGroupPosition(criteria: CanvasGroupPositionCriteria, rotation = 0): Rect {
+  calculateCanvasGroupPosition(
+    criteria: CanvasGroupPositionCriteria,
+    rotation = 0,
+  ): Rect {
     if (this.scrollDirection === ScrollDirection.HORIZONTAL) {
       return this.calculateHorizontalCanvasGroupPosition(criteria, rotation);
     } else {
@@ -24,7 +28,7 @@ export class TwoPageCalculateCanvasGroupPositionStrategy
 
   calculateHorizontalCanvasGroupPosition(
     criteria: CanvasGroupPositionCriteria,
-    rotation = 0
+    rotation = 0,
   ): Rect {
     let x: number;
 
@@ -50,14 +54,16 @@ export class TwoPageCalculateCanvasGroupPositionStrategy
       criteria,
       x,
       this.config.ignorePhysicalScale,
-      this.scrollDirection
+      this.scrollDirection,
     );
   }
 
-  calculateVerticalCanvasGroupPosition(criteria: CanvasGroupPositionCriteria, rotation = 0): Rect {
+  calculateVerticalCanvasGroupPosition(
+    criteria: CanvasGroupPositionCriteria,
+    rotation = 0,
+  ): Rect {
     let y: number;
     let even = false;
-
     if (!criteria.canvasGroupIndex) {
       // First page
       y = 0;
@@ -69,14 +75,13 @@ export class TwoPageCalculateCanvasGroupPositionStrategy
       // Odd page numbers / RIGHT
       y = this.calculateOddVerticalY(criteria);
     }
-
     return canvasRectFromCriteria(
       rotation,
       criteria,
       y,
       this.config.ignorePhysicalScale,
       this.scrollDirection,
-      even
+      even,
     );
   }
 

@@ -1,5 +1,9 @@
-import { RecognizedTextMode, ScrollDirection, ViewerMode } from './models';
-import { ViewerLayout } from './models/viewer-layout';
+import {
+  RecognizedTextMode,
+  ScrollDirection,
+  ViewerMode,
+  ViewerLayout,
+} from './models';
 
 export class MimeViewerConfig {
   public attributionDialogEnabled? = true;

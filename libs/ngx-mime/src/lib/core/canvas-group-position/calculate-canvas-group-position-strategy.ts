@@ -1,8 +1,4 @@
-import { ViewerLayout } from '../models/viewer-layout';
-import { ScrollDirection } from '../models/scroll-direction';
-import { Resource } from '../models/manifest';
-import { Rect } from '../models/rect';
-import { ViewingDirection } from '../models/viewing-direction';
+import { Rect, Resource, ViewerLayout, ViewingDirection } from '../models';
 
 export interface CanvasGroupPositionCriteria {
   canvasGroupIndex: number;
@@ -10,12 +6,11 @@ export interface CanvasGroupPositionCriteria {
   previousCanvasGroupPosition: Rect;
   viewingDirection: ViewingDirection;
   viewerLayout: ViewerLayout;
-  scrollDirection: ScrollDirection;
 }
 
 export interface CalculateCanvasGroupPositionStrategy {
   calculateCanvasGroupPosition(
     criteria: CanvasGroupPositionCriteria,
-    rotation: number
+    rotation: number,
   ): Rect;
 }

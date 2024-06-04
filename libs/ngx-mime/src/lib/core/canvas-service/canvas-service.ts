@@ -5,14 +5,16 @@ import { ScrollDirectionService } from '../scroll-direction-service/scroll-direc
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { MimeViewerConfig } from '../mime-viewer-config';
-import { Resource } from '../models/manifest';
-import { ViewerLayout } from '../models/viewer-layout';
-import { ViewingDirection } from '../models/viewing-direction';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
 import { TileSourceStrategyFactory } from '../viewer-service/tile-source-strategy-factory';
-import { CanvasGroups } from './../models/canvas-groups';
-import { Point } from './../models/point';
-import { Rect } from './../models/rect';
+import {
+  CanvasGroups,
+  Point,
+  Rect,
+  Resource,
+  ViewerLayout,
+  ViewingDirection,
+} from '../models';
 import { CanvasGroupStrategyFactory } from './canvas-groups-strategy.factory';
 import { TileSourceAndRect } from './tile-source-and-rect.model';
 
@@ -32,7 +34,10 @@ export class CanvasService {
   private svgNode: any;
   private _overlays: SVGRectElement[] = [];
 
-  constructor(private viewerLayoutService: ViewerLayoutService, private scrollDirectionService: ScrollDirectionService) {}
+  constructor(
+    private viewerLayoutService: ViewerLayoutService,
+    private scrollDirectionService: ScrollDirectionService,
+  ) {}
 
   get overlays(): ReadonlyArray<SVGRectElement> {
     return this._overlays;
@@ -149,7 +154,7 @@ export class CanvasService {
   findClosestCanvasGroupIndex(point: Point): number {
     return this.canvasGroups.findClosestIndex(
       point,
-      this.scrollDirectionService.scrollDirection
+      this.scrollDirectionService.scrollDirection,
     );
   }
 
@@ -284,6 +289,7 @@ export class CanvasService {
       this.viewerLayoutService.layout,
       this.config,
       this.viewingDirection,
+      this.scrollDirectionService.scrollDirection,
       this.rotation,
     );
     this.canvasGroups = canvasGroupStrategy.addAll(this.tileSources);

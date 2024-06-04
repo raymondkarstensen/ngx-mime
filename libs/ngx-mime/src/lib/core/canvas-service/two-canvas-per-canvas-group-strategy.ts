@@ -1,8 +1,12 @@
 import { TwoPageCalculateCanvasGroupPositionStrategy } from '../canvas-group-position/two-page-calculate-page-position-strategy';
 import { MimeViewerConfig } from '../mime-viewer-config';
-import { CanvasGroups } from '../models/canvas-groups';
-import { Rect } from '../models/rect';
-import { ViewingDirection } from '../models/viewing-direction';
+import {
+  CanvasGroups,
+  Rect,
+  ScrollDirection,
+  ViewerLayout,
+  ViewingDirection,
+} from '../models';
 import { AbstractCanvasGroupStrategy } from './canvas-group.strategy';
 import { CanvasGroup, TileSourceAndRect } from './tile-source-and-rect.model';
 
@@ -12,12 +16,15 @@ export class TwoCanvasPerCanvasGroupStrategy
   private positionStrategy: TwoPageCalculateCanvasGroupPositionStrategy;
 
   constructor(
+    private viewerLayout: ViewerLayout,
     private config: MimeViewerConfig,
     private viewingDirection: ViewingDirection,
+    private scrollDirection: ScrollDirection,
     private rotation: number,
   ) {
     this.positionStrategy = new TwoPageCalculateCanvasGroupPositionStrategy(
       this.config,
+      this.scrollDirection,
     );
   }
 
@@ -115,6 +122,7 @@ export class TwoCanvasPerCanvasGroupStrategy
         canvasSource: tileSource,
         previousCanvasGroupPosition: previousRect,
         viewingDirection: this.viewingDirection,
+        viewerLayout: this.viewerLayout,
       },
       this.rotation,
     );
@@ -130,10 +138,15 @@ export class TwoCanvasPerCanvasGroupStrategy
   }
 
   private combineRects(rect1: Rect, rect2: Rect): Rect {
+    const height =
+      this.rotation === 90 || this.rotation === 270
+        ? rect1.height + rect2.height
+        : Math.max(rect1.height, rect2.height);
+
     return new Rect({
       x: Math.min(rect1.x, rect2.x),
       y: Math.min(rect1.y, rect2.y),
-      height: Math.max(rect1.height, rect2.height),
+      height,
       width: rect1.width + rect2.width,
     });
   }

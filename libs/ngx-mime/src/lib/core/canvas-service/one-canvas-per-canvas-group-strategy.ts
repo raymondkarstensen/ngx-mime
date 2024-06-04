@@ -1,8 +1,12 @@
 import { OnePageCalculatePagePositionStrategy } from '../canvas-group-position/one-page-calculate-page-position-strategy';
 import { MimeViewerConfig } from '../mime-viewer-config';
-import { CanvasGroups } from '../models/canvas-groups';
-import { Rect } from '../models/rect';
-import { ViewingDirection } from '../models/viewing-direction';
+import {
+  CanvasGroups,
+  Rect,
+  ScrollDirection,
+  ViewerLayout,
+  ViewingDirection,
+} from '../models';
 import { AbstractCanvasGroupStrategy } from './canvas-group.strategy';
 import { CanvasGroup, TileSourceAndRect } from './tile-source-and-rect.model';
 
@@ -12,12 +16,15 @@ export class OneCanvasPerCanvasGroupStrategy
   private positionStrategy: OnePageCalculatePagePositionStrategy;
 
   constructor(
+    private viewerLayout: ViewerLayout,
     private config: MimeViewerConfig,
     private viewingDirection: ViewingDirection,
+    private scrollDirection: ScrollDirection,
     private rotation: number,
   ) {
     this.positionStrategy = new OnePageCalculatePagePositionStrategy(
       this.config,
+      this.scrollDirection,
     );
   }
 
@@ -57,6 +64,7 @@ export class OneCanvasPerCanvasGroupStrategy
     index: number,
     previousCanvasGroup?: CanvasGroup,
   ): Rect {
+    console.log('her burde det va feil');
     return this.positionStrategy.calculateCanvasGroupPosition(
       {
         canvasGroupIndex: index,
@@ -65,6 +73,7 @@ export class OneCanvasPerCanvasGroupStrategy
           ? previousCanvasGroup.rect
           : new Rect(),
         viewingDirection: this.viewingDirection,
+        viewerLayout: this.viewerLayout,
       },
       this.rotation,
     );
