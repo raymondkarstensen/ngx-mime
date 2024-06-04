@@ -168,7 +168,7 @@
         [ngClass]="{ selected: fitToValue === FitTo.WIDTH }"
         mat-mini-fab
         data-testId="ngx-mimeFitToWidthButton"
-        (click)="fitToWidth()"
+        (click)="toggleFitToWidth()"
         [@easeInWithDelay]="{
           value: '',
           params: { delayEnter: baseAnimationDelay * 6, delayLeave: baseAnimationDelay }
@@ -180,7 +180,7 @@
         [ngClass]="{ selected: fitToValue === FitTo.HEIGHT }"
         mat-mini-fab
         data-testId="ngx-mimeFitToHeightButton"
-        (click)="fitToHeight()"
+        (click)="toggleFitToHeight()"
         [@easeInWithDelay]="{
           value: '',
           params: { delayEnter: baseAnimationDelay * 7, delayLeave: 0 }

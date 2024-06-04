@@ -20,7 +20,6 @@ export class CanvasService {
   protected _numberOfCanvases = 0;
 
   fitTo$: BehaviorSubject<FitTo> = new BehaviorSubject<FitTo>(FitTo.NONE);
-  private _fitTo = FitTo.NONE;
 
   constructor(private scrollDirectionService: ScrollDirectionService) {}
 
@@ -78,41 +77,38 @@ export class CanvasService {
     return canvases && canvases.length >= 1 ? canvases[0] : 0;
   }
 
-  setFitToHeight() {
-    if (this._fitTo !== FitTo.HEIGHT) {
-      this._fitTo = FitTo.HEIGHT;
-      this.fitTo$.next(this._fitTo);
+  toggleFitToHeight() {
+    if (this.isFitToHeightEnabled()) {
+      this.resetFitTo();
+    } else {
+      this.fitTo$.next(FitTo.HEIGHT);
     }
   }
 
-  setFitToWidth(): void {
-    if (this._fitTo !== FitTo.WIDTH) {
-      this._fitTo = FitTo.WIDTH;
-      this.fitTo$.next(this._fitTo);
+  toggleFitToWidth(): void {
+    if (this.isFitToWidthEnabled()) {
+      this.resetFitTo();
+    } else {
+      this.fitTo$.next(FitTo.WIDTH);
     }
   }
 
   resetFitTo(): void {
-    if (this._fitTo !== FitTo.NONE) {
-      this._fitTo = FitTo.NONE;
-      this.fitTo$.next(this._fitTo);
+    if (this.isFitToEnabled()) {
+      this.fitTo$.next(FitTo.NONE);
     }
   }
 
-  getFitTo(): FitTo {
-    return this._fitTo;
-  }
-
   isFitToEnabled(): boolean {
-    return this._fitTo !== FitTo.NONE;
+    return this.fitTo$.getValue() !== FitTo.NONE;
   }
 
   isFitToWidthEnabled(): boolean {
-    return this._fitTo === FitTo.WIDTH;
+    return this.fitTo$.getValue() === FitTo.WIDTH;
   }
 
   isFitToHeightEnabled(): boolean {
-    return this._fitTo === FitTo.HEIGHT;
+    return this.fitTo$.getValue() === FitTo.HEIGHT;
   }
 
   isCanvasGroupWithinRange(canvasGroupIndex: number): boolean {

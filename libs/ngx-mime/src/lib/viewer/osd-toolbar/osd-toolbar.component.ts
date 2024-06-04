@@ -137,12 +137,12 @@ export class OsdToolbarComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  fitToWidth() {
-    this.canvasService.setFitToWidth();
+  toggleFitToWidth() {
+    this.canvasService.toggleFitToWidth();
   }
 
-  fitToHeight() {
-    this.canvasService.setFitToHeight();
+  toggleFitToHeight() {
+    this.canvasService.toggleFitToHeight();
   }
 
   public goToPreviousCanvasGroup(): void {
