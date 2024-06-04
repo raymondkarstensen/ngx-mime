@@ -160,8 +160,4 @@ export class OsdToolbarComponent implements OnInit, OnDestroy {
   private isOnLastCanvasGroup(currentCanvasGroupIndex: number): boolean {
     return currentCanvasGroupIndex === this.numberOfCanvasGroups - 1;
   }
-
-  printInfo() {
-    this.viewerService.printInfo();
-  }
 }
