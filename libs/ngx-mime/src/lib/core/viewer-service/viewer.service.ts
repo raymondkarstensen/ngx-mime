@@ -1123,9 +1123,9 @@ export class ViewerService {
       })
     );
     if (
-      this.modeService.mode === ViewerMode.DASHBOARD ||
-      this.modeService.mode === ViewerMode.PAGE ||
-      (canvasGroupEndHitCountReached && direction)
+      this.modeService.isDashBoard() ||
+      this.modeService.isPage() ||
+      (canvasGroupEndHitCountReached && (direction === Direction.RIGHT || direction === Direction.LEFT))
     ) {
       this.goToCanvasGroupStrategy.goToCanvasGroup({
         canvasGroupIndex: newCanvasGroupIndex,
@@ -1185,6 +1185,10 @@ export class ViewerService {
         this.goToCanvasGroupStrategy.adjustPosition();
       }
     }
+    this.updatePanningConstraints();
+    this.constraintStrategy.constraintCanvas();
+  }
+
   private shouldAdjustPosition(): boolean {
     return this.scrollDirectionService.isHorizontalScrollingDirection();
   }
