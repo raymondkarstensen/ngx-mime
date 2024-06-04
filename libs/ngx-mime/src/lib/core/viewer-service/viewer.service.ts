@@ -453,6 +453,7 @@ export class ViewerService {
     this.subscriptions.add(
       this.onCanvasGroupIndexChange.subscribe(async (canvasGroupIndex: number) => {
         await this.updateFitTo(true);
+        this.canvasService.currentCanvasGroupIndex = canvasGroupIndex;
       })
     );
 
@@ -1094,8 +1095,6 @@ export class ViewerService {
 
   private updateCurrentCanvasIndex(event: any): void {
     this.calculateCurrentCanvasGroup(event.center);
-    this.canvasService.currentCanvasGroupIndex =
-      this.currentCanvasIndex.getValue();
   }
 
   private swipeToCanvasGroup(e: any) {
