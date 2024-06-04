@@ -157,7 +157,10 @@
         [matTooltip]="intl.rotateCwLabel"
         [@easeInWithDelay]="{
           value: '',
-          params: { delayEnter: baseAnimationDelay * 5, delayLeave: baseAnimationDelay * 2 }
+          params: {
+            delayEnter: baseAnimationDelay * 5,
+            delayLeave: baseAnimationDelay * 2
+          }
         }"
       >
         <mat-icon>rotate_right</mat-icon>
@@ -171,7 +174,10 @@
         (click)="toggleFitToWidth()"
         [@easeInWithDelay]="{
           value: '',
-          params: { delayEnter: baseAnimationDelay * 6, delayLeave: baseAnimationDelay }
+          params: {
+            delayEnter: baseAnimationDelay * 6,
+            delayLeave: baseAnimationDelay
+          }
         }"
         ><mat-icon>fit_width</mat-icon></button
       >
