@@ -73,7 +73,7 @@ export class ViewerService {
   private subscriptions!: Subscription;
 
   public isCanvasPressed: Subject<boolean> = new BehaviorSubject<boolean>(
-    false
+    false,
   );
 
   private currentCenter: Subject<Point> = new Subject();
@@ -112,7 +112,7 @@ export class ViewerService {
     private altoService: AltoService,
     private scrollDirectionService: ScrollDirectionService,
     private snackBar: MatSnackBar,
-    private intl: MimeViewerIntl
+    private intl: MimeViewerIntl,
   ) {
     this.id = this.generateRandomId('ngx-mime-mimeViewer');
     this.openseadragonId = this.generateRandomId('openseadragon');
@@ -221,7 +221,7 @@ export class ViewerService {
       for (const hit of searchResult.hits) {
         for (const highlightRect of hit.highlightRects) {
           const canvasRect = this.canvasService.getCanvasRect(
-            highlightRect.canvasIndex
+            highlightRect.canvasIndex,
           );
           if (canvasRect) {
             const currentHitStrokeOffset = 8;
@@ -290,14 +290,14 @@ export class ViewerService {
         this.manifest = manifest;
         this.isManifestPaged = ManifestUtils.isManifestPaged(this.manifest);
         this.viewer = new OpenSeadragon.Viewer(
-          OptionsFactory.create(this.openseadragonId, this.config)
+          OptionsFactory.create(this.openseadragonId, this.config),
         );
         createSvgOverlay();
         this.zoomStrategy = new DefaultZoomStrategy(
           this.viewer,
           this.canvasService,
           this.modeService,
-          this.viewerLayoutService
+          this.viewerLayoutService,
         );
         this.goToCanvasGroupStrategy = new HorizontalGoToCanvasGroupStrategy(
           this.viewer,
@@ -323,7 +323,7 @@ export class ViewerService {
         this.canvasService.reset();
         this.canvasGroupMask = new CanvasGroupMask(
           this.viewer,
-          this.styleService
+          this.styleService,
         );
       });
 
@@ -419,7 +419,7 @@ export class ViewerService {
     this.subscriptions.add(
       this.modeService.onChange.subscribe((mode: ModeChanges) => {
         this.modeChanged(mode);
-      })
+      }),
     );
 
     this.zone.runOutsideAngular(() => {
@@ -431,7 +431,7 @@ export class ViewerService {
             if (center && center !== null) {
               this.osdIsReady.next(true);
             }
-          })
+          }),
       );
     });
 
@@ -441,23 +441,28 @@ export class ViewerService {
           this.swipeDragEndCounter.reset();
           if (canvasGroupIndex !== -1) {
             this.canvasGroupMask.changeCanvasGroup(
-              this.canvasService.getCanvasGroupRect(canvasGroupIndex)
+              this.canvasService.getCanvasGroupRect(canvasGroupIndex),
             );
-            if ((this.modeService.isPage() || this.modeService.isDashBoard()) && !this.canvasService.isFitToEnabled()) {
+            if (
+              (this.modeService.isPage() || this.modeService.isDashBoard()) &&
+              !this.canvasService.isFitToEnabled()
+            ) {
               this.goToHomeZoom();
             }
           }
-        }
-      )
+        },
+      ),
     );
 
     this.subscriptions.add(
-      this.onCanvasGroupIndexChange.subscribe(async (canvasGroupIndex: number) => {
-        this.canvasService.currentCanvasGroupIndex = canvasGroupIndex;
-        if (this.canvasService.isFitToEnabled()) {
-          await this.updateFitTo(false);
-        }
-      })
+      this.onCanvasGroupIndexChange.subscribe(
+        async (canvasGroupIndex: number) => {
+          this.canvasService.currentCanvasGroupIndex = canvasGroupIndex;
+          if (this.canvasService.isFitToEnabled()) {
+            await this.updateFitTo(false);
+          }
+        },
+      ),
     );
 
     this.subscriptions.add(
@@ -466,13 +471,13 @@ export class ViewerService {
           this.initialCanvasGroupLoaded();
           this.currentCenter.next(this.viewer?.viewport.getCenter(true));
         }
-      })
+      }),
     );
 
     this.subscriptions.add(
       this.viewerLayoutService.onChange.subscribe((state: ViewerLayout) => {
         this.layoutPages();
-      })
+      }),
     );
 
     this.subscriptions.add(
@@ -482,13 +487,13 @@ export class ViewerService {
           this.highlightCurrentHit();
           this.goToCanvas(hit.index, false);
         }
-      })
+      }),
     );
 
     this.subscriptions.add(
       this.onRotationChange.subscribe((rotation: number) => {
         this.layoutPages();
-      })
+      }),
     );
 
     this.subscriptions.add(
@@ -515,8 +520,8 @@ export class ViewerService {
               this.home();
             }, ViewerOptions.transitions.OSDAnimationTime);
           }
-        }
-      )
+        },
+      ),
     );
 
     this.subscriptions.add(
@@ -535,7 +540,7 @@ export class ViewerService {
             this.constraintStrategy = new VerticalConstraintStrategy(
               this.modeService,
               this.canvasService,
-              this.viewer
+              this.viewer,
             );
           } else if (scrollDirection === ScrollDirection.HORIZONTAL) {
             this.isCanvasMaskEnabled = true;
@@ -555,16 +560,17 @@ export class ViewerService {
             );
           }
           this.layoutPages();
-        }
-      )
+        },
+      ),
     );
 
     this.subscriptions.add(
       this.canvasService.fitTo$.subscribe(async (fitTo: FitTo) => {
-        const initialToggle: boolean = this.fitTo === FitTo.NONE && fitTo !== this.fitTo;
+        const initialToggle: boolean =
+          this.fitTo === FitTo.NONE && fitTo !== this.fitTo;
         this.fitTo = fitTo;
         await this.updateFitTo(initialToggle);
-      })
+      }),
     );
   }
 
@@ -622,7 +628,7 @@ export class ViewerService {
     this.viewer.addHandler('canvas-click', this.clickService.click);
     this.viewer.addHandler(
       'canvas-double-click',
-      (e: any) => (e.preventDefaultAction = true)
+      (e: any) => (e.preventDefaultAction = true),
     );
     this.viewer.addHandler('canvas-press', (e: any) => {
       this.pinchStatus.active = false;
@@ -630,7 +636,7 @@ export class ViewerService {
       this.isCanvasPressed.next(true);
     });
     this.viewer.addHandler('canvas-release', () =>
-      this.isCanvasPressed.next(false)
+      this.isCanvasPressed.next(false),
     );
     this.viewer.addHandler('canvas-scroll', this.scrollHandler);
     this.viewer.addHandler('canvas-pinch', this.pinchHandler);
@@ -671,13 +677,19 @@ export class ViewerService {
     if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
       this.enableHorizontalPanning();
       this.enableVerticalPanning();
-      if (this.modeService.isPage() || this.canvasService.isFitToHeightEnabled()) {
+      if (
+        this.modeService.isPage() ||
+        this.canvasService.isFitToHeightEnabled()
+      ) {
         this.disableVerticalPanning();
       }
     } else {
       this.enableHorizontalPanning();
       this.enableVerticalPanning();
-      if (this.modeService.isPage() || this.canvasService.isFitToWidthEnabled()) {
+      if (
+        this.modeService.isPage() ||
+        this.canvasService.isFitToWidthEnabled()
+      ) {
         this.disableHorizontalPanning();
       }
     }
@@ -759,7 +771,7 @@ export class ViewerService {
         this.viewerLayoutService.layout,
         this.isManifestPaged,
         this.config,
-        this.scrollDirectionService.scrollDirection
+        this.scrollDirectionService.scrollDirection,
       );
 
     const isTwoPageView: boolean =
@@ -778,7 +790,7 @@ export class ViewerService {
             viewerLayout: this.viewerLayoutService.layout,
             scrollDirection: this.scrollDirectionService.scrollDirection,
           },
-          rotation
+          rotation,
         );
 
       canvasRects.push(position);
@@ -799,14 +811,14 @@ export class ViewerService {
             position.x + (position.width - position.height) / 2,
             position.y - (position.width - position.height) / 2,
             position.height,
-            position.width
+            position.width,
           );
         } else {
           bounds = new OpenSeadragon.Rect(
             position.x,
             position.y,
             position.width,
-            position.height
+            position.height,
           );
         }
 
@@ -871,7 +883,7 @@ export class ViewerService {
       this.modeService.mode !== ViewerMode.DASHBOARD;
     this.canvasGroupMask.initialize(
       this.canvasService.getCurrentCanvasGroupRect(),
-      isVisible
+      isVisible,
     );
     if (this.viewer) {
       d3.select(this.viewer.container.parentNode)
@@ -945,7 +957,10 @@ export class ViewerService {
     if (event.originalEvent.ctrlKey) {
       this.zoomOnScroll(event);
     } else {
-      if (this.modeService.isPageZoomed() || this.canvasService.isFitToEnabled()) {
+      if (
+        this.modeService.isPageZoomed() ||
+        this.canvasService.isFitToEnabled()
+      ) {
         this.panOnScroll(event);
       } else {
         this.navigateOnScroll(event);
@@ -1058,8 +1073,8 @@ export class ViewerService {
         ? this.goToPreviousCanvasGroup()
         : this.goToNextCanvasGroup()
       : event.scroll > 0
-      ? this.goToNextCanvasGroup()
-      : this.goToPreviousCanvasGroup();
+        ? this.goToNextCanvasGroup()
+        : this.goToPreviousCanvasGroup();
   }
 
   private updateCurrentCanvasIndex(event: any): void {
@@ -1092,12 +1107,12 @@ export class ViewerService {
     if (this.modeService.isPageZoomed()) {
       pannedPastSide = SwipeUtils.getSideIfPanningPastEndOfCanvasGroup(
         canvasGroupRect,
-        viewportBounds
+        viewportBounds,
       );
       this.swipeDragEndCounter.addHit(
         pannedPastSide,
         direction,
-        this.scrollDirectionService.scrollDirection
+        this.scrollDirectionService.scrollDirection,
       );
       canvasGroupEndHitCountReached =
         this.swipeDragEndCounter.hitCountReached();
@@ -1112,12 +1127,13 @@ export class ViewerService {
         canvasGroupEndHitCountReached: canvasGroupEndHitCountReached,
         viewingDirection: this.manifest.viewingDirection,
         scrollDirection: this.scrollDirectionService.scrollDirection,
-      })
+      }),
     );
     if (
       this.modeService.isDashBoard() ||
       this.modeService.isPage() ||
-      (canvasGroupEndHitCountReached && (direction === Direction.RIGHT || direction === Direction.LEFT))
+      (canvasGroupEndHitCountReached &&
+        (direction === Direction.RIGHT || direction === Direction.LEFT))
     ) {
       this.goToCanvasGroupStrategy.goToCanvasGroup(
         {
