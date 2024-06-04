@@ -72,9 +72,6 @@ export class HorizontalConstraintStrategy extends ConstraintStrategy implements 
         y: canvasBounds.y + canvasBounds.height - viewportBounds.height / 2,
       });
       this.panTo(rect, false);
-    } else if (this.isViewportLeftOfCanvas(viewportBounds, canvasBounds)) {
-      this.snapToCenter(canvasBounds, viewportBounds);
-    } else if (this.isViewportRightOfCanvas(viewportBounds, canvasBounds)) {
     }
     this.panStatus = false;
   }
@@ -109,32 +106,6 @@ export class HorizontalConstraintStrategy extends ConstraintStrategy implements 
       canvasBounds.y + canvasBounds.height <
       viewportBounds.y + viewportBounds.height
     );
-  }
-
-  private isViewportLeftOfCanvas(viewportBounds: Rect, canvasBounds: Rect) {
-    const isCanvasWiderThanViewport = canvasBounds.width > viewportBounds.width;
-    return isCanvasWiderThanViewport
-      ? viewportBounds.x < canvasBounds.x
-      : canvasBounds.x + canvasBounds.width <
-      viewportBounds.x + viewportBounds.width;
-  }
-
-  private isViewportRightOfCanvas(viewportBounds: Rect, canvasBounds: Rect) {
-    const isCanvasWiderThanViewport = canvasBounds.width > viewportBounds.width;
-    return isCanvasWiderThanViewport
-      ? canvasBounds.x + canvasBounds.width <
-      viewportBounds.x + viewportBounds.width
-      : viewportBounds.x < canvasBounds.x;
-  }
-
-  private snapToCenter(canvasBounds: Rect, viewportBounds: Rect): void {
-    this.panStatus = true;
-    const rect = new Rect({
-      x: canvasBounds.centerX,
-      y: viewportBounds.y + viewportBounds.height / 2,
-    });
-    this.panTo(rect, false);
-    this.panStatus = false;
   }
 }
 
