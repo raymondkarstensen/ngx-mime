@@ -124,10 +124,16 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
   private getZoomLevel(canvasGroup: Rect): number {
     const viewportBounds: Rect = this.getViewportBounds();
     let zoomLevel = this.viewer.viewport.getZoom();
-    if (this.canvasService.getFitTo() === FitTo.WIDTH) {
-      zoomLevel = this.zoomStrategy.getFitToWidthZoomLevel(viewportBounds.width, canvasGroup.width);
-    } else if (this.canvasService.getFitTo() === FitTo.HEIGHT) {
-      zoomLevel = this.zoomStrategy.getFitToHeightZoomLevel(viewportBounds.height, canvasGroup.height);
+    if (this.canvasService.isFitToWidthEnabled()) {
+      zoomLevel = this.zoomStrategy.getFitToWidthZoomLevel(
+        viewportBounds.width,
+        canvasGroup.width,
+      );
+    } else if (this.canvasService.isFitToHeightEnabled()) {
+      zoomLevel = this.zoomStrategy.getFitToHeightZoomLevel(
+        viewportBounds.height,
+        canvasGroup.height,
+      );
     }
     return zoomLevel;
   }
