@@ -38,7 +38,7 @@ export class ConstraintStrategy implements Strategy {
 
 export class HorizontalConstraintStrategy extends ConstraintStrategy implements Strategy {
   override constraintCanvas() {
-    if (this.modeService.isPageZoomed() && !this.panStatus) {
+    if (!this.panStatus) {
       const viewportBounds: Rect = this.getViewportBounds();
       const currentCanvasBounds = this.canvasService.getCurrentCanvasGroupRect();
       this.isCanvasOutsideViewport(viewportBounds, currentCanvasBounds)
@@ -111,7 +111,7 @@ export class HorizontalConstraintStrategy extends ConstraintStrategy implements 
 
 export class VerticalConstraintStrategy extends ConstraintStrategy implements Strategy {
   override constraintCanvas(): void {
-    if (this.modeService.isPageZoomed() && !this.panStatus) {
+    if (!this.panStatus) {
       const viewportBounds: Rect = this.getViewportBounds();
       const currentCanvasGroupBounds =
         this.canvasService.getCurrentCanvasGroupRect();
