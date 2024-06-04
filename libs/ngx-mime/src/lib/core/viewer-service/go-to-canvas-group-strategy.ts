@@ -138,7 +138,7 @@ export class HorizontalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStr
     const previousCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
     this.updateCurrentCanvasGroupIndex(canvasGroup.canvasGroupIndex);
 
-    if (this.isFitToEnabled()) {
+    if (this.canvasService.isFitToEnabled()) {
       this.updateViewerMode(canvasGroup);
     }
 
@@ -238,7 +238,7 @@ export class VerticalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStrat
     const previousCanvasGroupIndex = this.canvasService.currentCanvasGroupIndex;
     this.updateCurrentCanvasGroupIndex(canvasGroup.canvasGroupIndex);
 
-    if (this.isFitToEnabled()) {
+    if (this.canvasService.isFitToEnabled()) {
       this.updateViewerMode(canvasGroup);
     }
 
