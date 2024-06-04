@@ -442,7 +442,7 @@ export class ViewerService {
             this.canvasGroupMask.changeCanvasGroup(
               this.canvasService.getCanvasGroupRect(canvasGroupIndex)
             );
-            if ((this.modeService.isPage() || this.modeService.isDashBoard()) && !this.isFitToEnabled()) {
+            if ((this.modeService.isPage() || this.modeService.isDashBoard()) && !this.canvasService.isFitToEnabled()) {
               this.goToHomeZoom();
             }
           }
@@ -968,7 +968,7 @@ export class ViewerService {
     if (event.originalEvent.ctrlKey) {
       this.zoomOnScroll(event);
     } else {
-      if (this.modeService.isPageZoomed() || this.isFitToEnabled()) {
+      if (this.modeService.isPageZoomed() || this.canvasService.isFitToEnabled()) {
         this.panOnScroll(event);
       } else {
         this.navigateOnScroll(event);
