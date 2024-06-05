@@ -18,4 +18,5 @@ export { Side } from './side';
 export { ViewerMode } from './viewer-mode';
 export { ViewerLayout } from './viewer-layout';
 export { ViewerOptions } from './viewer-options';
+export { ViewerState } from './viewerState';
 export { ViewingDirection } from './viewing-direction';

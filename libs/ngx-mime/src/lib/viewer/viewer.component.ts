@@ -18,9 +18,7 @@ import {
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { interval, Subscription } from 'rxjs';
-import {
-  ScrollDirectionService
-} from '../core/scroll-direction-service/scroll-direction-service';
+import { ScrollDirectionService } from '../core/scroll-direction-service/scroll-direction-service';
 import { take, throttle } from 'rxjs/operators';
 import { AttributionDialogService } from '../attribution-dialog/attribution-dialog.service';
 import { CanvasGroupDialogService } from '../canvas-group-dialog/canvas-group-dialog.service';
@@ -35,27 +33,27 @@ import { MimeResizeService } from '../core/mime-resize-service/mime-resize.servi
 import { MimeViewerConfig } from '../core/mime-viewer-config';
 import { ModeService } from '../core/mode-service/mode.service';
 import {
+  Manifest,
   ModeChanges,
   RecognizedTextMode,
   RecognizedTextModeChanges,
+  SearchResult,
+  ViewerLayout,
   ViewerMode,
+  ViewerOptions,
+  ViewerState,
 } from '../core/models';
-import { Manifest } from '../core/models/manifest';
-import { ViewerLayout } from '../core/models/viewer-layout';
-import { ViewerOptions } from '../core/models/viewer-options';
-import { ViewerState } from '../core/models/viewerState';
 import { StyleService } from '../core/style-service/style.service';
 import { ViewerLayoutService } from '../core/viewer-layout-service/viewer-layout-service';
 import { ViewerService } from '../core/viewer-service/viewer.service';
 import { HelpDialogService } from '../help-dialog/help-dialog.service';
 import { InformationDialogService } from '../information-dialog/information-dialog.service';
 import { ViewDialogService } from '../view-dialog/view-dialog.service';
-import { IiifContentSearchService } from './../core/iiif-content-search-service/iiif-content-search.service';
-import { SearchResult } from './../core/models/search-result';
+import { IiifContentSearchService } from '../core/iiif-content-search-service/iiif-content-search.service';
 import { ViewerFooterComponent } from './viewer-footer/viewer-footer.component';
 import { ViewerHeaderComponent } from './viewer-header/viewer-header.component';
 import { VIEWER_PROVIDERS } from './viewer.providers';
-import { slideInLeft } from './../shared/animations';
+import { slideInLeft } from '../shared/animations';
 
 @Component({
   selector: 'mime-viewer',
@@ -123,7 +121,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     private platform: Platform,
     canvasGroupDialogService: CanvasGroupDialogService,
     el: ElementRef,
-    viewContainerRef: ViewContainerRef
+    viewContainerRef: ViewContainerRef,
   ) {
     this.id = this.viewerService.id;
     this.openseadragonId = this.viewerService.openseadragonId;
@@ -168,7 +166,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
             this.currentManifest = manifest;
             this.manifestChanged.next(manifest);
             this.viewerLayoutService.init(
-              ManifestUtils.isManifestPaged(manifest)
+              ManifestUtils.isManifestPaged(manifest),
             );
             this.recognizedTextContentMode =
               this.altoService.recognizedTextContentMode;
@@ -176,7 +174,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
             this.viewerService.setUpViewer(manifest, this.config);
             if (this.config.attributionDialogEnabled && manifest.attribution) {
               this.attributionDialogService.open(
-                this.config.attributionDialogHideTimeout
+                this.config.attributionDialogHideTimeout,
               );
             }
 
@@ -184,8 +182,8 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
               this.iiifContentSearchService.search(manifest, this.q);
             }
           }
-        }
-      )
+        },
+      ),
     );
 
     this.subscriptions.add(
@@ -198,7 +196,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
         ) {
           this.viewerService.goToCanvas(this.canvasIndex, false);
         }
-      })
+      }),
     );
 
     this.subscriptions.add(
@@ -207,27 +205,27 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
           this.resetCurrentManifest();
           this.errorMessage = error;
           this.changeDetectorRef.detectChanges();
-        }
-      )
+        },
+      ),
     );
 
     this.subscriptions.add(
       this.iiifContentSearchService.onQChange.subscribe((q: string) => {
         this.qChanged.emit(q);
-      })
+      }),
     );
 
     this.subscriptions.add(
       this.iiifContentSearchService.onChange.subscribe((sr: SearchResult) => {
         this.viewerService.highlight(sr);
-      })
+      }),
     );
 
     this.subscriptions.add(
       this.viewerService.isCanvasPressed.subscribe((value: boolean) => {
         this.isCanvasPressed = value;
         this.changeDetectorRef.detectChanges();
-      })
+      }),
     );
 
     this.subscriptions.add(
@@ -235,12 +233,20 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
         if (mode.currentValue !== undefined) {
           this.toggleToolbarsState(mode.currentValue);
         }
-        if (mode.previousValue === ViewerMode.DASHBOARD && mode.currentValue === ViewerMode.PAGE) {
-          this.viewerState.viewDialogState.isOpen = this.viewDialogService.isOpen();
-          this.viewerState.contentDialogState.isOpen = this.informationDialogService.isOpen();
-          this.viewerState.contentDialogState.selectedIndex = this.informationDialogService.getSelectedIndex();
-          this.viewerState.contentsSearchDialogState.isOpen = this.contentSearchDialogService.isOpen();
-          this.viewerState.helpDialogState.isOpen = this.helpDialogService.isOpen();
+        if (
+          mode.previousValue === ViewerMode.DASHBOARD &&
+          mode.currentValue === ViewerMode.PAGE
+        ) {
+          this.viewerState.viewDialogState.isOpen =
+            this.viewDialogService.isOpen();
+          this.viewerState.contentDialogState.isOpen =
+            this.informationDialogService.isOpen();
+          this.viewerState.contentDialogState.selectedIndex =
+            this.informationDialogService.getSelectedIndex();
+          this.viewerState.contentsSearchDialogState.isOpen =
+            this.contentSearchDialogService.isOpen();
+          this.viewerState.helpDialogState.isOpen =
+            this.helpDialogService.isOpen();
           this.zone.run(() => {
             this.viewDialogService.close();
             this.informationDialogService.close();
@@ -254,7 +260,9 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
               this.viewDialogService.open();
             }
             if (this.viewerState.contentDialogState.isOpen) {
-              this.informationDialogService.open(this.viewerState.contentDialogState.selectedIndex);
+              this.informationDialogService.open(
+                this.viewerState.contentDialogState.selectedIndex,
+              );
             }
             if (this.viewerState.contentsSearchDialogState.isOpen) {
               this.contentSearchDialogService.open();
@@ -267,7 +275,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
         this.zone.run(() => {
           this.viewerModeChanged.emit(mode.currentValue);
         });
-      })
+      }),
     );
 
     this.subscriptions.add(
@@ -278,31 +286,31 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
           if (canvasIndex !== -1) {
             this.canvasChanged.emit(canvasIndex);
           }
-        }
-      )
+        },
+      ),
     );
 
     this.subscriptions.add(
       this.resizeService.onResize
         .pipe(
           throttle((val) =>
-            interval(ViewerOptions.transitions.OSDAnimationTime)
-          )
+            interval(ViewerOptions.transitions.OSDAnimationTime),
+          ),
         )
         .subscribe(() => {
           setTimeout(() => {
             this.viewerService.home();
             this.changeDetectorRef.markForCheck();
           }, ViewerOptions.transitions.OSDAnimationTime);
-        })
+        }),
     );
 
     this.subscriptions.add(
       this.viewerLayoutService.onChange.subscribe(
         (viewerLayout: ViewerLayout) => {
           this.viewerLayout = viewerLayout;
-        }
-      )
+        },
+      ),
     );
 
     this.subscriptions.add(
@@ -311,11 +319,11 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
           this.recognizedTextContentMode =
             recognizedTextModeChanges.currentValue;
           this.recognizedTextContentModeChanged.emit(
-            this.recognizedTextContentMode
+            this.recognizedTextContentMode,
           );
           this.changeDetectorRef.markForCheck();
-        }
-      )
+        },
+      ),
     );
   }
 
@@ -377,7 +385,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
           this.manifestChanged.pipe(take(1)).subscribe((manifest) => {
             const canvasIndex = manifest.sequences
               ? manifest.sequences[0]?.canvases?.findIndex(
-                  (c) => c.id === startCanvasId
+                  (c) => c.id === startCanvasId,
                 )
               : -1;
             if (canvasIndex && canvasIndex !== -1) {
@@ -439,8 +447,8 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
         case ViewerMode.PAGE_ZOOMED:
           this.showHeaderAndFooterState =
             this.header.state =
-              this.footer.state =
-                'hide';
+            this.footer.state =
+              'hide';
           if (this.config.navigationControlEnabled && this.osdToolbarState) {
             this.osdToolbarState = 'show';
           }
