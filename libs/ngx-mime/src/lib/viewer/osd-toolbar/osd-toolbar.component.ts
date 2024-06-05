@@ -14,14 +14,12 @@ import {
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
-import { Manifest } from '../../core/models/manifest';
-import { ViewingDirection } from '../../core/models/viewing-direction';
-import { CanvasService } from './../../core/canvas-service/canvas-service';
-import { MimeViewerIntl } from './../../core/intl';
-import { ViewerService } from './../../core/viewer-service/viewer.service';
-import { FitTo } from '../../core/models';
-import { ModeService } from './../../core/mode-service/mode.service';
-import { easeInWithDelay, rotate45 } from './../../shared/animations';
+import { FitTo, Manifest, ViewingDirection } from '../../core/models';
+import { CanvasService } from '../../core/canvas-service/canvas-service';
+import { MimeViewerIntl } from '../../core/intl';
+import { ViewerService } from '../../core/viewer-service/viewer.service';
+import { ModeService } from '../../core/mode-service/mode.service';
+import { easeInWithDelay, rotate45 } from '../../shared/animations';
 
 @Component({
   selector: 'mime-osd-toolbar',
