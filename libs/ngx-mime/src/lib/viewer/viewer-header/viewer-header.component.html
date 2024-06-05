@@ -7,9 +7,20 @@
     [matTooltip]="manifest.label"
     >{{ manifest.label }}</div
   >
-  <button mat-icon-button data-testId='ngx-mimeFitToWidthButton' (click)='toggleFitToWidth()'><mat-icon>fit_width</mat-icon></button>
-  <button mat-icon-button data-testId='ngx-mimeFitToHeightButton' (click)='toggleFitToHeight()'><mat-icon class='ngx-mime-rotate-90'>fit_width</mat-icon></button>
-<!--  <button mat-icon-button (click)="printInfo()"><mat-icon>info</mat-icon></button>-->
+  <button
+    mat-icon-button
+    data-testId="ngx-mimeFitToWidthButton"
+    (click)="toggleFitToWidth()"
+  >
+    <mat-icon>fit_width</mat-icon>
+  </button>
+  <button
+    mat-icon-button
+    data-testId="ngx-mimeFitToHeightButton"
+    (click)="toggleFitToHeight()"
+  >
+    <mat-icon class="ngx-mime-rotate-90">fit_width</mat-icon>
+  </button>
   <button
     *ngIf="!isSinglePagedManifest || hasRecognizedTextContent"
     data-testid="ngx-mime-view-menu-button"
@@ -18,16 +29,18 @@
     [attr.aria-label]="intl.layoutMenuLabel"
     [matTooltip]="intl.layoutMenuLabel"
     (click)="toggleView()"
-    ><mat-icon aria-hidden="true">view_module</mat-icon></button
   >
+    <mat-icon aria-hidden="true">view_module</mat-icon>
+  </button>
   <button
     data-testid="ngx-mimeInformationDialogButton"
     mat-icon-button
     [attr.aria-label]="intl.informationLabel"
     [matTooltip]="intl.informationLabel"
     (click)="toggleInformationDialog()"
-    ><mat-icon aria-hidden="true">list</mat-icon></button
   >
+    <mat-icon aria-hidden="true">list</mat-icon>
+  </button>
   <button
     data-testid="ngx-mimeContentSearchDialogButton"
     *ngIf="isContentSearchEnabled"
@@ -35,8 +48,9 @@
     [attr.aria-label]="intl.searchLabel"
     [matTooltip]="intl.searchLabel"
     (click)="toggleSearch()"
-    ><mat-icon aria-hidden="true">search</mat-icon></button
   >
+    <mat-icon aria-hidden="true">search</mat-icon>
+  </button>
   <button
     data-testid="ngx-mimeHelpDialogButton"
     mat-icon-button
@@ -46,7 +60,6 @@
   >
     <mat-icon aria-hidden="true">help</mat-icon>
   </button>
-
   <button
     data-testid="ngx-mimeFullscreenButton"
     *ngIf="isFullscreenEnabled"
