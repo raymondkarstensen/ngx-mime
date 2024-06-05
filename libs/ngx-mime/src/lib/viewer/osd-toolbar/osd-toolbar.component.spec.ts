@@ -225,7 +225,7 @@ describe('OsdToolbarComponent', () => {
 
   const expectOsdControlsTobeVisible = async () => {
     const buttons = await getMiniFabButtons();
-    expect(buttons.length).toBe(9); // TODO This should be 8 after removing my debug-info button
+    expect(buttons.length).toBe(8);
   };
 
   const expectOsdControlsTobeHidden = async () => {
