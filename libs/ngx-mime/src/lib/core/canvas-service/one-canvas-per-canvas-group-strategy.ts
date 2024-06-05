@@ -64,7 +64,6 @@ export class OneCanvasPerCanvasGroupStrategy
     index: number,
     previousCanvasGroup?: CanvasGroup,
   ): Rect {
-    console.log('her burde det va feil');
     return this.positionStrategy.calculateCanvasGroupPosition(
       {
         canvasGroupIndex: index,
