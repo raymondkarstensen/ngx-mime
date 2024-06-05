@@ -448,14 +448,12 @@ export class ViewerService {
     );
 
     this.subscriptions.add(
-      this.onCanvasGroupIndexChange.subscribe(
-        async (canvasGroupIndex: number) => {
-          this.canvasService.currentCanvasGroupIndex = canvasGroupIndex;
-          if (this.canvasService.isFitToEnabled()) {
-            await this.updateFitTo(false);
-          }
-        },
-      ),
+      this.onCanvasGroupIndexChange.subscribe((canvasGroupIndex: number) => {
+        this.canvasService.currentCanvasGroupIndex = canvasGroupIndex;
+        if (this.canvasService.isFitToEnabled()) {
+          this.updateFitTo(false);
+        }
+      }),
     );
 
     this.subscriptions.add(
@@ -558,11 +556,11 @@ export class ViewerService {
     );
 
     this.subscriptions.add(
-      this.canvasService.fitTo$.subscribe(async (fitTo: FitTo) => {
+      this.canvasService.fitTo$.subscribe((fitTo: FitTo) => {
         const initialToggle: boolean =
           this.fitTo === FitTo.NONE && fitTo !== this.fitTo;
         this.fitTo = fitTo;
-        await this.updateFitTo(initialToggle);
+        this.updateFitTo(initialToggle);
       }),
     );
   }
@@ -1179,6 +1177,7 @@ export class ViewerService {
 
   private async updateFitTo(initialToggle = false): Promise<void> {
     if (this.fitTo === FitTo.WIDTH) {
+  private updateFitTo(initialToggle = false): void {
       this.zoomStrategy.fitToWidth();
       if (!initialToggle && this.shouldAdjustPosition()) {
         this.goToCanvasGroupStrategy.adjustPosition();
