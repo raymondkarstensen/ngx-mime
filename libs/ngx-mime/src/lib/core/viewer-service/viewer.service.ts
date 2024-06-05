@@ -9,7 +9,7 @@ import {
   Subscription,
 } from 'rxjs';
 import { distinctUntilChanged, sample } from 'rxjs/operators';
-import { ModeService } from '../../core/mode-service/mode.service';
+import { ModeService } from '../mode-service/mode.service';
 import { AltoService } from '../alto-service/alto.service';
 import { CalculateCanvasGroupPositionFactory } from '../canvas-group-position/calculate-canvas-group-position-factory';
 import { CanvasService } from '../canvas-service/canvas-service';
@@ -20,27 +20,28 @@ import { ManifestUtils } from '../iiif-manifest-service/iiif-manifest-utils';
 import { MimeViewerIntl } from '../intl';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import {
+  Direction,
   FitTo,
+  Hit,
+  Manifest,
   ModeChanges,
+  PinchStatus,
+  Point,
   RecognizedTextMode,
   RecognizedTextModeChanges,
+  Rect,
+  Resource,
   ScrollDirection,
+  SearchResult,
+  Side,
+  ViewerLayout,
   ViewerMode,
+  ViewerOptions,
+  ViewingDirection,
 } from '../models';
-import { Direction } from '../models/direction';
-import { Manifest, Resource } from '../models/manifest';
-import { PinchStatus } from '../models/pinchStatus';
-import { Side } from '../models/side';
-import { ViewerLayout } from '../models/viewer-layout';
-import { ViewerOptions } from '../models/viewer-options';
-import { ViewingDirection } from '../models/viewing-direction';
 import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { StyleService } from '../style-service/style.service';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
-import { Hit } from './../models/hit';
-import { Point } from './../models/point';
-import { Rect } from './../models/rect';
-import { SearchResult } from './../models/search-result';
 import { CalculateNextCanvasGroupFactory } from './calculate-next-canvas-group-factory';
 import { CanvasGroupMask } from './canvas-group-mask';
 import {

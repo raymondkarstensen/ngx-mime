@@ -2,12 +2,8 @@ import { Injectable } from '@angular/core';
 import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
-import { ViewerLayout } from '../models/viewer-layout';
-import { CanvasGroups } from './../models/canvas-groups';
-import { Point } from './../models/point';
-import { Rect } from './../models/rect';
+import { CanvasGroups, FitTo, Point, Rect, ViewerLayout } from '../models';
 import { CanvasGroupStrategyFactory } from './canvas-groups-strategy.factory';
-import { FitTo } from '../../core/models';
 
 @Injectable()
 export class CanvasService {
@@ -120,11 +116,11 @@ export class CanvasService {
   }
 
   isNextCanvasGroupValid(): boolean {
-    return this.isCanvasGroupWithinRange(this.currentCanvasGroupIndex + 1)
+    return this.isCanvasGroupWithinRange(this.currentCanvasGroupIndex + 1);
   }
 
   isPreviousCanvasGroupValid(): boolean {
-    return this.isCanvasGroupWithinRange(this.currentCanvasGroupIndex - 1)
+    return this.isCanvasGroupWithinRange(this.currentCanvasGroupIndex - 1);
   }
 
   // Returns -1 if next canvas index is out of bounds
@@ -158,13 +154,13 @@ export class CanvasService {
   findClosestCanvasGroupIndex(point: Point): number {
     return this.canvasGroups.findClosestIndex(
       point,
-      this.scrollDirectionService.scrollDirection
+      this.scrollDirectionService.scrollDirection,
     );
   }
 
   findCanvasGroupByCanvasIndex(canvasIndex: number): number {
     return this.canvasGroups.canvasesPerCanvasGroup.findIndex(function (
-      canvasForCanvasGroup: number[]
+      canvasForCanvasGroup: number[],
     ) {
       return canvasForCanvasGroup.indexOf(canvasIndex) >= 0;
     });
