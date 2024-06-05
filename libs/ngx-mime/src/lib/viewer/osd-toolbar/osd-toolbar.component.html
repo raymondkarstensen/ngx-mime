@@ -179,8 +179,9 @@
             delayLeave: baseAnimationDelay
           }
         }"
-        ><mat-icon>fit_width</mat-icon></button
       >
+        <mat-icon>fit_width</mat-icon>
+      </button>
       <button
         *ngIf="showControlButtons"
         [ngClass]="{ selected: fitTo === FitTo.HEIGHT }"
@@ -191,8 +192,9 @@
           value: '',
           params: { delayEnter: baseAnimationDelay * 7, delayLeave: 0 }
         }"
-        ><mat-icon class="ngx-mime-rotate-90">fit_width</mat-icon></button
       >
+        <mat-icon class="ngx-mime-rotate-90">fit_width</mat-icon>
+      </button>
     </div>
   </div>
 </div>
