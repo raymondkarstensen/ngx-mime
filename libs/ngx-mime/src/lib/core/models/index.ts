@@ -1,5 +1,6 @@
 export { CanvasGroup } from './canvas-group';
 export { CanvasGroups } from './canvas-groups';
+export { Dimensions } from './dimensions';
 export { Direction } from './direction';
 export { FitTo } from './fit-to';
 export { Hit } from './hit';
