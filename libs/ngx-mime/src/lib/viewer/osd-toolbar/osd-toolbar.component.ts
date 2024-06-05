@@ -41,7 +41,7 @@ export class OsdToolbarComponent implements OnInit, OnDestroy {
   baseAnimationDelay = 20;
   isZoomed = true;
   protected readonly FitTo = FitTo;
-  fitToValue = FitTo.NONE;
+  fitTo = FitTo.NONE;
   private subscriptions = new Subscription();
 
   constructor(
@@ -103,7 +103,7 @@ export class OsdToolbarComponent implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.canvasService.fitTo$.subscribe((fitTo: FitTo) => {
-        this.fitToValue = fitTo;
+        this.fitTo = fitTo;
         this.changeDetectorRef.detectChanges();
       }),
     );

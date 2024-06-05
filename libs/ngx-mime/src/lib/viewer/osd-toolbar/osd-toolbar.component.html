@@ -168,7 +168,7 @@
 
       <button
         *ngIf="showControlButtons"
-        [ngClass]="{ selected: fitToValue === FitTo.WIDTH }"
+        [ngClass]="{ selected: fitTo === FitTo.WIDTH }"
         mat-mini-fab
         data-testId="ngx-mimeFitToWidthButton"
         (click)="toggleFitToWidth()"
@@ -183,7 +183,7 @@
       >
       <button
         *ngIf="showControlButtons"
-        [ngClass]="{ selected: fitToValue === FitTo.HEIGHT }"
+        [ngClass]="{ selected: fitTo === FitTo.HEIGHT }"
         mat-mini-fab
         data-testId="ngx-mimeFitToHeightButton"
         (click)="toggleFitToHeight()"
