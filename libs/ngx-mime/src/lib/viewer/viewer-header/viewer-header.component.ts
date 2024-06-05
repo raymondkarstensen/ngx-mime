@@ -16,19 +16,17 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ManifestUtils } from '../../core/iiif-manifest-service/iiif-manifest-utils';
 import { MimeDomHelper } from '../../core/mime-dom-helper';
-import { ViewerOptions } from '../../core/models/viewer-options';
+import { Manifest, ViewerOptions } from '../../core/models';
 import { HelpDialogService } from '../../help-dialog/help-dialog.service';
 import { InformationDialogService } from '../../information-dialog/information-dialog.service';
 import { ViewDialogService } from '../../view-dialog/view-dialog.service';
-import { ContentSearchDialogService } from './../../content-search-dialog/content-search-dialog.service';
-import { FullscreenService } from './../../core/fullscreen-service/fullscreen.service';
-import { IiifManifestService } from './../../core/iiif-manifest-service/iiif-manifest-service';
-import { MimeViewerIntl } from './../../core/intl';
-import { Manifest } from './../../core/models/manifest';
-import { ViewerService } from '../../core/viewer-service/viewer.service';
+import { ContentSearchDialogService } from '../../content-search-dialog/content-search-dialog.service';
+import { FullscreenService } from '../../core/fullscreen-service/fullscreen.service';
+import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
+import { MimeViewerIntl } from '../../core/intl';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 
 @Component({
@@ -42,21 +40,21 @@ import { CanvasService } from '../../core/canvas-service/canvas-service';
         'hide',
         style({
           transform: 'translate(0, -100%)',
-        })
+        }),
       ),
       state(
         'show',
         style({
           transform: 'translate(0px, 0px)',
-        })
+        }),
       ),
       transition(
         'hide => show',
-        animate(ViewerOptions.transitions.toolbarsEaseInTime + 'ms ease-in')
+        animate(ViewerOptions.transitions.toolbarsEaseInTime + 'ms ease-in'),
       ),
       transition(
         'show => hide',
-        animate(ViewerOptions.transitions.toolbarsEaseOutTime + 'ms ease-out')
+        animate(ViewerOptions.transitions.toolbarsEaseOutTime + 'ms ease-out'),
       ),
     ]),
   ],
@@ -89,7 +87,6 @@ export class ViewerHeaderComponent implements OnInit, OnDestroy {
     private iiifManifestService: IiifManifestService,
     private fullscreenService: FullscreenService,
     private mimeDomHelper: MimeDomHelper,
-    private viewerService: ViewerService,
     private canvasService: CanvasService,
   ) {}
 
@@ -102,11 +99,13 @@ export class ViewerHeaderComponent implements OnInit, OnDestroy {
     this.isFullscreenEnabled = this.fullscreenService.isEnabled();
 
     this.subscriptions.add(
-      this.intl.changes.subscribe(() => this.changeDetectorRef.markForCheck())
+      this.intl.changes.subscribe(() => this.changeDetectorRef.markForCheck()),
     );
 
     this.subscriptions.add(
-      this.fullscreenService.onChange.subscribe(() => this.onFullscreenChange())
+      this.fullscreenService.onChange.subscribe(() =>
+        this.onFullscreenChange(),
+      ),
     );
 
     this.subscriptions.add(
@@ -122,8 +121,8 @@ export class ViewerHeaderComponent implements OnInit, OnDestroy {
             ? ManifestUtils.hasRecognizedTextContent(manifest)
             : false;
           this.changeDetectorRef.detectChanges();
-        }
-      )
+        },
+      ),
     );
 
     this.onFullscreenChange();
