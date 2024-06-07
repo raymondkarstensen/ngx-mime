@@ -155,6 +155,7 @@ export class ZoomStrategy {
       canvasGroupRect.height,
     );
     this.updateViewerMode(zoomLevel);
+    this.setMinZoom(this.modeService.mode);
     this.zoomTo(zoomLevel);
   }
 
@@ -166,6 +167,7 @@ export class ZoomStrategy {
       canvasGroupRect.width,
     );
     this.updateViewerMode(zoomLevel);
+    this.setMinZoom(this.modeService.mode);
     this.zoomTo(zoomLevel);
   }
 
