@@ -22,8 +22,6 @@ export interface GoToCanvasGroupStrategy {
   ): void;
   goToNextCanvasGroup(currentCanvasIndex: number, panToCenter?: boolean): void;
   centerCurrentCanvas(): void;
-  panToCenterVertically(immediately?: boolean): void;
-  panToCenterHorizontally(immediately?: boolean): void;
 }
 
 export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
@@ -36,6 +34,14 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
     protected config: MimeViewerConfig,
     protected viewingDirection: ViewingDirection,
   ) {}
+
+  set previousCanvasGroupIndex(previousCanvasGroupIndex: number) {
+    this._previousCanvasGroupIndex = previousCanvasGroupIndex;
+  }
+
+  get previousCanvasGroupIndex(): number {
+    return this._previousCanvasGroupIndex;
+  }
 
   adjustPosition(): void {
     const rect = this.getRect(
@@ -59,26 +65,6 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
     this.panToCenter(currentCanvasGroupCenter, false);
   }
 
-  panToCenterVertically(immediately = false): void {
-    const x = this.getViewportCenter().x;
-    const y = 0;
-    this.panTo(x, y, immediately);
-  }
-
-  panToCenterHorizontally(immediately = false): void {
-    const x = 0;
-    const y = this.getViewportCenter().y;
-    this.panTo(x, y, immediately);
-  }
-
-  protected getPreviousCanvasGroupRect(nextCanvasGroupIndex: number): Rect {
-    const canvasGroupIndexes =
-      this.canvasService.getCanvasesPerCanvasGroup(nextCanvasGroupIndex);
-    const previousCanvasIndex =
-      canvasGroupIndexes[canvasGroupIndexes.length - 1];
-    return this.canvasService.getCanvasRect(previousCanvasIndex);
-  }
-
   protected updateCurrentCanvasGroupIndex(canvasGroupIndex: number) {
     this.canvasService.currentCanvasGroupIndex =
       this.canvasService.constrainToRange(canvasGroupIndex);
@@ -100,7 +86,7 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
 
   protected updateViewerMode(canvasGroup: CanvasGroup): void {
     this.modeService.setPageModeByZoomLevel(
-      this.getZoomLevel(
+      this.getFittedZoomLevel(
         this.canvasService.getCanvasGroupRect(canvasGroup.canvasGroupIndex),
       ),
       this.zoomStrategy.getHomeZoomLevel(this.modeService.mode),
@@ -164,7 +150,7 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
     });
   }
 
-  private getZoomLevel(canvasGroup: Rect): number {
+  private getFittedZoomLevel(canvasGroup: Rect): number {
     const viewportBounds: Rect = this.getViewportBounds();
     let zoomLevel = this.viewer.viewport.getZoom();
     if (this.canvasService.isFitToWidthEnabled()) {
@@ -181,7 +167,7 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
     return zoomLevel;
   }
 
-  protected getNewCanvasGroupIndex(
+  protected getNextCanvasGroupIndex(
     currentCanvasIndex: number,
     direction: Direction,
     scrollDirection: ScrollDirection,
@@ -197,14 +183,6 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
       viewingDirection: this.viewingDirection,
       scrollDirection,
     });
-  }
-
-  set previousCanvasGroupIndex(previousCanvasGroupIndex: number) {
-    this._previousCanvasGroupIndex = previousCanvasGroupIndex;
-  }
-
-  get previousCanvasGroupIndex(): number {
-    return this._previousCanvasGroupIndex;
   }
 }
 
@@ -238,7 +216,7 @@ export class HorizontalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStr
     if (this.canvasService.isPreviousCanvasGroupValid()) {
       this.goToCanvasGroup(
         {
-          canvasGroupIndex: this.getNewCanvasGroupIndex(
+          canvasGroupIndex: this.getNextCanvasGroupIndex(
             currentCanvasIndex,
             Direction.PREVIOUS,
             ScrollDirection.HORIZONTAL,
@@ -257,7 +235,7 @@ export class HorizontalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStr
     if (this.canvasService.isNextCanvasGroupValid()) {
       this.goToCanvasGroup(
         {
-          canvasGroupIndex: this.getNewCanvasGroupIndex(
+          canvasGroupIndex: this.getNextCanvasGroupIndex(
             currentCanvasIndex,
             Direction.NEXT,
             ScrollDirection.HORIZONTAL,
@@ -344,7 +322,7 @@ export class VerticalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStrat
     if (this.canvasService.isPreviousCanvasGroupValid()) {
       this.goToCanvasGroup(
         {
-          canvasGroupIndex: this.getNewCanvasGroupIndex(
+          canvasGroupIndex: this.getNextCanvasGroupIndex(
             currentCanvasIndex,
             Direction.PREVIOUS,
             ScrollDirection.VERTICAL,
@@ -363,7 +341,7 @@ export class VerticalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStrat
     if (this.canvasService.isNextCanvasGroupValid()) {
       this.goToCanvasGroup(
         {
-          canvasGroupIndex: this.getNewCanvasGroupIndex(
+          canvasGroupIndex: this.getNextCanvasGroupIndex(
             currentCanvasIndex,
             Direction.NEXT,
             ScrollDirection.VERTICAL,
