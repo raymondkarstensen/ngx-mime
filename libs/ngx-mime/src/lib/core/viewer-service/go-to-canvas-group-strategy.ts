@@ -33,7 +33,13 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
     protected viewingDirection: ViewingDirection,
   ) {}
 
-  adjustPosition(): void {}
+  adjustPosition(): void {
+    const rect = this.getRect(
+      this.previousCanvasGroupIndex,
+      this.canvasService.currentCanvasGroupIndex,
+    );
+    this.panTo(rect.x, rect.y, false);
+  }
 
   goToCanvasGroup(canvasGroup: CanvasGroup): void {}
 
