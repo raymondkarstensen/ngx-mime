@@ -1013,7 +1013,10 @@ export class ViewerService {
     }
 
     this.canvasService.resetFitTo();
-    this.panToCenter();
+    this.goToCanvasGroupStrategy.goToCanvasGroup({
+      canvasGroupIndex: this.canvasService.currentCanvasGroupIndex,
+      immediately: false,
+    });
 
     if (this.isCanvasMaskEnabled) {
       this.canvasGroupMask.hide();
@@ -1031,7 +1034,10 @@ export class ViewerService {
       return;
     }
 
-    this.panToCenter();
+    this.goToCanvasGroupStrategy.goToCanvasGroup({
+      canvasGroupIndex: this.canvasService.currentCanvasGroupIndex,
+      immediately: false,
+    }, true);
 
     if (this.isCanvasMaskEnabled) {
       this.canvasGroupMask.show();
