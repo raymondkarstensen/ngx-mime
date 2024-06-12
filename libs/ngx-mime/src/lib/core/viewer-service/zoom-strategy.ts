@@ -221,7 +221,7 @@ export class ZoomStrategy {
 
   private updateViewerMode(zoomLevel: number): void {
     const homeZoomLevel = this.getHomeZoomLevel(this.modeService.mode);
-    this.modeService.setPageModeByZoomLevel(zoomLevel, homeZoomLevel);
+    this.modeService.setViewerModeByZoomLevel(zoomLevel, homeZoomLevel);
   }
 
   private zoomBy(zoomFactor: number, position?: Point): void {

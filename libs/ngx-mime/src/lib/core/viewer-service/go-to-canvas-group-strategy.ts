@@ -85,7 +85,7 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
   }
 
   protected updateViewerMode(canvasGroup: CanvasGroup): void {
-    this.modeService.setPageModeByZoomLevel(
+    this.modeService.setViewerModeByZoomLevel(
       this.getFittedZoomLevel(
         this.canvasService.getCanvasGroupRect(canvasGroup.canvasGroupIndex),
       ),

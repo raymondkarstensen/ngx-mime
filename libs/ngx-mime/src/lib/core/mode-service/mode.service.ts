@@ -66,7 +66,7 @@ export class ModeService {
     return this.mode === ViewerMode.PAGE_ZOOMED;
   }
 
-  setPageModeByZoomLevel(zoomLevel: number, homeZoomLevel: number): void {
+  setViewerModeByZoomLevel(zoomLevel: number, homeZoomLevel: number): void {
     this.mode =
       zoomLevel > homeZoomLevel ? ViewerMode.PAGE_ZOOMED : ViewerMode.PAGE;
   }
