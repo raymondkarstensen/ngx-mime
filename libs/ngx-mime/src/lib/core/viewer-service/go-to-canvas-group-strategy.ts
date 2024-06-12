@@ -1,12 +1,16 @@
 import { CanvasService } from '../canvas-service/canvas-service';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import { ModeService } from '../mode-service/mode.service';
-import { Direction } from '../models/direction';
-import { Point } from '../models/point';
-import { Rect } from '../models/rect';
-import { ViewingDirection } from '../models/viewing-direction';
+import {
+  CanvasGroup,
+  Direction,
+  Point,
+  Rect,
+  ScrollDirection,
+  ViewerMode,
+  ViewingDirection,
+} from '../models';
 import { CalculateNextCanvasGroupFactory } from './calculate-next-canvas-group-factory';
-import { CanvasGroup, ScrollDirection, ViewerMode } from '../models';
 import { ZoomStrategy } from './zoom-strategy';
 
 export interface GoToCanvasGroupStrategy {
