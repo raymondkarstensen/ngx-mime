@@ -196,10 +196,7 @@ export class ViewerService {
   goToCanvas(canvasIndex: number, immediately: boolean): void {
     const canvasGroupIndex =
       this.canvasService.findCanvasGroupByCanvasIndex(canvasIndex);
-    this.goToCanvasGroupStrategy.goToCanvasGroup({
-      canvasGroupIndex: canvasGroupIndex,
-      immediately: immediately,
-    });
+    this.goToCanvasGroup(canvasGroupIndex, immediately);
   }
 
   highlight(searchResult: SearchResult): void {
@@ -587,11 +584,7 @@ export class ViewerService {
       const currentCanvasIndex = this.canvasService.currentCanvasIndex;
       this.destroy(true);
       this.setUpViewer(this.manifest, this.config);
-      this.goToCanvasGroupStrategy.goToCanvasGroup({
-        canvasGroupIndex:
-          this.canvasService.findCanvasGroupByCanvasIndex(currentCanvasIndex),
-        immediately: false,
-      });
+      this.goToCanvas(currentCanvasIndex, false);
 
       // Recreate highlights if there is an active search going on
       if (this.currentSearch) {
@@ -1013,10 +1006,7 @@ export class ViewerService {
     }
 
     this.canvasService.resetFitTo();
-    this.goToCanvasGroupStrategy.goToCanvasGroup({
-      canvasGroupIndex: this.canvasService.currentCanvasGroupIndex,
-      immediately: false,
-    });
+    this.goToCanvasGroup(this.canvasService.currentCanvasGroupIndex, false);
 
     if (this.isCanvasMaskEnabled) {
       this.canvasGroupMask.hide();
@@ -1034,10 +1024,7 @@ export class ViewerService {
       return;
     }
 
-    this.goToCanvasGroupStrategy.goToCanvasGroup({
-      canvasGroupIndex: this.canvasService.currentCanvasGroupIndex,
-      immediately: false,
-    }, true);
+    this.goToCanvasGroup(this.canvasService.currentCanvasGroupIndex, false);
 
     if (this.isCanvasMaskEnabled) {
       this.canvasGroupMask.show();
@@ -1132,14 +1119,7 @@ export class ViewerService {
       (canvasGroupEndHitCountReached &&
         (direction === Direction.RIGHT || direction === Direction.LEFT))
     ) {
-      this.goToCanvasGroupStrategy.goToCanvasGroup(
-        {
-          canvasGroupIndex: newCanvasGroupIndex,
-          immediately: false,
-          direction: direction,
-        },
-        false,
-      );
+      this.goToCanvasGroup(newCanvasGroupIndex, false);
     }
   }
 
