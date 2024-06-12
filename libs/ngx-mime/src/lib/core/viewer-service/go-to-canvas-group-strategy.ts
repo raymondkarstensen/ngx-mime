@@ -49,9 +49,17 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
     this.panToCenter(currentCanvasGroupCenter, false);
   }
 
-  panToCenterVertically(immediately?: boolean): void {}
+  panToCenterVertically(immediately = false): void {
+    const x = this.getViewportCenter().x;
+    const y = 0;
+    this.panTo(x, y, immediately);
+  }
 
-  panToCenterHorizontally(immediately?: boolean): void {}
+  panToCenterHorizontally(immediately = false): void {
+    const x = 0;
+    const y = this.getViewportCenter().y;
+    this.panTo(x, y, immediately);
+  }
 
   protected getPreviousCanvasGroupRect(nextCanvasGroupIndex: number): Rect {
     const canvasGroupIndexes =
@@ -261,17 +269,6 @@ export class HorizontalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStr
     }
   }
 
-  override panToCenterVertically(immediately = false): void {
-    const x = this.getViewportCenter().x;
-    const y = 0;
-    this.panTo(x, y, immediately);
-  }
-
-  override panToCenterHorizontally(immediately = false): void {
-    const x = 0;
-    const y = this.getViewportCenter().y;
-    this.panTo(x, y, immediately);
-  }
 
   override getX(
     previousCanvasGroupIndex: number,
@@ -423,17 +420,6 @@ export class VerticalGoToCanvasGroupStrategy extends DefaultGoToCanvasGroupStrat
     }
   }
 
-  override panToCenterVertically(immediately = false): void {
-    const x = this.getViewportCenter().x;
-    const y = 0;
-    this.panTo(x, y, immediately);
-  }
-
-  override panToCenterHorizontally(immediately = false): void {
-    const x = 0;
-    const y = this.getViewportCenter().y;
-    this.panTo(x, y, immediately);
-  }
 
   override getX(
     previousCanvasGroupIndex: number,
