@@ -43,12 +43,9 @@ export class ModeService {
   }
 
   toggleMode(): void {
-    if (this.mode === ViewerMode.DASHBOARD) {
+    if (this.isDashBoard()) {
       this.mode = ViewerMode.PAGE;
-    } else if (
-      this.mode === ViewerMode.PAGE ||
-      this.mode === ViewerMode.PAGE_ZOOMED
-    ) {
+    } else if (this.isPage() || this.isPageZoomed()) {
       this.mode = ViewerMode.DASHBOARD;
     }
   }
