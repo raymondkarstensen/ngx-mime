@@ -24,6 +24,7 @@ export interface Strategy {
   zoomTo(level: number, position?: Point): void;
   zoomIn(zoomFactor?: number, position?: Point): void;
   zoomOut(zoomFactor?: number, position?: Point): void;
+  isViewportLargerThanCanvasGroup(): boolean;
 }
 
 export class ZoomStrategy {
@@ -171,6 +172,16 @@ export class ZoomStrategy {
     this.zoomTo(zoomLevel);
   }
 
+  isViewportLargerThanCanvasGroup(): boolean {
+    const canvasGroupRec = this.canvasService.getCurrentCanvasGroupRect();
+    const viewportBounds = this.viewer.viewport.getBounds();
+    const pbWidth = Math.round(canvasGroupRec.width);
+    const pbHeight = Math.round(canvasGroupRec.height);
+    const vpWidth = Math.round(viewportBounds.width);
+    const vpHeight = Math.round(viewportBounds.height);
+    return vpHeight >= pbHeight || vpWidth >= pbWidth;
+  }
+
   private getDashboardViewportBounds(): any {
     const homeZoomFactor = this.getHomeZoomFactor();
     const maxViewportDimensions = new Dimensions(
@@ -232,16 +243,6 @@ export class ZoomStrategy {
       this.getMaxZoom(),
     );
     this.viewer.viewport.zoomBy(zoomFactor, position);
-  }
-
-  private isViewportLargerThanCanvasGroup(): boolean {
-    const canvasGroupRec = this.canvasService.getCurrentCanvasGroupRect();
-    const viewportBounds = this.viewer.viewport.getBounds();
-    const pbWidth = Math.round(canvasGroupRec.width);
-    const pbHeight = Math.round(canvasGroupRec.height);
-    const vpWidth = Math.round(viewportBounds.width);
-    const vpHeight = Math.round(viewportBounds.height);
-    return vpHeight >= pbHeight || vpWidth >= pbWidth;
   }
 
   private getHomeZoomFactor() {
