@@ -4,6 +4,8 @@ import { ViewerMode } from '../models/viewer-mode';
 import { ViewingDirection } from '../models/viewing-direction';
 import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { HorizontalGoToCanvasGroupStrategy } from './go-to-canvas-group-strategy';
+import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
+import { ZoomStrategy } from './zoom-strategy';
 
 describe('DefaultGoToCanvasGroupStrategy ', () => {
   let strategy: HorizontalGoToCanvasGroupStrategy;
@@ -12,13 +14,22 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
     getBounds: () => {},
     panTo: () => {},
   };
+  const breakPointObserver: any = {};
   const viewer: any = {
     viewport: viewport,
     collectionTileMargin: 80,
   };
-  const zoomStrategy: any = {};
-  const canvasService: CanvasService = new CanvasService(new ScrollDirectionService());
+  const canvasService: CanvasService = new CanvasService(
+    new ScrollDirectionService(),
+  );
   const modeService = new ModeService();
+  const viewerLayoutService = new ViewerLayoutService(breakPointObserver);
+  const zoomStrategy: any = new ZoomStrategy(
+    viewer,
+    canvasService,
+    modeService,
+    viewerLayoutService,
+  );
   const config: any = {};
   let spy: any;
 
