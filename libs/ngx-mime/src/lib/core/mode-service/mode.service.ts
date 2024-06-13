@@ -16,15 +16,14 @@ export class ModeService {
   }
 
   get onChange(): Observable<ModeChanges> {
-    return this.toggleModeSubject.asObservable().pipe(distinctUntilChanged());
+    return this.toggleModeSubject
+      .asObservable()
+      .pipe(distinctUntilChanged(this.hasChanged));
   }
 
   set mode(mode: ViewerMode) {
-    if (this.mode !== mode) {
-      // TODO Not needed because of distinctUntilChanged?
-      this._mode = mode;
-      this.change();
-    }
+    this._mode = mode;
+    this.change();
   }
 
   get mode(): ViewerMode {
@@ -74,8 +73,10 @@ export class ModeService {
   private change() {
     this.modeChanges.previousValue = this.modeChanges.currentValue;
     this.modeChanges.currentValue = this._mode;
-    this.toggleModeSubject.next({
-      ...this.modeChanges,
-    });
+    this.toggleModeSubject.next(this.modeChanges);
+  }
+
+  private hasChanged(previous: ModeChanges, current: ModeChanges): boolean {
+    return current.previousValue === current.currentValue;
   }
 }
