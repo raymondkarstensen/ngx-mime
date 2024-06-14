@@ -1,11 +1,10 @@
-import { CanvasService } from '../canvas-service/canvas-service';
-import { ModeService } from '../mode-service/mode.service';
-import { ViewerMode } from '../models/viewer-mode';
-import { ViewingDirection } from '../models/viewing-direction';
-import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
-import { HorizontalGoToCanvasGroupStrategy } from './go-to-canvas-group-strategy';
-import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
-import { ZoomStrategy } from './zoom-strategy';
+import { HorizontalGoToCanvasGroupStrategy } from './horizontal-go-to-canvas-groups-strategy';
+import { CanvasService } from '../../canvas-service/canvas-service';
+import { ScrollDirectionService } from '../../scroll-direction-service/scroll-direction-service';
+import { ModeService } from '../../mode-service/mode.service';
+import { ViewerLayoutService } from '../../viewer-layout-service/viewer-layout-service';
+import { ZoomStrategy } from '../zoom-strategy';
+import { ViewerMode, ViewingDirection } from '../../models';
 
 describe('DefaultGoToCanvasGroupStrategy ', () => {
   let strategy: HorizontalGoToCanvasGroupStrategy;

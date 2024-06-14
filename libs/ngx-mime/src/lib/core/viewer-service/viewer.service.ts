@@ -44,11 +44,6 @@ import { StyleService } from '../style-service/style.service';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
 import { CalculateNextCanvasGroupFactory } from './calculate-next-canvas-group-factory';
 import { CanvasGroupMask } from './canvas-group-mask';
-import {
-  GoToCanvasGroupStrategy,
-  HorizontalGoToCanvasGroupStrategy,
-  VerticalGoToCanvasGroupStrategy,
-} from './go-to-canvas-group-strategy';
 import { OptionsFactory } from './options.factory';
 import { SwipeDragEndCounter } from './swipe-drag-end-counter';
 import { SwipeUtils } from './swipe-utils';
@@ -59,6 +54,11 @@ import {
   HorizontalConstraintStrategy,
   VerticalConstraintStrategy,
 } from './constraint-strategy';
+import {
+  GoToCanvasGroupStrategy,
+  HorizontalGoToCanvasGroupStrategy,
+  VerticalGoToCanvasGroupStrategy,
+} from './go-to-canvas-group-strategy';
 
 declare const OpenSeadragon: any;
 
