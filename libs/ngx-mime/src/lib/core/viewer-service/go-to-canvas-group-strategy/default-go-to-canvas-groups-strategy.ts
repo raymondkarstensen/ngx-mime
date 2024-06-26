@@ -62,8 +62,8 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
 
   /**
    Should center the canvas in these cases:
-   - If the viewer is in PAGE mode and is NOT fitted to width or height
-   - If the viewer is ZOOMED in and zoom should NOT be preserved
+   - If the viewer is NOT ZOOMED IN and is NOT fitted to width or height
+   - If the viewer is ZOOMED IN and zoom should NOT be preserved
    */
   protected shouldPanToCenter(): boolean {
     return (
