@@ -19,7 +19,7 @@ describe('ModeService', () => {
   it('should emit when mode changes', () => {
     let selectedMode: ViewerMode | undefined;
     service.onChange.subscribe(
-      (mode: ModeChanges) => (selectedMode = mode.currentValue)
+      (mode: ModeChanges) => (selectedMode = mode.currentValue),
     );
 
     service.mode = ViewerMode.DASHBOARD;
@@ -43,7 +43,7 @@ describe('ModeService', () => {
   it('should emit when mode is toggled', () => {
     let selectedMode: ViewerMode | undefined;
     service.onChange.subscribe(
-      (mode: ModeChanges) => (selectedMode = mode.currentValue)
+      (mode: ModeChanges) => (selectedMode = mode.currentValue),
     );
     service.mode = ViewerMode.DASHBOARD;
     service.toggleMode();
