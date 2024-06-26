@@ -84,13 +84,7 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
   }
 
   protected panTo(x: number, y: number, immediately = false): void {
-    this.viewer.viewport.panTo(
-      {
-        x: x,
-        y: y,
-      },
-      immediately,
-    );
+    this.viewer.viewport.panTo({ x, y }, immediately);
   }
 
   protected getViewportCenter(): Point {
