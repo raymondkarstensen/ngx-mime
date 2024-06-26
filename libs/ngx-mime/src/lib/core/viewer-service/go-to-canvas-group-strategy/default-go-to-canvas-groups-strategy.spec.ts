@@ -1,39 +1,34 @@
-import { HorizontalGoToCanvasGroupStrategy } from './horizontal-go-to-canvas-groups-strategy';
 import { CanvasService } from '../../canvas-service/canvas-service';
 import { ScrollDirectionService } from '../../scroll-direction-service/scroll-direction-service';
 import { ModeService } from '../../mode-service/mode.service';
 import { ViewerLayoutService } from '../../viewer-layout-service/viewer-layout-service';
 import { ZoomStrategy } from '../zoom-strategy';
-import { ViewerMode, ViewingDirection } from '../../models';
+import { Rect, ViewingDirection } from '../../models';
+import { DefaultGoToCanvasGroupStrategy } from './default-go-to-canvas-groups-strategy';
+import { MockBreakpointObserver } from '../../../test/mock-breakpoint-observer';
 
-describe('DefaultGoToCanvasGroupStrategy ', () => {
-  let strategy: HorizontalGoToCanvasGroupStrategy;
-  const viewport: any = {
-    getCenter: () => {},
-    getBounds: () => {},
-    panTo: () => {},
-  };
-  const breakPointObserver: any = {};
-  const viewer: any = {
-    viewport: viewport,
-    collectionTileMargin: 80,
-  };
-  const canvasService: CanvasService = new CanvasService(
-    new ScrollDirectionService(),
-  );
-  const modeService = new ModeService();
-  const viewerLayoutService = new ViewerLayoutService(breakPointObserver);
-  const zoomStrategy: any = new ZoomStrategy(
-    viewer,
-    canvasService,
-    modeService,
-    viewerLayoutService,
-  );
-  const config: any = {};
-  let spy: any;
+describe('HorizontalGoToCanvasGroupStrategy ', () => {
+  let canvasService: CanvasService;
+  let modeService: ModeService;
+  let viewerLayoutService: ViewerLayoutService;
+  let zoomStrategy: ZoomStrategy;
+  let goToCanvasGroupStrategy: DefaultGoToCanvasGroupStrategy;
+  let viewer: any;
+  let config: any;
 
   beforeEach(() => {
-    strategy = new HorizontalGoToCanvasGroupStrategy(
+    viewer = createViewer();
+    config = createConfig();
+    canvasService = new CanvasService(new ScrollDirectionService());
+    modeService = new ModeService();
+    viewerLayoutService = new ViewerLayoutService(new MockBreakpointObserver());
+    zoomStrategy = new ZoomStrategy(
+      viewer,
+      canvasService,
+      modeService,
+      viewerLayoutService,
+    );
+    goToCanvasGroupStrategy = new DefaultGoToCanvasGroupStrategy(
       viewer,
       zoomStrategy,
       canvasService,
@@ -41,87 +36,64 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
       config,
       ViewingDirection.LTR,
     );
+
+    jest.spyOn(viewer.viewport, 'getCenter').mockReturnValue(getCenterMock());
+    jest
+      .spyOn(viewer.viewport, 'getBounds')
+      .mockReturnValue(getViewportBoundsMock());
+    jest.spyOn(viewer.viewport, 'panTo');
   });
 
-  describe('preserveZoomOnCanvasGroupChange', () => {
-    describe('startOnTopOnCanvasGroupChange', () => {
-      it('go to previous canvas group when zoomed in should pan to upper left on previous canvas', () => {
-        config.preserveZoomOnCanvasGroupChange = true;
-        config.startOnTopOnCanvasGroupChange = true;
-        canvasService.currentCanvasGroupIndex = 10;
-        modeService.mode = ViewerMode.PAGE_ZOOMED;
+  it('should pan to when adjusting position', () => {
+    goToCanvasGroupStrategy.adjustPosition();
 
-        spy = jest.spyOn(canvasService, 'constrainToRange').mockReturnValue(9);
-        spy = jest.spyOn(canvasService, 'getCanvasGroupRect').mockReturnValue({
-          x: 0,
-          y: 0,
-          width: 100,
-          height: 100,
-          centerX: 50,
-          centerY: 50,
-        });
-        spy = jest.spyOn(viewport, 'getCenter').mockReturnValue({
-          x: 50,
-          y: 50,
-        });
-        spy = jest.spyOn(viewport, 'getBounds').mockReturnValue({
-          x: 0,
-          y: 0,
-          width: 100,
-          height: 100,
-          centerX: 50,
-          centerY: 50,
-        });
-        spy = jest.spyOn(viewport, 'panTo');
-
-        const res = strategy.goToCanvasGroup({
-          canvasGroupIndex: 9,
-          immediately: false,
-        });
-
-        const args = spy.mock.calls.pop();
-        expect(args[0].x).toEqual(50);
-        expect(args[0].y).toEqual(-30);
-      });
-
-      it('go to next canvas group when zoomed in should pan to upper left on next canvas', () => {
-        config.preserveZoomOnCanvasGroupChange = true;
-        config.startOnTopOnCanvasGroupChange = true;
-        canvasService.currentCanvasGroupIndex = 10;
-        modeService.mode = ViewerMode.PAGE_ZOOMED;
-
-        spy = jest.spyOn(canvasService, 'constrainToRange').mockReturnValue(12);
-        spy = jest.spyOn(canvasService, 'getCanvasGroupRect').mockReturnValue({
-          x: 100,
-          y: 0,
-          width: 100,
-          height: 100,
-          centerX: 50,
-          centerY: 50,
-        });
-        spy = jest.spyOn(viewport, 'getCenter').mockReturnValue({
-          x: 50,
-          y: 50,
-        });
-        spy = jest.spyOn(viewport, 'getBounds').mockReturnValue({
-          x: 0,
-          y: 0,
-          width: 100,
-          height: 100,
-          centerX: 50,
-          centerY: 50,
-        });
-        spy = jest.spyOn(viewport, 'panTo');
-
-        const res = strategy.goToCanvasGroup({
-          canvasGroupIndex: 12,
-          immediately: false,
-        });
-
-        const args = spy.mock.calls.pop();
-        expect(args[0].x).toEqual(150);
-        expect(args[0].y).toEqual(-30);
-      });
-    });
+    const expectedRect = { x: 0, y: 0 };
+    expect(viewer.viewport.panTo).toHaveBeenCalledWith(expectedRect, false);
   });
+
+  it('should pan to when centering current canvas', () => {
+    const expectedRect = { x: 0, y: 0 };
+    jest
+      .spyOn(canvasService, 'getCanvasGroupRect')
+      .mockReturnValue(new Rect(expectedRect));
+
+    goToCanvasGroupStrategy.centerCurrentCanvas();
+
+    expect(viewer.viewport.panTo).toHaveBeenCalledWith(expectedRect, false);
+  });
+
+  function createViewer() {
+    return {
+      viewport: createViewport(),
+      collectionTileMargin: 80,
+    };
+  }
+
+  function createViewport() {
+    return {
+      getCenter: () => {},
+      getBounds: () => {},
+      panTo: (x: number, y: number) => {},
+      getZoom: () => {},
+    };
+  }
+
+  function createConfig() {
+    return {};
+  }
+
+  function getCenterMock() {
+    return { x: 50, y: 50 };
+  }
+
+  function getViewportBoundsMock() {
+    return {
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
+      centerX: 50,
+      centerY: 50,
+    };
+  }
 });
