@@ -50,4 +50,24 @@ describe('ModeService', () => {
     service.toggleMode();
     expect(selectedMode).toEqual(ViewerMode.PAGE);
   });
+
+  describe('setViewerModeByZoomLevel', () => {
+    it('should set mode to PAGE_ZOOMED when zoom level is larger than home zoom level', () => {
+      const zoomLevel = 1;
+      const homeZoomLevel = 0;
+
+      service.setViewerModeByZoomLevel(zoomLevel, homeZoomLevel);
+
+      expect(service.mode).toEqual(ViewerMode.PAGE_ZOOMED);
+    });
+
+    it('should set mode to PAGE when home zoom level is larger than zoom level', () => {
+      const zoomLevel = 0;
+      const homeZoomLevel = 1;
+
+      service.setViewerModeByZoomLevel(zoomLevel, homeZoomLevel);
+
+      expect(service.mode).toEqual(ViewerMode.PAGE);
+    });
+  });
 });
