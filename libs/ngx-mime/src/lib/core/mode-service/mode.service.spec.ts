@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ModeChanges } from '../models';
-import { ViewerMode } from '../models/viewer-mode';
+import { ModeChanges, ViewerMode } from '../models';
 import { ModeService } from './mode.service';
 
 describe('ModeService', () => {
