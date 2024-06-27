@@ -7,11 +7,10 @@ Feature: Zoom to fit current page size in view
   Background:
     Given the viewer is opened with a publication
 
-  # TODO Somehow e2e starts with vertical scroll direction, but view menu shows horizontal direction
-#  Scenario: Fit current page size in dashboard view
-#    Given the viewer is in dashboard view
-#    When the user navigates between the pages
-#    Then the current page's size should be zoomed to fill the viewer
+  Scenario: Fit current page size in dashboard view
+    Given the viewer is in dashboard view
+    When the user navigates between the pages
+    Then the current page's size should be zoomed to fill the viewer
 
   Scenario Outline: Fit to width and height
     Given the layout is <pageLayout>
