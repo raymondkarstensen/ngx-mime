@@ -555,7 +555,7 @@ export class ViewerService {
     this.subscriptions.add(
       this.canvasService.fitTo$.subscribe((fitTo: FitTo) => {
         const initialToggle: boolean =
-          !this.canvasService.isFitToEnabled() && fitTo !== this.fitTo;
+          this.fitTo === FitTo.NONE && fitTo !== this.fitTo;
         this.fitTo = fitTo;
         this.updateFitTo(initialToggle);
       }),
