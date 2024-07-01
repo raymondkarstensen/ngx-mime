@@ -60,15 +60,9 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
       this.canvasService.constrainToRange(canvasGroupIndex);
   }
 
-  /**
-   Should center the canvas in these cases:
-   - If the viewer is NOT ZOOMED IN and is NOT fitted to width or height
-   - If the viewer is ZOOMED IN and zoom should NOT be preserved
-   */
   protected shouldPanToCenter(): boolean {
     return (
-      (!this.modeService.isPageZoomed() &&
-        !this.canvasService.isFitToEnabled()) ||
+      !this.modeService.isPageZoomed() ||
       (this.modeService.isPageZoomed() &&
         !this.config.preserveZoomOnCanvasGroupChange)
     );
