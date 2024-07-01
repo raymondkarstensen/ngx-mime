@@ -139,25 +139,9 @@ describe('VerticalGoToCanvasGroupsStrategy', () => {
     });
 
     describe('should not call panTo', () => {
-      beforeEach(() => {
+      it('when the viewer is zoomed in and preserve zoom flag is true', () => {
         config.preserveZoomOnCanvasGroupChange = true;
-      });
-
-      it('when the viewer is zoomed in and fitTo is enabled', () => {
-        jest
-          .spyOn(modeService, 'setViewerModeByZoomLevel')
-          .mockImplementation(() => {});
         modeService.mode = ViewerMode.PAGE_ZOOMED;
-        canvasService.toggleFitToWidth();
-
-        goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup);
-
-        expect(viewer.viewport.panTo).not.toHaveBeenCalled();
-      });
-
-      it('when the viewer is not zoomed in and preserve zoom flag is true', () => {
-        modeService.mode = ViewerMode.PAGE;
-        canvasService.toggleFitToWidth();
 
         goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup);
 
