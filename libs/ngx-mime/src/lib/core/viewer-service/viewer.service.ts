@@ -1178,7 +1178,10 @@ export class ViewerService {
   }
 
   private shouldAdjustPosition(): boolean {
-    return this.scrollDirectionService.isHorizontalScrollingDirection();
+    return (
+      this.scrollDirectionService.isHorizontalScrollingDirection() &&
+      this.modeService.isPageZoomed()
+    );
   }
 
   private enableHorizontalPanning(): void {
