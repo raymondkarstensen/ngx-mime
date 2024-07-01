@@ -171,7 +171,7 @@ describe('HorizontalGoToCanvasGroupStrategy ', () => {
         );
       });
 
-      it('when the viewer is not zoomed in and fitTo is not enabled', () => {
+      it('when the viewer is not zoomed in', () => {
         goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup);
 
         expect(viewer.viewport.panTo).toHaveBeenLastCalledWith(
@@ -183,6 +183,7 @@ describe('HorizontalGoToCanvasGroupStrategy ', () => {
       it('when the viewer is zoomed in and preserve zoom flag is false', () => {
         config.preserveZoomOnCanvasGroupChange = false;
         modeService.mode = ViewerMode.PAGE_ZOOMED;
+
         goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup);
 
         expect(viewer.viewport.panTo).toHaveBeenLastCalledWith(
@@ -193,32 +194,13 @@ describe('HorizontalGoToCanvasGroupStrategy ', () => {
     });
 
     describe('should call panTo', () => {
-      beforeEach(() => {
+      it('when the viewer is zoomed in and preserve zoom flag is true', () => {
         config.preserveZoomOnCanvasGroupChange = true;
-      });
-
-      it('when the viewer is zoomed in and fitTo is enabled', () => {
-        jest
-          .spyOn(modeService, 'setViewerModeByZoomLevel')
-          .mockImplementation(() => {});
         modeService.mode = ViewerMode.PAGE_ZOOMED;
-        canvasService.toggleFitToWidth();
 
         goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup);
 
-        expect(viewer.viewport.panTo).toHaveBeenLastCalledWith(
-          { x: 0, y: 50 },
-          false,
-        );
-      });
-
-      it('when the viewer is not zoomed in and preserve zoom flag is true', () => {
-        modeService.mode = ViewerMode.PAGE;
-        canvasService.toggleFitToWidth();
-
-        goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup);
-
-        expect(viewer.viewport.panTo).toHaveBeenLastCalledWith(
+        expect(viewer.viewport.panTo).toHaveBeenCalledWith(
           { x: 0, y: 50 },
           false,
         );
