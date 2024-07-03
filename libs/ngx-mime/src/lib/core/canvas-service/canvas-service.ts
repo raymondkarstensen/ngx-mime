@@ -301,21 +301,27 @@ export class CanvasService {
     position: any,
     currentOverlay: any,
   ): void {
-    // TODO: Handle 90 & 270 rotation custom borders
-    if (i % 2 === 0 && i !== 0) {
-      const noLeftStrokeStyle =
-        Number(position.width * 2 + position.height) +
-        ', ' +
-        position.width * 2;
-      currentOverlay.style('stroke-dasharray', noLeftStrokeStyle);
-    } else if (i % 2 !== 0 && i !== 0) {
-      const noRightStrokeStyle =
-        position.width +
-        ', ' +
-        position.height +
-        ', ' +
-        Number(position.width * 2 + position.height);
-      currentOverlay.style('stroke-dasharray', noRightStrokeStyle);
+    if (i === 0) return;
+
+    const isFirstPage = i % 2 !== 0;
+    const isRotated = this.rotation === 90 || this.rotation === 270;
+
+    if (isRotated) {
+      if (isFirstPage) {
+        const noBottomStrokeStyle = `${position.height + position.width}, ${position.width}, ${position.height}`;
+        currentOverlay.style('stroke-dasharray', noBottomStrokeStyle);
+      } else {
+        const noTopStrokeStyle = `0, ${position.w}, ${2 * position.height + position.width}`;
+        currentOverlay.style('stroke-dasharray', noTopStrokeStyle);
+      }
+    } else {
+      if (isFirstPage) {
+        const noRightStrokeStyle = `${position.width}, ${position.height}, ${2 * position.width + position.height}`;
+        currentOverlay.style('stroke-dasharray', noRightStrokeStyle);
+      } else {
+        const noLeftStrokeStyle = `${2 * position.width + position.height}, ${2 * position.width}`;
+        currentOverlay.style('stroke-dasharray', noLeftStrokeStyle);
+      }
     }
   }
 
