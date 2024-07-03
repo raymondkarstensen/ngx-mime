@@ -12,7 +12,6 @@ export {
   RecognizedTextMode,
   RecognizedTextModeChanges,
 } from './recognized-text-mode';
-export { Resource } from './manifest';
 export { Rect } from './rect';
 export { ScrollDirection } from './scroll-direction';
 export { SearchResult } from './search-result';
