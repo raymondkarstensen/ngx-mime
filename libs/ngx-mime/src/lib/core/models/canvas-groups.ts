@@ -1,22 +1,33 @@
+import {
+  CanvasGroup,
+  TileSourceAndRect,
+} from '../canvas-service/tile-source-and-rect.model';
 import { Point } from './point';
-import { Rect } from './rect';
 import { ScrollDirection } from './scroll-direction';
 
 export class CanvasGroups {
-  canvasGroupRects: Rect[] = [];
-  canvasRects: Rect[] = [];
+  canvasGroups: CanvasGroup[] = [];
+  tileSourceAndRects: TileSourceAndRect[] = [];
   canvasesPerCanvasGroup: number[][] = [];
 
-  public add(rect: Rect): void {
-    this.canvasGroupRects.push(rect);
+  public add(canvasGroup: CanvasGroup): void {
+    this.canvasGroups.push(canvasGroup);
+
+    if (canvasGroup.tileSourceAndRects) {
+      canvasGroup.tileSourceAndRects.forEach(
+        (tileSourceAndRect: TileSourceAndRect, i: number) => {
+          this.tileSourceAndRects.push(tileSourceAndRect);
+        },
+      );
+    }
   }
 
-  public addRange(rects: Rect[]): void {
-    this.canvasGroupRects = rects;
+  public addRange(canvasGroups: ReadonlyArray<CanvasGroup>): void {
+    this.canvasGroups = [...canvasGroups];
   }
 
-  public get(index: number): Rect {
-    return { ...this.canvasGroupRects[index] };
+  public get(index: number): CanvasGroup {
+    return { ...this.canvasGroups[index] };
   }
 
   public findClosestIndex(point: Point, scrollDirection: ScrollDirection): number {
@@ -26,12 +37,12 @@ export class CanvasGroups {
     if (point === null) {
       return -1;
     }
-    this.canvasGroupRects.some(function (rect: Rect, index: number) {
+    this.canvasGroups.some(function (canvasGroup: CanvasGroup, index: number) {
       let delta;
       if(scrollDirection === ScrollDirection.HORIZONTAL) {
-        delta = Math.abs(point.x - rect.centerX);
+        delta = Math.abs(point.x - canvasGroup.rect.centerX);
       } else {
-        delta = Math.abs(point.y - rect.centerY);
+        delta = Math.abs(point.y - canvasGroup.rect.centerY);
       }
       if (delta >= lastDelta) {
         return true;
@@ -44,6 +55,6 @@ export class CanvasGroups {
   }
 
   public length(): number {
-    return this.canvasGroupRects.length;
+    return this.canvasGroups.length;
   }
 }

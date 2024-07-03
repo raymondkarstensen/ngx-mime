@@ -164,10 +164,6 @@ export class ViewerHeaderComponent implements OnInit, OnDestroy {
     return this.mimeDomHelper.toggleFullscreen();
   }
 
-  public isInFullScreen(): boolean {
-    return this.fullscreenService.isFullscreen();
-  }
-
   private onFullscreenChange() {
     this.isInFullscreen = this.fullscreenService.isFullscreen();
     this.fullscreenLabel = this.isInFullscreen

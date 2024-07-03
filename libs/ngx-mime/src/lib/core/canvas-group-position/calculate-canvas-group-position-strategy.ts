@@ -1,21 +1,10 @@
-import { ViewerLayout } from '../models/viewer-layout';
-import { ScrollDirection } from '../models/scroll-direction';
-import { Resource } from '../models/manifest';
-import { Rect } from '../models/rect';
-import { ViewingDirection } from '../models/viewing-direction';
+import { CanvasGroup } from '../canvas-service/tile-source-and-rect.model';
+import { ViewerLayout, ViewingDirection } from '../models';
 
 export interface CanvasGroupPositionCriteria {
   canvasGroupIndex: number;
-  canvasSource: Resource;
-  previousCanvasGroupPosition: Rect;
+  previousCanvasGroup: CanvasGroup;
+  currentCanvasGroup: CanvasGroup;
   viewingDirection: ViewingDirection;
   viewerLayout: ViewerLayout;
-  scrollDirection: ScrollDirection;
-}
-
-export interface CalculateCanvasGroupPositionStrategy {
-  calculateCanvasGroupPosition(
-    criteria: CanvasGroupPositionCriteria,
-    rotation: number
-  ): Rect;
 }

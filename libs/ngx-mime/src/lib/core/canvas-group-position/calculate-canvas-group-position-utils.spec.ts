@@ -1,174 +1,79 @@
-import { ScrollDirection } from '../models';
-import { ViewerLayout } from '../models/viewer-layout';
+import { Rect } from '../models';
 import { Resource, Service } from '../models/manifest';
-import { Rect } from '../models/rect';
-import { ViewingDirection } from '../models/viewing-direction';
-import { CanvasGroupPositionCriteria } from './calculate-canvas-group-position-strategy';
-import { canvasRectFromCriteria } from './calculate-canvas-group-position-utils';
+import { createCanvasRect } from './calculate-canvas-group-position-utils';
 
-describe('canvasRectFromCriteria', () => {
-  let scrollDirection: ScrollDirection;
-  const canvasGroupsPositionCriteria: CanvasGroupPositionCriteria = {
-    canvasGroupIndex: 0,
-    canvasSource: new Resource({
-      width: 100,
-      height: 200,
+describe('createCanvasRect', () => {
+  const tileSource = new Resource({
+    id: 'fakeId',
+    width: 100,
+    height: 200,
+    service: new Service({
       service: new Service({
-        service: new Service({
-          width: 100,
-          height: 100,
-          physicalScale: 0.0025,
-        }),
+        width: 100,
+        height: 100,
+        physicalScale: 0.0025,
       }),
     }),
-    viewingDirection: ViewingDirection.LTR,
-    scrollDirection: ScrollDirection.HORIZONTAL,
-    previousCanvasGroupPosition: new Rect(),
-    viewerLayout: ViewerLayout.TWO_PAGE,
-  };
-
-  beforeEach(() => {
-    scrollDirection = ScrollDirection.HORIZONTAL;
   });
 
   describe('using physicalScale', () => {
     it('should return Rect', () => {
-      const canvasRect = canvasRectFromCriteria(
-        0,
-        canvasGroupsPositionCriteria,
-        10,
-        false,
-        scrollDirection
-      );
+      const canvasRect = createCanvasRect(0, tileSource, false);
 
-      expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -100, width: 100, height: 200 })
-      );
+      expect(canvasRect).toEqual(new Rect({ width: 100, height: 200 }));
     });
 
     it('should rotate 90 degrees', () => {
-      const canvasRect = canvasRectFromCriteria(
-        90,
-        canvasGroupsPositionCriteria,
-        10,
-        false,
-        scrollDirection
-      );
+      const canvasRect = createCanvasRect(90, tileSource, false);
 
-      expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -50, width: 200, height: 100 })
-      );
+      expect(canvasRect).toEqual(new Rect({ width: 200, height: 100 }));
     });
 
     it('should rotate 180 degrees', () => {
-      const canvasRect = canvasRectFromCriteria(
-        180,
-        canvasGroupsPositionCriteria,
-        10,
-        false,
-        scrollDirection
-      );
+      const canvasRect = createCanvasRect(180, tileSource, false);
 
-      expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -100, width: 100, height: 200 })
-      );
+      expect(canvasRect).toEqual(new Rect({ width: 100, height: 200 }));
     });
 
     it('should rotate 270 degrees', () => {
-      const canvasRect = canvasRectFromCriteria(
-        270,
-        canvasGroupsPositionCriteria,
-        10,
-        false,
-        scrollDirection
-      );
+      const canvasRect = createCanvasRect(270, tileSource, false);
 
-      expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -50, width: 200, height: 100 })
-      );
+      expect(canvasRect).toEqual(new Rect({ width: 200, height: 100 }));
     });
     it('should rotate 360 degrees', () => {
-      const canvasRect = canvasRectFromCriteria(
-        360,
-        canvasGroupsPositionCriteria,
-        10,
-        false,
-        scrollDirection
-      );
+      const canvasRect = createCanvasRect(360, tileSource, false);
 
-      expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -100, width: 100, height: 200 })
-      );
+      expect(canvasRect).toEqual(new Rect({ width: 100, height: 200 }));
     });
   });
   describe('ignoring physicalScale', () => {
     it('should return Rect', () => {
-      const canvasRect = canvasRectFromCriteria(
-        0,
-        canvasGroupsPositionCriteria,
-        10,
-        true,
-        scrollDirection
-      );
+      const canvasRect = createCanvasRect(0, tileSource, true);
 
-      expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -100, width: 100, height: 200 })
-      );
+      expect(canvasRect).toEqual(new Rect({ width: 100, height: 200 }));
     });
 
     it('should rotate 90 degrees', () => {
-      const canvasRect = canvasRectFromCriteria(
-        90,
-        canvasGroupsPositionCriteria,
-        10,
-        true,
-        scrollDirection
-      );
+      const canvasRect = createCanvasRect(90, tileSource, true);
 
-      expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -50, width: 200, height: 100 })
-      );
+      expect(canvasRect).toEqual(new Rect({ width: 200, height: 100 }));
     });
 
     it('should rotate 180 degrees', () => {
-      const canvasRect = canvasRectFromCriteria(
-        180,
-        canvasGroupsPositionCriteria,
-        10,
-        true,
-        scrollDirection
-      );
+      const canvasRect = createCanvasRect(180, tileSource, true);
 
-      expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -100, width: 100, height: 200 })
-      );
+      expect(canvasRect).toEqual(new Rect({ width: 100, height: 200 }));
     });
 
     it('should rotate 270 degrees', () => {
-      const canvasRect = canvasRectFromCriteria(
-        270,
-        canvasGroupsPositionCriteria,
-        10,
-        true,
-        scrollDirection
-      );
+      const canvasRect = createCanvasRect(270, tileSource, true);
 
-      expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -50, width: 200, height: 100 })
-      );
+      expect(canvasRect).toEqual(new Rect({ width: 200, height: 100 }));
     });
     it('should rotate 360 degrees', () => {
-      const canvasRect = canvasRectFromCriteria(
-        360,
-        canvasGroupsPositionCriteria,
-        10,
-        true,
-        scrollDirection
-      );
+      const canvasRect = createCanvasRect(360, tileSource, true);
 
-      expect(canvasRect).toEqual(
-        new Rect({ x: 10, y: -100, width: 100, height: 200 })
-      );
+      expect(canvasRect).toEqual(new Rect({ width: 100, height: 200 }));
     });
   });
 });

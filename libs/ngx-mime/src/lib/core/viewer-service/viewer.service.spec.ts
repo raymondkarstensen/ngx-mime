@@ -6,7 +6,6 @@ import {
 } from '../scroll-direction-service/scroll-direction-service';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideAutoSpy } from 'jest-auto-spies';
-import { Subscription } from 'rxjs';
 import { testManifest } from '../../test/testManifest';
 import { testManifestDifferentSizes } from '../../test/testManifestDifferentSizes';
 import { AltoService } from '../alto-service/alto.service';
@@ -77,6 +76,10 @@ describe('ViewerService', () => {
     hostFixture.detectChanges();
   });
 
+  afterEach(() => {
+    viewerService.destroy();
+  });
+
   it('should be created', () => {
     expect(viewerService).toBeTruthy();
   });
@@ -110,10 +113,8 @@ describe('ViewerService', () => {
       config,
     );
 
-    let subscription: Subscription;
-    subscription = viewerService.onOsdReadyChange.subscribe((state) => {
+    viewerService.onOsdReadyChange.subscribe((state) => {
       if (state) {
-        subscription.unsubscribe();
         viewerService.rotate();
         viewerService.destroy(true);
         expect(rotation).toEqual(90);
@@ -132,10 +133,8 @@ describe('ViewerService', () => {
       config,
     );
 
-    let subscription: Subscription;
-    subscription = viewerService.onOsdReadyChange.subscribe((state) => {
+    viewerService.onOsdReadyChange.subscribe((state) => {
       if (state) {
-        subscription.unsubscribe();
         viewerService.rotate();
         viewerService.destroy(false);
         expect(rotation).toEqual(0);
@@ -150,10 +149,8 @@ describe('ViewerService', () => {
       config,
     );
 
-    let subscription: Subscription;
-    subscription = viewerService.onOsdReadyChange.subscribe((state) => {
+    viewerService.onOsdReadyChange.subscribe((state) => {
       if (state) {
-        subscription.unsubscribe();
         viewerService.destroy(false);
         expect(viewerService.getViewer()).toBeNull();
         done();
@@ -163,7 +160,6 @@ describe('ViewerService', () => {
 
   describe('rotate', () => {
     it('should rotate if using canvas', (done) => {
-      const openSpy = jest.spyOn(snackBar, 'open');
       viewerService.setUpViewer(
         new ManifestBuilder(testManifest).build(),
         config,

@@ -11,7 +11,6 @@ import {
 import { distinctUntilChanged, sample } from 'rxjs/operators';
 import { ModeService } from '../mode-service/mode.service';
 import { AltoService } from '../alto-service/alto.service';
-import { CalculateCanvasGroupPositionFactory } from '../canvas-group-position/calculate-canvas-group-position-factory';
 import { CanvasService } from '../canvas-service/canvas-service';
 import { ClickService } from '../click-service/click.service';
 import { createSvgOverlay } from '../ext/svg-overlay';
@@ -47,7 +46,6 @@ import { CanvasGroupMask } from './canvas-group-mask';
 import { OptionsFactory } from './options.factory';
 import { SwipeDragEndCounter } from './swipe-drag-end-counter';
 import { SwipeUtils } from './swipe-utils';
-import { TileSourceStrategyFactory } from './tile-source-strategy-factory';
 import { DefaultZoomStrategy, ZoomStrategy } from './zoom-strategy';
 import {
   ConstraintStrategy,
@@ -69,7 +67,6 @@ export class ViewerService {
   private svgOverlay: any;
   private svgNode: any;
 
-  private overlays: Array<SVGRectElement> = [];
   private tileSources: Array<Resource> = [];
   private subscriptions!: Subscription;
 
@@ -152,8 +149,8 @@ export class ViewerService {
     return this.tileSources;
   }
 
-  getOverlays(): SVGRectElement[] {
-    return this.overlays;
+  getOverlays(): ReadonlyArray<SVGRectElement> {
+    return this.canvasService.overlays;
   }
 
   getZoom(): number {
@@ -273,15 +270,19 @@ export class ViewerService {
 
   setUpViewer(manifest: Manifest, config: MimeViewerConfig) {
     this.config = config;
+    this.canvasService.setConfig(config);
 
     if (manifest && manifest.tileSource) {
       this.tileSources = manifest.tileSource;
+      this.canvasService.addTileSources(this.tileSources);
+
       this.zone.runOutsideAngular(() => {
         this.manifest = manifest;
         this.isManifestPaged = ManifestUtils.isManifestPaged(this.manifest);
         this.viewer = new OpenSeadragon.Viewer(
           OptionsFactory.create(this.openseadragonId, this.config),
         );
+
         createSvgOverlay();
         this.zoomStrategy = new DefaultZoomStrategy(
           this.viewer,
@@ -340,7 +341,6 @@ export class ViewerService {
       this.viewer.destroy();
       this.viewer = null;
     }
-    this.overlays = [];
     this.canvasService.reset();
     if (this.canvasGroupMask) {
       this.canvasGroupMask.destroy();
@@ -388,7 +388,9 @@ export class ViewerService {
   getOverlayIndexFromClickEvent(event: any) {
     const target = this.getOriginalTarget(event);
     if (this.isCanvasGroupHit(target)) {
-      const requestedCanvasGroup: number = this.overlays.indexOf(target);
+      const requestedCanvasGroup: number =
+        this.canvasService.overlays.indexOf(target);
+
       if (requestedCanvasGroup >= 0) {
         return requestedCanvasGroup;
       }
@@ -437,7 +439,7 @@ export class ViewerService {
               (this.modeService.isPage() || this.modeService.isDashBoard()) &&
               !this.canvasService.isFitToEnabled()
             ) {
-              this.goToHomeZoom();
+              this.home();
             }
           }
         },
@@ -747,114 +749,12 @@ export class ViewerService {
    * Iterates tilesources and adds them to viewer
    * Creates svg clickable overlays for each tile
    */
-  private createOverlays(): void {
-    this.overlays = [];
-    const canvasRects: Rect[] = [];
-    const calculateCanvasGroupPositionStrategy =
-      CalculateCanvasGroupPositionFactory.create(
-        this.viewerLayoutService.layout,
-        this.isManifestPaged,
-        this.config,
-        this.scrollDirectionService.scrollDirection,
-      );
-
-    const isTwoPageView: boolean =
-      this.viewerLayoutService.layout === ViewerLayout.TWO_PAGE;
-    const rotation = this.rotation.getValue();
-    let group: any = this.svgNode.append('g').attr('class', 'page-group');
-
-    this.tileSources.forEach((tile, i) => {
-      const position =
-        calculateCanvasGroupPositionStrategy.calculateCanvasGroupPosition(
-          {
-            canvasGroupIndex: i,
-            canvasSource: tile,
-            previousCanvasGroupPosition: canvasRects[i - 1],
-            viewingDirection: this.manifest.viewingDirection,
-            viewerLayout: this.viewerLayoutService.layout,
-            scrollDirection: this.scrollDirectionService.scrollDirection,
-          },
-          rotation,
-        );
-
-      canvasRects.push(position);
-
-      const tileSourceStrategy = TileSourceStrategyFactory.create(tile);
-      const tileSource = tileSourceStrategy.getTileSource(tile);
-
-      this.zone.runOutsideAngular(() => {
-        const rotated = rotation === 90 || rotation === 270;
-
-        let bounds;
-
-        /* Because image scaling is performed before rotation,
-         * we must invert width & height and translate position so that tile rotation ends up correct
-         */
-        if (rotated) {
-          bounds = new OpenSeadragon.Rect(
-            position.x + (position.width - position.height) / 2,
-            position.y - (position.width - position.height) / 2,
-            position.height,
-            position.width,
-          );
-        } else {
-          bounds = new OpenSeadragon.Rect(
-            position.x,
-            position.y,
-            position.width,
-            position.height,
-          );
-        }
-
-        this.viewer.addTiledImage({
-          index: i,
-          tileSource: tileSource,
-          fitBounds: bounds,
-          degrees: rotation,
-        });
-      });
-
-      if (isTwoPageView && i % 2 !== 0) {
-        group = this.svgNode.append('g').attr('class', 'page-group');
-      }
-
-      const currentOverlay = group
-        .append('rect')
-        .attr('x', position.x)
-        .attr('y', position.y)
-        .attr('width', position.width)
-        .attr('height', position.height)
-        .attr('class', 'tile');
-
-      // Make custom borders if current layout is two-paged
-      if (isTwoPageView) {
-        if (i % 2 === 0 && i !== 0) {
-          const noLeftStrokeStyle =
-            Number(position.width * 2 + position.height) +
-            ', ' +
-            position.width * 2;
-          currentOverlay.style('stroke-dasharray', noLeftStrokeStyle);
-        } else if (i % 2 !== 0 && i !== 0) {
-          const noRightStrokeStyle =
-            position.width +
-            ', ' +
-            position.height +
-            ', ' +
-            Number(position.width * 2 + position.height);
-          currentOverlay.style('stroke-dasharray', noRightStrokeStyle);
-        }
-      }
-
-      const currentOverlayNode: SVGRectElement = currentOverlay.node();
-      this.overlays[i] = currentOverlayNode;
-    });
-
-    const layout =
-      this.viewerLayoutService.layout === ViewerLayout.ONE_PAGE ||
-      !this.isManifestPaged
-        ? ViewerLayout.ONE_PAGE
-        : ViewerLayout.TWO_PAGE;
-    this.canvasService.addAll(canvasRects, layout);
+  createOverlays(): void {
+    this.canvasService.setViewer(this.viewer);
+    this.canvasService.setSvgNode(this.svgNode);
+    this.canvasService.setViewingDirection(this.manifest.viewingDirection);
+    this.canvasService.setRotation(this.rotation.getValue());
+    this.canvasService.updateViewer();
   }
 
   /**
@@ -1012,8 +912,7 @@ export class ViewerService {
       this.canvasGroupMask.hide();
     }
 
-    this.zoomStrategy.setMinZoom(ViewerMode.DASHBOARD);
-    this.goToHomeZoom();
+    this.home();
   }
 
   /**
@@ -1030,8 +929,7 @@ export class ViewerService {
       this.canvasGroupMask.show();
     }
 
-    this.zoomStrategy.setMinZoom(ViewerMode.PAGE);
-    this.goToHomeZoom();
+    this.home();
   }
 
   private zoomOnScroll(event: any): void {
