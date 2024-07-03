@@ -301,6 +301,7 @@ export class CanvasService {
     position: any,
     currentOverlay: any,
   ): void {
+    // TODO: Handle 90 & 270 rotation custom borders
     if (i % 2 === 0 && i !== 0) {
       const noLeftStrokeStyle =
         Number(position.width * 2 + position.height) +

@@ -1,4 +1,5 @@
-import { TwoPageCalculateCanvasGroupPositionStrategy } from '../canvas-group-position/two-page-calculate-page-position-strategy';
+import { createCanvasRect } from '../canvas-group-position/calculate-canvas-group-position-utils';
+import { CalculateCanvasGroupPositionStrategy } from '../canvas-group-position/calculate-page-position-strategy';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import {
   CanvasGroups,
@@ -13,7 +14,7 @@ import { CanvasGroup, TileSourceAndRect } from './tile-source-and-rect.model';
 export class TwoCanvasPerCanvasGroupStrategy
   implements AbstractCanvasGroupStrategy
 {
-  private positionStrategy: TwoPageCalculateCanvasGroupPositionStrategy;
+  private positionStrategy: CalculateCanvasGroupPositionStrategy;
 
   constructor(
     private viewerLayout: ViewerLayout,
@@ -22,45 +23,67 @@ export class TwoCanvasPerCanvasGroupStrategy
     private scrollDirection: ScrollDirection,
     private rotation: number,
   ) {
-    this.positionStrategy = new TwoPageCalculateCanvasGroupPositionStrategy(
-      this.config,
+    this.positionStrategy = new CalculateCanvasGroupPositionStrategy(
       this.scrollDirection,
     );
   }
 
   addAll(tileSources: ReadonlyArray<any>): CanvasGroups {
     const canvasGroups = new CanvasGroups();
-
     // Add first single page
-    this.addSinglePage(canvasGroups, tileSources[0], 0, new Rect());
+    this.addSinglePage(canvasGroups, tileSources[0], 0);
 
     for (let i = 1; i < tileSources.length; i += 2) {
       if (this.hasNextPage(tileSources, i)) {
         this.addPairedPages(canvasGroups, tileSources, i);
       } else {
-        this.addSinglePage(
-          canvasGroups,
-          tileSources[i],
-          i,
-          this.getLastRect(canvasGroups),
-        );
+        this.addSinglePage(canvasGroups, tileSources[i], i);
       }
     }
+
+    canvasGroups.canvasGroups = this.positionCanvasGroups(canvasGroups);
 
     return canvasGroups;
   }
 
+  private positionCanvasGroups(canvasGroups: CanvasGroups): CanvasGroup[] {
+    const updatedCanvasGroups: CanvasGroup[] = [];
+    canvasGroups.canvasGroups.forEach((canvasGroup, index) => {
+      updatedCanvasGroups.push(
+        this.positionStrategy.calculateCanvasGroupPosition(
+          {
+            canvasGroupIndex: index,
+            previousCanvasGroup: updatedCanvasGroups[index - 1],
+            currentCanvasGroup: canvasGroup,
+            viewingDirection: this.viewingDirection,
+            viewerLayout: this.viewerLayout,
+          },
+          this.rotation,
+        ),
+      );
+    });
+
+    return updatedCanvasGroups;
+  }
+
   private addSinglePage(
     canvasGroups: CanvasGroups,
-    tileSource: any,
+    tilesource: any,
     index: number,
-    previousRect: Rect,
   ): void {
-    const position = this.calculatePosition(tileSource, index, previousRect);
-    const tileSourceAndRect: TileSourceAndRect = { tileSource, rect: position };
+    const rect = createCanvasRect(
+      this.rotation,
+      tilesource,
+      this.config.ignorePhysicalScale,
+    );
+
+    const tileSourceAndRect: TileSourceAndRect = {
+      tileSource: tilesource,
+      rect,
+    };
     const newCanvasGroup: CanvasGroup = {
       tileSourceAndRects: [tileSourceAndRect],
-      rect: position,
+      rect,
     };
 
     canvasGroups.add(newCanvasGroup);
@@ -72,20 +95,33 @@ export class TwoCanvasPerCanvasGroupStrategy
     tileSources: ReadonlyArray<any>,
     index: number,
   ): void {
-    const previousCanvasGroup = this.getLastCanvasGroup(canvasGroups);
-    const firstTileSourceAndRect = this.createTileSourceAndRect(
+    const firstRect = createCanvasRect(
+      this.rotation,
       tileSources[index],
-      index,
-      previousCanvasGroup.rect,
+      this.config.ignorePhysicalScale,
     );
-    const secondTileSourceAndRect = this.createTileSourceAndRect(
+    const firstTileSourceAndRect = {
+      tileSource: tileSources[index],
+      rect: firstRect,
+    };
+
+    const secondRect = createCanvasRect(
+      this.rotation,
       tileSources[index + 1],
-      index + 1,
-      firstTileSourceAndRect.rect,
+      this.config.ignorePhysicalScale,
     );
+    const secondTileSourceAndRect = {
+      tileSource: tileSources[index + 1],
+      rect: secondRect,
+    };
+
+    const tileSourceAndRects =
+      this.rotation === 180 || this.rotation === 270
+        ? [secondTileSourceAndRect, firstTileSourceAndRect]
+        : [firstTileSourceAndRect, secondTileSourceAndRect];
 
     const newCanvasGroup: CanvasGroup = {
-      tileSourceAndRects: [firstTileSourceAndRect, secondTileSourceAndRect],
+      tileSourceAndRects,
       rect: this.combineRects(
         firstTileSourceAndRect.rect,
         secondTileSourceAndRect.rect,
@@ -100,54 +136,20 @@ export class TwoCanvasPerCanvasGroupStrategy
     return index + 1 < tileSources.length;
   }
 
-  private createTileSourceAndRect(
-    tileSource: any,
-    index: number,
-    previousRect: Rect,
-  ): TileSourceAndRect {
-    return {
-      tileSource,
-      rect: this.calculatePosition(tileSource, index, previousRect),
-    };
-  }
-
-  private calculatePosition(
-    tileSource: any,
-    index: number,
-    previousRect: Rect,
-  ): Rect {
-    return this.positionStrategy.calculateCanvasGroupPosition(
-      {
-        canvasGroupIndex: index,
-        canvasSource: tileSource,
-        previousCanvasGroupPosition: previousRect,
-        viewingDirection: this.viewingDirection,
-        viewerLayout: this.viewerLayout,
-      },
-      this.rotation,
-    );
-  }
-
-  private getLastCanvasGroup(canvasGroups: CanvasGroups): CanvasGroup {
-    return canvasGroups.canvasGroups[canvasGroups.canvasGroups.length - 1];
-  }
-
-  private getLastRect(canvasGroups: CanvasGroups): Rect {
-    const lastCanvasGroup = this.getLastCanvasGroup(canvasGroups);
-    return lastCanvasGroup.rect;
-  }
-
   private combineRects(rect1: Rect, rect2: Rect): Rect {
-    const height =
-      this.rotation === 90 || this.rotation === 270
-        ? rect1.height + rect2.height
-        : Math.max(rect1.height, rect2.height);
+    let width, height;
+
+    if (this.rotation === 90 || this.rotation === 270) {
+      width = Math.max(rect1.width, rect2.width);
+      height = rect1.height + rect2.height;
+    } else {
+      width = rect1.width + rect2.width;
+      height = Math.max(rect1.height, rect2.height);
+    }
 
     return new Rect({
-      x: Math.min(rect1.x, rect2.x),
-      y: Math.min(rect1.y, rect2.y),
+      width,
       height,
-      width: rect1.width + rect2.width,
     });
   }
 }

@@ -1,4 +1,5 @@
-import { OnePageCalculatePagePositionStrategy } from '../canvas-group-position/one-page-calculate-page-position-strategy';
+import { createCanvasRect } from '../canvas-group-position/calculate-canvas-group-position-utils';
+import { CalculateCanvasGroupPositionStrategy } from '../canvas-group-position/calculate-page-position-strategy';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import {
   CanvasGroups,
@@ -13,7 +14,7 @@ import { CanvasGroup, TileSourceAndRect } from './tile-source-and-rect.model';
 export class OneCanvasPerCanvasGroupStrategy
   implements AbstractCanvasGroupStrategy
 {
-  private positionStrategy: OnePageCalculatePagePositionStrategy;
+  private positionStrategy: CalculateCanvasGroupPositionStrategy;
 
   constructor(
     private viewerLayout: ViewerLayout,
@@ -22,8 +23,7 @@ export class OneCanvasPerCanvasGroupStrategy
     private scrollDirection: ScrollDirection,
     private rotation: number,
   ) {
-    this.positionStrategy = new OnePageCalculatePagePositionStrategy(
-      this.config,
+    this.positionStrategy = new CalculateCanvasGroupPositionStrategy(
       this.scrollDirection,
     );
   }
@@ -32,50 +32,40 @@ export class OneCanvasPerCanvasGroupStrategy
     const canvasGroups = new CanvasGroups();
 
     tileSources.forEach((tileSource, index) => {
-      const previousCanvasGroup = this.getPreviousCanvasGroup(
-        canvasGroups,
-        index,
-      );
-      const position = this.calculatePosition(
+      const rect = createCanvasRect(
+        this.rotation,
         tileSource,
-        index,
-        previousCanvasGroup,
+        this.config.ignorePhysicalScale,
       );
-      const newCanvasGroup = this.createCanvasGroup(tileSource, position);
+      const newCanvasGroup = this.createCanvasGroup(tileSource, rect);
 
       canvasGroups.add(newCanvasGroup);
       canvasGroups.canvasesPerCanvasGroup.push([index]);
     });
 
+    canvasGroups.canvasGroups = this.positionCanvasGroups(canvasGroups);
+
     return canvasGroups;
   }
 
-  private getPreviousCanvasGroup(
-    canvasGroups: CanvasGroups,
-    index: number,
-  ): CanvasGroup | undefined {
-    return index === 0
-      ? undefined
-      : canvasGroups.canvasGroups[canvasGroups.canvasGroups.length - 1];
-  }
+  private positionCanvasGroups(canvasGroups: CanvasGroups): CanvasGroup[] {
+    const updatedCanvasGroups: CanvasGroup[] = [];
+    canvasGroups.canvasGroups.forEach((canvasGroup, index) => {
+      updatedCanvasGroups.push(
+        this.positionStrategy.calculateCanvasGroupPosition(
+          {
+            canvasGroupIndex: index,
+            previousCanvasGroup: updatedCanvasGroups[index - 1],
+            currentCanvasGroup: canvasGroup,
+            viewingDirection: this.viewingDirection,
+            viewerLayout: this.viewerLayout,
+          },
+          this.rotation,
+        ),
+      );
+    });
 
-  private calculatePosition(
-    tileSource: any,
-    index: number,
-    previousCanvasGroup?: CanvasGroup,
-  ): Rect {
-    return this.positionStrategy.calculateCanvasGroupPosition(
-      {
-        canvasGroupIndex: index,
-        canvasSource: tileSource,
-        previousCanvasGroupPosition: previousCanvasGroup
-          ? previousCanvasGroup.rect
-          : new Rect(),
-        viewingDirection: this.viewingDirection,
-        viewerLayout: this.viewerLayout,
-      },
-      this.rotation,
-    );
+    return updatedCanvasGroups;
   }
 
   private createCanvasGroup(tileSource: any, position: Rect): CanvasGroup {

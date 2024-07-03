@@ -1,16 +1,10 @@
-import { Rect, Resource, ViewerLayout, ViewingDirection } from '../models';
+import { CanvasGroup } from '../canvas-service/tile-source-and-rect.model';
+import { ViewerLayout, ViewingDirection } from '../models';
 
 export interface CanvasGroupPositionCriteria {
   canvasGroupIndex: number;
-  canvasSource: Resource;
-  previousCanvasGroupPosition: Rect;
+  previousCanvasGroup: CanvasGroup;
+  currentCanvasGroup: CanvasGroup;
   viewingDirection: ViewingDirection;
   viewerLayout: ViewerLayout;
-}
-
-export interface CalculateCanvasGroupPositionStrategy {
-  calculateCanvasGroupPosition(
-    criteria: CanvasGroupPositionCriteria,
-    rotation: number,
-  ): Rect;
 }
