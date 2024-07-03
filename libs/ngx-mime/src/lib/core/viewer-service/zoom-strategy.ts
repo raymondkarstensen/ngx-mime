@@ -123,7 +123,7 @@ export class ZoomStrategy {
     }
 
     if (
-      this.isViewportLargerThanCanvasGroup() &&
+      this.isViewportLargerThanCanvasGroup() ||
       this.modeService.isPageZoomed()
     ) {
       this.modeService.mode = ViewerMode.PAGE;
