@@ -369,10 +369,6 @@ export class ViewerService {
     this.zoomStrategy.zoomOut(zoomFactor, position);
   }
 
-  goToHomeZoom(): void {
-    this.zoomStrategy.goToHomeZoom();
-  }
-
   rotate(): void {
     if (this.osdIsReady.getValue()) {
       if (this.viewer.useCanvas) {
