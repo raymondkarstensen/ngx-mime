@@ -295,19 +295,37 @@ export class ViewerService {
           this.modeService,
           this.viewerLayoutService,
         );
-        this.goToCanvasGroupStrategy = new HorizontalGoToCanvasGroupStrategy(
-          this.viewer,
-          this.zoomStrategy,
-          this.canvasService,
-          this.modeService,
-          this.config,
-          this.manifest.viewingDirection,
-        );
-        this.constraintStrategy = new HorizontalConstraintStrategy(
-          this.modeService,
-          this.canvasService,
-          this.viewer,
-        );
+        if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
+          this.isCanvasMaskEnabled = true;
+          this.goToCanvasGroupStrategy = new HorizontalGoToCanvasGroupStrategy(
+            this.viewer,
+            this.zoomStrategy,
+            this.canvasService,
+            this.modeService,
+            this.config,
+            this.manifest.viewingDirection,
+          );
+          this.constraintStrategy = new HorizontalConstraintStrategy(
+            this.modeService,
+            this.canvasService,
+            this.viewer,
+          );
+        } else {
+          this.isCanvasMaskEnabled = false;
+          this.goToCanvasGroupStrategy = new VerticalGoToCanvasGroupStrategy(
+            this.viewer,
+            this.zoomStrategy,
+            this.canvasService,
+            this.modeService,
+            this.config,
+            this.manifest.viewingDirection,
+          );
+          this.constraintStrategy = new VerticalConstraintStrategy(
+            this.modeService,
+            this.canvasService,
+            this.viewer,
+          );
+        }
         /*
           This disables keyboard navigation in openseadragon.
           We use s for opening search dialog and OSD use the same key for panning.
@@ -471,7 +489,7 @@ export class ViewerService {
     );
 
     this.subscriptions.add(
-      this.onRotationChange.subscribe((rotation: number) => {
+      this.onRotationChange.subscribe(() => {
         this.layoutPages();
       }),
     );
@@ -505,43 +523,9 @@ export class ViewerService {
     );
 
     this.subscriptions.add(
-      this.scrollDirectionService.onChange.subscribe(
-        (scrollDirection: ScrollDirection) => {
-          this.isCanvasMaskEnabled = false;
-          if (scrollDirection === ScrollDirection.VERTICAL) {
-            this.goToCanvasGroupStrategy = new VerticalGoToCanvasGroupStrategy(
-              this.viewer,
-              this.zoomStrategy,
-              this.canvasService,
-              this.modeService,
-              this.config,
-              this.manifest.viewingDirection
-            );
-            this.constraintStrategy = new VerticalConstraintStrategy(
-              this.modeService,
-              this.canvasService,
-              this.viewer
-            );
-          } else if (scrollDirection === ScrollDirection.HORIZONTAL) {
-            this.isCanvasMaskEnabled = true;
-            this.goToCanvasGroupStrategy =
-              new HorizontalGoToCanvasGroupStrategy(
-                this.viewer,
-                this.zoomStrategy,
-                this.canvasService,
-                this.modeService,
-                this.config,
-                this.manifest.viewingDirection
-              );
-            this.constraintStrategy = new HorizontalConstraintStrategy(
-              this.modeService,
-              this.canvasService,
-              this.viewer,
-            );
-          }
-          this.layoutPages();
-        }
-      )
+      this.scrollDirectionService.onChange.subscribe(() => {
+        this.layoutPages();
+      }),
     );
   }
 
@@ -792,7 +776,7 @@ export class ViewerService {
       this.modeService.mode = ViewerMode.PAGE_ZOOMED;
       this.zoomStrategy.zoomIn(
         ViewerOptions.zoom.dblClickZoomFactor,
-        event.position
+        event.position,
       );
     } else {
       this.modeService.mode = ViewerMode.PAGE;
@@ -959,8 +943,8 @@ export class ViewerService {
         ? this.goToPreviousCanvasGroup()
         : this.goToNextCanvasGroup()
       : event.scroll > 0
-      ? this.goToNextCanvasGroup()
-      : this.goToPreviousCanvasGroup();
+        ? this.goToNextCanvasGroup()
+        : this.goToPreviousCanvasGroup();
   }
 
   private updateCurrentCanvasIndex(event: any): void {
@@ -1003,7 +987,7 @@ export class ViewerService {
       this.swipeDragEndCounter.addHit(
         pannedPastSide,
         direction,
-        this.scrollDirectionService.scrollDirection
+        this.scrollDirectionService.scrollDirection,
       );
       canvasGroupEndHitCountReached =
         this.swipeDragEndCounter.hitCountReached();
@@ -1018,7 +1002,7 @@ export class ViewerService {
         canvasGroupEndHitCountReached: canvasGroupEndHitCountReached,
         viewingDirection: this.manifest.viewingDirection,
         scrollDirection: this.scrollDirectionService.scrollDirection,
-      })
+      }),
     );
     if (
       this.modeService.mode === ViewerMode.DASHBOARD ||
