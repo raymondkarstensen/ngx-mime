@@ -1,65 +1,95 @@
 import { CanvasGroup } from '../canvas-service/tile-source-and-rect.model';
+import {
+  CanvasGroups,
+  Rect,
+  ScrollDirection,
+  ViewingDirection,
+} from '../models';
 import { ViewerOptions } from '../models/viewer-options';
-import { Rect, ScrollDirection } from '../models';
 import { CanvasGroupPositionCriteria } from './calculate-canvas-group-position-strategy';
 
 export class CalculateCanvasGroupPositionStrategy {
-  constructor(private scrollDirection: ScrollDirection) {
+  constructor(
+    private scrollDirection: ScrollDirection,
+    private viewingDirection: ViewingDirection,
+    private rotation: number,
+  ) {
     this.scrollDirection = scrollDirection;
   }
 
-  calculateCanvasGroupPosition(
+  positionCanvasGroups(canvasGroups: CanvasGroups): CanvasGroups {
+    const updatedCanvasGroups = new CanvasGroups();
+    canvasGroups.canvasGroups.forEach((canvasGroup, index) => {
+      const updatedCanvasGroup = this.calculateCanvasGroupPosition(
+        {
+          canvasGroupIndex: index,
+          previousCanvasGroup: updatedCanvasGroups.canvasGroups[index - 1],
+          currentCanvasGroup: canvasGroup,
+          viewingDirection: this.viewingDirection,
+        }
+      );
+
+      updatedCanvasGroups.canvasGroups.push(updatedCanvasGroup);
+      updatedCanvasGroups.tileSourceAndRects.push(
+        ...updatedCanvasGroup.tileSourceAndRects,
+      );
+    });
+    updatedCanvasGroups.canvasesPerCanvasGroup =
+      canvasGroups.canvasesPerCanvasGroup;
+
+    return updatedCanvasGroups;
+  }
+
+  private calculateCanvasGroupPosition(
     criteria: CanvasGroupPositionCriteria,
-    rotation: number,
   ): CanvasGroup {
+    const needsReverse = this.needsReverse();
+    const isSidewaysRotated = this.isSidewaysRotated();
+    const currentCanvasGroupRect = criteria.currentCanvasGroup.rect;
+    const tileSourceAndRects = needsReverse
+      ? [...criteria.currentCanvasGroup.tileSourceAndRects].reverse()
+      : criteria.currentCanvasGroup.tileSourceAndRects;
+
+    let canvasX = 0;
+    let canvasY = 0;
+
     if (this.scrollDirection === ScrollDirection.HORIZONTAL) {
-      return this.calculateHorizontalCanvasGroupPosition(criteria, rotation);
+      canvasX = this.getCanvasMainAxis(criteria);
+      canvasY = (currentCanvasGroupRect.height / 2) * -1;
     } else {
-      return this.calculateVerticalCanvasGroupPosition(criteria, rotation);
+      canvasY = this.getCanvasMainAxis(criteria);
+      canvasX = (currentCanvasGroupRect.width / 2) * -1;
     }
-  }
 
-  private calculateHorizontalCanvasGroupPosition(
-    criteria: CanvasGroupPositionCriteria,
-    rotation = 0,
-  ): CanvasGroup {
-    const previousCanvasGroupRect = criteria.previousCanvasGroup?.rect;
-    const currentCanvasGroupRect = criteria.currentCanvasGroup.rect;
-    const isRotated = rotation === 90 || rotation === 270;
-    const canvasX = previousCanvasGroupRect
-      ? previousCanvasGroupRect.x +
-        previousCanvasGroupRect.width +
-        ViewerOptions.overlays.canvasGroupMarginInDashboardView
-      : 0;
-    const canvasY = (currentCanvasGroupRect.height / 2) * -1;
+    let stackAxis = isSidewaysRotated ? canvasY : canvasX;
+    const updatedTileSourceAndRects = tileSourceAndRects.map(
+      (tileSourceAndRect) => {
+        let mainAxis = isSidewaysRotated ? canvasX : canvasY;
+        mainAxis += isSidewaysRotated
+          ? (currentCanvasGroupRect.width - tileSourceAndRect.rect.width) / 2
+          : (currentCanvasGroupRect.height - tileSourceAndRect.rect.height) / 2;
 
-    let stackAxis = isRotated ? canvasY : canvasX;
-    const updatedTileSourceAndRects =
-      criteria.currentCanvasGroup.tileSourceAndRects.map(
-        (tileSourceAndRect) => {
-          let mainAxis = isRotated ? canvasX : canvasY;
-          mainAxis += isRotated
-            ? (currentCanvasGroupRect.width - tileSourceAndRect.rect.width) / 2
-            : (currentCanvasGroupRect.height - tileSourceAndRect.rect.height) /
-              2;
+        const tileX = isSidewaysRotated ? mainAxis : stackAxis;
+        const tileY = isSidewaysRotated ? stackAxis : mainAxis;
+        stackAxis += isSidewaysRotated
+          ? tileSourceAndRect.rect.height
+          : tileSourceAndRect.rect.width;
 
-          const tileX = isRotated ? mainAxis : stackAxis;
-          const tileY = isRotated ? stackAxis : mainAxis;
-          stackAxis += isRotated
-            ? tileSourceAndRect.rect.height
-            : tileSourceAndRect.rect.width;
+        return {
+          tileSource: tileSourceAndRect.tileSource,
+          rect: new Rect({
+            x: tileX,
+            y: tileY,
+            width: tileSourceAndRect.rect.width,
+            height: tileSourceAndRect.rect.height,
+          }),
+        };
+      },
+    );
 
-          return {
-            tileSource: tileSourceAndRect.tileSource,
-            rect: new Rect({
-              x: tileX,
-              y: tileY,
-              width: tileSourceAndRect.rect.width,
-              height: tileSourceAndRect.rect.height,
-            }),
-          };
-        },
-      );
+    if (needsReverse) {
+      updatedTileSourceAndRects.reverse();
+    }
 
     return {
       tileSourceAndRects: updatedTileSourceAndRects,
@@ -72,55 +102,40 @@ export class CalculateCanvasGroupPositionStrategy {
     };
   }
 
-  private calculateVerticalCanvasGroupPosition(
-    criteria: CanvasGroupPositionCriteria,
-    rotation = 0,
-  ): CanvasGroup {
+  private needsReverse(): boolean {
+    return this.rotation === 180 || this.rotation === 270;
+  }
+
+  private isSidewaysRotated(): boolean {
+    return this.rotation === 90 || this.rotation === 270;
+  }
+
+  private getCanvasMainAxis(criteria: CanvasGroupPositionCriteria): number {
+    const isHorizontal = this.scrollDirection === ScrollDirection.HORIZONTAL;
     const previousCanvasGroupRect = criteria.previousCanvasGroup?.rect;
     const currentCanvasGroupRect = criteria.currentCanvasGroup.rect;
-    const isRotated = rotation === 90 || rotation === 270;
-    const canvasX = (currentCanvasGroupRect.width / 2) * -1;
-    const canvasY = previousCanvasGroupRect
-      ? previousCanvasGroupRect.y +
-        previousCanvasGroupRect.height +
-        ViewerOptions.overlays.canvasGroupMarginInDashboardView
-      : 0;
+    const margin = ViewerOptions.overlays.canvasGroupMarginInDashboardView;
 
-    let stackAxis = isRotated ? canvasY : canvasX;
-    const updatedTileSourceAndRects =
-      criteria.currentCanvasGroup.tileSourceAndRects.map(
-        (tileSourceAndRect) => {
-          let mainAxis = isRotated ? canvasX : canvasY;
-          mainAxis += isRotated
-            ? (currentCanvasGroupRect.width - tileSourceAndRect.rect.width) / 2
-            : (currentCanvasGroupRect.height - tileSourceAndRect.rect.height) /
-              2;
-          const tileX = isRotated ? mainAxis : stackAxis;
-          const tileY = isRotated ? stackAxis : mainAxis;
-          stackAxis += isRotated
-            ? tileSourceAndRect.rect.height
-            : tileSourceAndRect.rect.width;
-
-          return {
-            tileSource: tileSourceAndRect.tileSource,
-            rect: new Rect({
-              x: tileX,
-              y: tileY,
-              width: tileSourceAndRect.rect.width,
-              height: tileSourceAndRect.rect.height,
-            }),
-          };
-        },
-      );
-
-    return {
-      tileSourceAndRects: updatedTileSourceAndRects,
-      rect: new Rect({
-        x: canvasX,
-        y: canvasY,
-        width: currentCanvasGroupRect.width,
-        height: currentCanvasGroupRect.height,
-      }),
-    };
+    if (criteria.viewingDirection === ViewingDirection.RTL) {
+      if (isHorizontal) {
+        return previousCanvasGroupRect
+          ? previousCanvasGroupRect.x - currentCanvasGroupRect.width - margin
+          : 0;
+      } else {
+        return previousCanvasGroupRect
+          ? previousCanvasGroupRect.y - currentCanvasGroupRect.height - margin
+          : 0;
+      }
+    } else {
+      if (isHorizontal) {
+        return previousCanvasGroupRect
+          ? previousCanvasGroupRect.x + previousCanvasGroupRect.width + margin
+          : 0;
+      } else {
+        return previousCanvasGroupRect
+          ? previousCanvasGroupRect.y + previousCanvasGroupRect.height + margin
+          : 0;
+      }
+    }
   }
 }

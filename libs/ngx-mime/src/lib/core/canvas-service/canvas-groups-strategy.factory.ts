@@ -13,7 +13,6 @@ export class CanvasGroupStrategyFactory {
   ) {
     if (layout === ViewerLayout.ONE_PAGE) {
       return new OneCanvasPerCanvasGroupStrategy(
-        layout,
         config,
         viewingDirection,
         scrollDirection,
@@ -21,7 +20,6 @@ export class CanvasGroupStrategyFactory {
       );
     } else {
       return new TwoCanvasPerCanvasGroupStrategy(
-        layout,
         config,
         viewingDirection,
         scrollDirection,
