@@ -1,4 +1,4 @@
-import { CanvasGroups } from './../models/canvas-groups';
+import { CanvasGroups } from '../models';
 
 export interface AbstractCanvasGroupStrategy {
   addAll(tileSources: ReadonlyArray<any>): CanvasGroups;

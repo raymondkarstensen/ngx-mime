@@ -5,7 +5,6 @@ import {
   CanvasGroups,
   Rect,
   ScrollDirection,
-  ViewerLayout,
   ViewingDirection,
 } from '../models';
 import { AbstractCanvasGroupStrategy } from './canvas-group.strategy';
@@ -17,7 +16,6 @@ export class OneCanvasPerCanvasGroupStrategy
   private positionStrategy: CalculateCanvasGroupPositionStrategy;
 
   constructor(
-    private viewerLayout: ViewerLayout,
     private config: MimeViewerConfig,
     private viewingDirection: ViewingDirection,
     private scrollDirection: ScrollDirection,
@@ -25,6 +23,8 @@ export class OneCanvasPerCanvasGroupStrategy
   ) {
     this.positionStrategy = new CalculateCanvasGroupPositionStrategy(
       this.scrollDirection,
+      this.viewingDirection,
+      this.rotation,
     );
   }
 
@@ -42,30 +42,7 @@ export class OneCanvasPerCanvasGroupStrategy
       canvasGroups.add(newCanvasGroup);
       canvasGroups.canvasesPerCanvasGroup.push([index]);
     });
-
-    canvasGroups.canvasGroups = this.positionCanvasGroups(canvasGroups);
-
-    return canvasGroups;
-  }
-
-  private positionCanvasGroups(canvasGroups: CanvasGroups): CanvasGroup[] {
-    const updatedCanvasGroups: CanvasGroup[] = [];
-    canvasGroups.canvasGroups.forEach((canvasGroup, index) => {
-      updatedCanvasGroups.push(
-        this.positionStrategy.calculateCanvasGroupPosition(
-          {
-            canvasGroupIndex: index,
-            previousCanvasGroup: updatedCanvasGroups[index - 1],
-            currentCanvasGroup: canvasGroup,
-            viewingDirection: this.viewingDirection,
-            viewerLayout: this.viewerLayout,
-          },
-          this.rotation,
-        ),
-      );
-    });
-
-    return updatedCanvasGroups;
+    return this.positionStrategy.positionCanvasGroups(canvasGroups);
   }
 
   private createCanvasGroup(tileSource: any, position: Rect): CanvasGroup {

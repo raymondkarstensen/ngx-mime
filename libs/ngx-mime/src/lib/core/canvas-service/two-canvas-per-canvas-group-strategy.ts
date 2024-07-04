@@ -5,7 +5,6 @@ import {
   CanvasGroups,
   Rect,
   ScrollDirection,
-  ViewerLayout,
   ViewingDirection,
 } from '../models';
 import { AbstractCanvasGroupStrategy } from './canvas-group.strategy';
@@ -17,7 +16,6 @@ export class TwoCanvasPerCanvasGroupStrategy
   private positionStrategy: CalculateCanvasGroupPositionStrategy;
 
   constructor(
-    private viewerLayout: ViewerLayout,
     private config: MimeViewerConfig,
     private viewingDirection: ViewingDirection,
     private scrollDirection: ScrollDirection,
@@ -25,6 +23,8 @@ export class TwoCanvasPerCanvasGroupStrategy
   ) {
     this.positionStrategy = new CalculateCanvasGroupPositionStrategy(
       this.scrollDirection,
+      this.viewingDirection,
+      this.rotation,
     );
   }
 
@@ -41,29 +41,7 @@ export class TwoCanvasPerCanvasGroupStrategy
       }
     }
 
-    canvasGroups.canvasGroups = this.positionCanvasGroups(canvasGroups);
-
-    return canvasGroups;
-  }
-
-  private positionCanvasGroups(canvasGroups: CanvasGroups): CanvasGroup[] {
-    const updatedCanvasGroups: CanvasGroup[] = [];
-    canvasGroups.canvasGroups.forEach((canvasGroup, index) => {
-      updatedCanvasGroups.push(
-        this.positionStrategy.calculateCanvasGroupPosition(
-          {
-            canvasGroupIndex: index,
-            previousCanvasGroup: updatedCanvasGroups[index - 1],
-            currentCanvasGroup: canvasGroup,
-            viewingDirection: this.viewingDirection,
-            viewerLayout: this.viewerLayout,
-          },
-          this.rotation,
-        ),
-      );
-    });
-
-    return updatedCanvasGroups;
+    return this.positionStrategy.positionCanvasGroups(canvasGroups);
   }
 
   private addSinglePage(
@@ -115,13 +93,8 @@ export class TwoCanvasPerCanvasGroupStrategy
       rect: secondRect,
     };
 
-    const tileSourceAndRects =
-      this.rotation === 180 || this.rotation === 270
-        ? [secondTileSourceAndRect, firstTileSourceAndRect]
-        : [firstTileSourceAndRect, secondTileSourceAndRect];
-
     const newCanvasGroup: CanvasGroup = {
-      tileSourceAndRects,
+      tileSourceAndRects: [firstTileSourceAndRect, secondTileSourceAndRect],
       rect: this.combineRects(
         firstTileSourceAndRect.rect,
         secondTileSourceAndRect.rect,

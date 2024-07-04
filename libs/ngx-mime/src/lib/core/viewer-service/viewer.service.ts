@@ -290,19 +290,37 @@ export class ViewerService {
           this.modeService,
           this.viewerLayoutService,
         );
-        this.goToCanvasGroupStrategy = new HorizontalGoToCanvasGroupStrategy(
-          this.viewer,
-          this.zoomStrategy,
-          this.canvasService,
-          this.modeService,
-          this.config,
-          this.manifest.viewingDirection,
-        );
-        this.constraintStrategy = new HorizontalConstraintStrategy(
-          this.modeService,
-          this.canvasService,
-          this.viewer,
-        );
+        if (this.scrollDirectionService.isHorizontalScrollingDirection()) {
+          this.isCanvasMaskEnabled = true;
+          this.goToCanvasGroupStrategy = new HorizontalGoToCanvasGroupStrategy(
+            this.viewer,
+            this.zoomStrategy,
+            this.canvasService,
+            this.modeService,
+            this.config,
+            this.manifest.viewingDirection,
+          );
+          this.constraintStrategy = new HorizontalConstraintStrategy(
+            this.modeService,
+            this.canvasService,
+            this.viewer,
+          );
+        } else {
+          this.isCanvasMaskEnabled = false;
+          this.goToCanvasGroupStrategy = new VerticalGoToCanvasGroupStrategy(
+            this.viewer,
+            this.zoomStrategy,
+            this.canvasService,
+            this.modeService,
+            this.config,
+            this.manifest.viewingDirection,
+          );
+          this.constraintStrategy = new VerticalConstraintStrategy(
+            this.modeService,
+            this.canvasService,
+            this.viewer,
+          );
+        }
         /*
           This disables keyboard navigation in openseadragon.
           We use s for opening search dialog and OSD use the same key for panning.
@@ -481,7 +499,7 @@ export class ViewerService {
     );
 
     this.subscriptions.add(
-      this.onRotationChange.subscribe((rotation: number) => {
+      this.onRotationChange.subscribe(() => {
         this.layoutPages();
       }),
     );
@@ -515,51 +533,8 @@ export class ViewerService {
     );
 
     this.subscriptions.add(
-      this.scrollDirectionService.onChange.subscribe(
-        (scrollDirection: ScrollDirection) => {
-          this.isCanvasMaskEnabled = false;
-          if (scrollDirection === ScrollDirection.VERTICAL) {
-            this.goToCanvasGroupStrategy = new VerticalGoToCanvasGroupStrategy(
-              this.viewer,
-              this.zoomStrategy,
-              this.canvasService,
-              this.modeService,
-              this.config,
-              this.manifest.viewingDirection,
-            );
-            this.constraintStrategy = new VerticalConstraintStrategy(
-              this.modeService,
-              this.canvasService,
-              this.viewer,
-            );
-          } else if (scrollDirection === ScrollDirection.HORIZONTAL) {
-            this.isCanvasMaskEnabled = true;
-            this.goToCanvasGroupStrategy =
-              new HorizontalGoToCanvasGroupStrategy(
-                this.viewer,
-                this.zoomStrategy,
-                this.canvasService,
-                this.modeService,
-                this.config,
-                this.manifest.viewingDirection,
-              );
-            this.constraintStrategy = new HorizontalConstraintStrategy(
-              this.modeService,
-              this.canvasService,
-              this.viewer,
-            );
-          }
-          this.layoutPages();
-        },
-      ),
-    );
-
-    this.subscriptions.add(
-      this.canvasService.fitTo$.subscribe((fitTo: FitTo) => {
-        const initialToggle: boolean =
-          this.fitTo === FitTo.NONE && fitTo !== this.fitTo;
-        this.fitTo = fitTo;
-        this.updateFitTo(initialToggle);
+      this.scrollDirectionService.onChange.subscribe(() => {
+        this.layoutPages();
       }),
     );
   }
