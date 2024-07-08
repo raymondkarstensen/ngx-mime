@@ -537,6 +537,15 @@ export class ViewerService {
         this.layoutPages();
       }),
     );
+
+    this.subscriptions.add(
+      this.canvasService.fitTo$.subscribe((fitTo: FitTo) => {
+        const initialToggle: boolean =
+          this.fitTo === FitTo.NONE && fitTo !== this.fitTo;
+        this.fitTo = fitTo;
+        this.updateFitTo(initialToggle);
+      }),
+    );
   }
 
   private highlightCurrentHit() {
