@@ -30,7 +30,6 @@ import {
   RecognizedTextModeChanges,
   Rect,
   Resource,
-  ScrollDirection,
   SearchResult,
   Side,
   ViewerLayout,
@@ -890,13 +889,14 @@ export class ViewerService {
     }
 
     this.canvasService.resetFitTo();
+    this.zoomStrategy.setMinZoom(this.modeService.mode);
     this.goToCanvasGroup(this.canvasService.currentCanvasGroupIndex, false);
 
     if (this.isCanvasMaskEnabled) {
       this.canvasGroupMask.hide();
     }
 
-    this.home();
+    this.goToHomeZoom();
   }
 
   /**
@@ -907,13 +907,14 @@ export class ViewerService {
       return;
     }
 
+    this.zoomStrategy.setMinZoom(this.modeService.mode);
     this.goToCanvasGroup(this.canvasService.currentCanvasGroupIndex, false);
 
     if (this.isCanvasMaskEnabled) {
       this.canvasGroupMask.show();
     }
 
-    this.home();
+    this.goToHomeZoom();
   }
 
   private zoomOnScroll(event: any): void {
