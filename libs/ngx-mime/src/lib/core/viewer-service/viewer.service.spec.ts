@@ -1,13 +1,10 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import {
-  ScrollDirectionService
-} from '../scroll-direction-service/scroll-direction-service';
+import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideAutoSpy } from 'jest-auto-spies';
 import { testManifest } from '../../test/testManifest';
-import { testManifestDifferentSizes } from '../../test/testManifestDifferentSizes';
 import { AltoService } from '../alto-service/alto.service';
 import { ManifestBuilder } from '../builders/iiif/v2/manifest.builder';
 import { CanvasService } from '../canvas-service/canvas-service';
@@ -16,14 +13,10 @@ import { IiifContentSearchService } from '../iiif-content-search-service/iiif-co
 import { MimeViewerIntl } from '../intl';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import { ModeService } from '../mode-service/mode.service';
-import { Hit } from '../models/hit';
-import { SearchResult } from '../models/search-result';
-import { ViewerLayout } from '../models/viewer-layout';
+import { Hit, SearchResult, ViewerLayout } from '../models';
 import { StyleService } from '../style-service/style.service';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
 import { ViewerService } from './viewer.service';
-import { ScrollDirection } from '../../core/models';
-import { DefaultZoomStrategy } from '../../core/viewer-service/zoom-strategy';
 
 @Component({
   template: ` <div [id]="openseadragonId"></div> `,
