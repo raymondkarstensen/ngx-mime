@@ -1,7 +1,0 @@
-@use '@angular/material' as mat;
-
-@mixin viewer-header-component-theme($theme) {
-  $accent: map-get($theme, accent);
-
-  .viewer-header-container {}
-}
