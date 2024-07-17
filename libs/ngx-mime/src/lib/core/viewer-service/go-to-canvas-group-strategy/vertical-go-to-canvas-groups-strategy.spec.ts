@@ -19,9 +19,12 @@ describe('VerticalGoToCanvasGroupsStrategy', () => {
   beforeEach(() => {
     viewer = createViewer();
     config = createConfig();
-    canvasService = new CanvasService(new ScrollDirectionService());
     modeService = new ModeService();
     viewerLayoutService = new ViewerLayoutService(new MockBreakpointObserver());
+    canvasService = new CanvasService(
+      viewerLayoutService,
+      new ScrollDirectionService(),
+    );
     zoomStrategy = new ZoomStrategy(
       viewer,
       canvasService,
