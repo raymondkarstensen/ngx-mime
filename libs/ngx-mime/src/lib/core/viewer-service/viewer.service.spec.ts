@@ -13,7 +13,7 @@ import { IiifContentSearchService } from '../iiif-content-search-service/iiif-co
 import { MimeViewerIntl } from '../intl';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import { ModeService } from '../mode-service/mode.service';
-import { Hit, SearchResult, ViewerLayout } from '../models';
+import { Hit, SearchResult, ViewerMode } from '../models';
 import { StyleService } from '../style-service/style.service';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
 import { ViewerService } from './viewer.service';
@@ -26,12 +26,12 @@ class TestHostComponent {
 }
 
 describe('ViewerService', () => {
-  const config = new MimeViewerConfig({
-    initViewerLayout: ViewerLayout.TWO_PAGE,
-  });
+  const config = new MimeViewerConfig();
   let snackBar: MatSnackBar;
   let hostFixture: ComponentFixture<TestHostComponent>;
   let viewerService: ViewerService;
+  let canvasService: CanvasService;
+  let modeService: ModeService;
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
@@ -40,13 +40,11 @@ describe('ViewerService', () => {
       providers: [
         ViewerService,
         MimeViewerIntl,
-        CanvasService,
         ScrollDirectionService,
+        CanvasService,
+        ModeService,
         provideAutoSpy(ClickService),
         provideAutoSpy(ViewerLayoutService, {
-          observablePropsToSpyOn: ['onChange'],
-        }),
-        provideAutoSpy(ModeService, {
           observablePropsToSpyOn: ['onChange'],
         }),
         provideAutoSpy(IiifContentSearchService, {
@@ -62,11 +60,26 @@ describe('ViewerService', () => {
     });
 
     viewerService = TestBed.inject(ViewerService);
+    canvasService = TestBed.inject(CanvasService);
+    modeService = TestBed.inject(ModeService);
     snackBar = TestBed.inject(MatSnackBar);
     hostFixture = TestBed.createComponent(TestHostComponent);
     hostFixture.componentInstance.openseadragonId =
       viewerService.openseadragonId;
     hostFixture.detectChanges();
+  });
+
+  beforeEach((done) => {
+    viewerService.setUpViewer(
+      new ManifestBuilder(testManifest).build(),
+      config,
+    );
+
+    viewerService.onOsdReadyChange.subscribe((isReady: boolean) => {
+      if (isReady) {
+        done();
+      }
+    });
   });
 
   afterEach(() => {
@@ -82,7 +95,9 @@ describe('ViewerService', () => {
       q: 'Donald Duck',
       hits: new Array<Hit>(),
     });
+
     viewerService.destroy(true);
+
     expect(viewerService.currentSearch).not.toBeNull();
     expect(viewerService.currentSearch.q).toEqual('Donald Duck');
   });
@@ -92,157 +107,84 @@ describe('ViewerService', () => {
       q: 'Donald Duck',
       hits: new Array<Hit>(),
     });
+
     viewerService.destroy();
+
     expect(viewerService.currentSearch).toBeNull();
   });
 
-  it('should keep state of rotation on destroy when layoutSwitch = true', (done) => {
-    let rotation: number;
+  it('should keep state of rotation on destroy when layoutSwitch = true', () => {
+    let rotation = 0;
     viewerService.onRotationChange.subscribe((serviceRotation: number) => {
       rotation = serviceRotation;
     });
-    viewerService.setUpViewer(
-      new ManifestBuilder(testManifest).build(),
-      config,
-    );
 
-    viewerService.onOsdReadyChange.subscribe((state) => {
-      if (state) {
-        viewerService.rotate();
-        viewerService.destroy(true);
-        expect(rotation).toEqual(90);
-        done();
-      }
-    });
+    viewerService.rotate();
+    viewerService.destroy(true);
+
+    expect(rotation).toEqual(90);
   });
 
-  it('should set rotation to 0 on destroy', (done) => {
-    let rotation: number;
+  it('should set rotation to 0 on destroy', () => {
+    let rotation = 90;
     viewerService.onRotationChange.subscribe((serviceRotation: number) => {
       rotation = serviceRotation;
     });
-    viewerService.setUpViewer(
-      new ManifestBuilder(testManifest).build(),
-      config,
-    );
 
-    viewerService.onOsdReadyChange.subscribe((state) => {
-      if (state) {
-        viewerService.rotate();
-        viewerService.destroy(false);
-        expect(rotation).toEqual(0);
-        done();
-      }
-    });
+    viewerService.rotate();
+    viewerService.destroy(false);
+
+    expect(rotation).toEqual(0);
   });
 
-  it('should set viewer to null on destroy', (done) => {
-    viewerService.setUpViewer(
-      new ManifestBuilder(testManifest).build(),
-      config,
-    );
+  it('should set viewer to null on destroy', () => {
+    viewerService.destroy(false);
 
-    viewerService.onOsdReadyChange.subscribe((state) => {
-      if (state) {
-        viewerService.destroy(false);
-        expect(viewerService.getViewer()).toBeNull();
-        done();
-      }
-    });
+    expect(viewerService.getViewer()).toBeNull();
   });
 
   describe('rotate', () => {
-    it('should rotate if using canvas', (done) => {
-      viewerService.setUpViewer(
-        new ManifestBuilder(testManifest).build(),
-        config,
-      );
-
-      viewerService.onOsdReadyChange.subscribe((state) => {
-        if (state) {
-          viewerService.rotate();
-        }
-      });
+    it('should rotate if using canvas', () => {
+      viewerService.rotate();
 
       viewerService.onRotationChange.subscribe((rotation: number) => {
         if (rotation !== 0) {
           expect(rotation).toBe(90);
-          done();
         }
       });
     });
 
-    it('should show error message if not using canvas', (done) => {
+    it('should show error message if not using canvas', () => {
       const openSpy = jest.spyOn(snackBar, 'open');
-      viewerService.setUpViewer(
-        new ManifestBuilder(testManifest).build(),
-        config,
-      );
       const viewer = viewerService.getViewer();
       viewer.useCanvas = false;
 
-      viewerService.onOsdReadyChange.subscribe((state) => {
-        if (state) {
-          viewerService.rotate();
+      viewerService.rotate();
 
-          expect(openSpy).toHaveBeenCalledTimes(1);
-          done();
-        }
-      });
+      expect(openSpy).toHaveBeenCalledTimes(1);
     });
   });
 
-  // describe('fit to height', () => {
-  //   let zoomToSpy: jasmine.Spy<any>;
-  //   beforeEach(() => {
-  //     viewerService.setUpViewer(
-  //       new ManifestBuilder(testManifest).build(),
-  //       new MimeViewerConfig({
-  //         initScrollDirection: ScrollDirection.VERTICAL,
-  //         initViewerLayout: ViewerLayout.ONE_PAGE,
-  //       })
-  //     );
-  //     spyOn(viewerService, 'panTo');
-  //     zoomToSpy = spyOn(DefaultZoomStrategy.prototype, 'zoomTo');
-  //   });
-  //
-  //   it('should zoom in and center canvas', (done) => {
-  //     viewerService.onOsdReadyChange.subscribe((isReady) => {
-  //       if (isReady) {
-  //         viewerService.fitToHeight();
-  //
-  //         expect(zoomToSpy).toHaveBeenCalledTimes(2); // Is called once when OSD is ready
-  //         expect(viewerService.panTo).toHaveBeenCalledTimes(1);
-  //         done();
-  //       }
-  //     });
-  //   });
-  // });
-  //
-  // describe('fit to width', () => {
-  //   let zoomToSpy: jasmine.Spy<any>;
-  //   beforeEach(() => {
-  //     viewerService.setUpViewer(
-  //       new ManifestBuilder(testManifestDifferentSizes).build(),
-  //       new MimeViewerConfig({
-  //         initScrollDirection: ScrollDirection.VERTICAL,
-  //         initViewerLayout: ViewerLayout.ONE_PAGE,
-  //       })
-  //     );
-  //     spyOn(viewerService, 'panTo');
-  //     zoomToSpy = spyOn(DefaultZoomStrategy.prototype, 'zoomTo');
-  //   });
-  //
-  //   it('should zoom in and center canvas', (done) => {
-  //     viewerService.onOsdReadyChange.subscribe((isReady) => {
-  //       if (isReady) {
-  //         viewerService.fitToWidth();
-  //
-  //         expect(zoomToSpy).toHaveBeenCalledTimes(2); // Is called once when OSD is ready
-  //         expect(viewerService.panTo).toHaveBeenCalledTimes(1);
-  //         done();
-  //       }
-  //     });
-  //   });
-  // });
+  describe('fit to height', () => {
+    beforeEach(() => {
+      jest.spyOn(canvasService, 'resetFitTo');
+
+      canvasService.toggleFitToHeight();
+      modeService.mode = ViewerMode.PAGE_ZOOMED;
+    });
+
+    it('should reset when OSD home button is clicked', () => {
+      viewerService.home();
+
+      expect(modeService.mode).toEqual(ViewerMode.PAGE);
+      expect(canvasService.resetFitTo).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not reset when ViewerMode is changed to Page mode', () => {
+      modeService.mode = ViewerMode.PAGE;
+
+      expect(modeService.mode).toEqual(ViewerMode.PAGE);
+      expect(canvasService.resetFitTo).not.toHaveBeenCalled();
+    });
+  });
 });
