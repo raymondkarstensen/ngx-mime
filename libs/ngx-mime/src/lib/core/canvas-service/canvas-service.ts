@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import * as OpenSeadragon from 'openseadragon';
 import { Viewer } from 'openseadragon';
-import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
+
+import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
 import { TileSourceStrategyFactory } from '../viewer-service/tile-source-strategy-factory';
@@ -14,7 +15,7 @@ import {
   Rect,
   Resource,
   ViewerLayout,
-  ViewingDirection
+  ViewingDirection,
 } from '../models';
 import { CanvasGroupStrategyFactory } from './canvas-groups-strategy.factory';
 import { TileSourceAndRect } from './tile-source-and-rect.model';

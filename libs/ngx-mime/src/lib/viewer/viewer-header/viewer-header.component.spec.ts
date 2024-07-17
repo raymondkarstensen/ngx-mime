@@ -2,8 +2,8 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import {
-  CUSTOM_ELEMENTS_SCHEMA,
   Component,
+  CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
   ViewChild,
   ViewContainerRef,
@@ -13,11 +13,10 @@ import { MatButtonHarness } from '@angular/material/button/testing';
 import { MatDialogHarness } from '@angular/material/dialog/testing';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import {
-  ScrollDirectionService
-} from '../../core/scroll-direction-service/scroll-direction-service';
-import { Spy, provideAutoSpy } from 'jest-auto-spies';
-import { TestManifests } from '../../../testing/test-manifests';
+import { provideAutoSpy, Spy } from 'jest-auto-spies';
+
+import { ScrollDirectionService } from '../../core/scroll-direction-service/scroll-direction-service';
+import { TestManifests } from '../../../testing';
 import { ContentSearchDialogConfigStrategyFactory } from '../../content-search-dialog/content-search-dialog-config-strategy-factory';
 import { ContentSearchDialogComponent } from '../../content-search-dialog/content-search-dialog.component';
 import { ContentSearchDialogService } from '../../content-search-dialog/content-search-dialog.service';
@@ -27,7 +26,7 @@ import { IiifContentSearchService } from '../../core/iiif-content-search-service
 import { MimeDomHelper } from '../../core/mime-dom-helper';
 import { MimeResizeService } from '../../core/mime-resize-service/mime-resize.service';
 import { Manifest, Service } from '../../core/models/manifest';
-import { ViewingDirection } from '../../core/models/viewing-direction';
+import { ViewingDirection } from '../../core/models';
 import { ContentSearchNavigationService } from '../../core/navigation/content-search-navigation-service/content-search-navigation.service';
 import { ViewerLayoutService } from '../../core/viewer-layout-service/viewer-layout-service';
 import { HelpDialogConfigStrategyFactory } from '../../help-dialog/help-dialog-config-strategy-factory';
@@ -41,9 +40,9 @@ import { MockBreakpointObserver } from '../../test/mock-breakpoint-observer';
 import { ViewDialogConfigStrategyFactory } from '../../view-dialog/view-dialog-config-strategy-factory';
 import { ViewDialogComponent } from '../../view-dialog/view-dialog.component';
 import { ViewDialogService } from '../../view-dialog/view-dialog.service';
-import { IiifManifestService } from './../../core/iiif-manifest-service/iiif-manifest-service';
-import { MimeViewerIntl } from './../../core/intl';
-import { IiifManifestServiceStub } from './../../test/iiif-manifest-service-stub';
+import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
+import { MimeViewerIntl } from '../../core/intl';
+import { IiifManifestServiceStub } from '../../test/iiif-manifest-service-stub';
 import { ViewerHeaderComponent } from './viewer-header.component';
 import { ViewerService } from '../../core/viewer-service/viewer.service';
 import { ClickService } from '../../core/click-service/click.service';

@@ -1,14 +1,11 @@
-import {
-  ScrollDirectionService
-} from '../scroll-direction-service/scroll-direction-service';
 import { TestBed } from '@angular/core/testing';
 import d3 from 'd3';
-import { Spy, provideAutoSpy } from 'jest-auto-spies';
-import { Resource } from '../models/manifest';
-import { Rect } from '../models/rect';
-import { ViewerLayout } from '../models/viewer-layout';
-import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
+import { provideAutoSpy, Spy } from 'jest-auto-spies';
+
 import { CanvasService } from './canvas-service';
+import { Rect, Resource, ViewerLayout } from '../models';
+import { ScrollDirectionService } from '../scroll-direction-service/scroll-direction-service';
+import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
 
 describe('CanvasService', () => {
   let service: CanvasService;

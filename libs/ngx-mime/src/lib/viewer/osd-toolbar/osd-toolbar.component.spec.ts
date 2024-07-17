@@ -5,9 +5,8 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatButtonHarness } from '@angular/material/button/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideAutoSpy } from 'jest-auto-spies';
-import {
-  ScrollDirectionService
-} from '../../core/scroll-direction-service/scroll-direction-service';
+
+import { ScrollDirectionService } from '../../core/scroll-direction-service/scroll-direction-service';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { ClickService } from '../../core/click-service/click.service';
 import { FullscreenService } from '../../core/fullscreen-service/fullscreen.service';
@@ -22,8 +21,8 @@ import { ViewerService } from '../../core/viewer-service/viewer.service';
 import { SharedModule } from '../../shared/shared.module';
 import { IiifManifestServiceStub } from '../../test/iiif-manifest-service-stub';
 import { MockBreakpointObserver } from '../../test/mock-breakpoint-observer';
-import { CanvasServiceStub } from './../../test/canvas-service-stub';
-import { ViewerServiceStub } from './../../test/viewer-service-stub';
+import { CanvasServiceStub } from '../../test/canvas-service-stub';
+import { ViewerServiceStub } from '../../test/viewer-service-stub';
 import { OsdToolbarComponent } from './osd-toolbar.component';
 
 describe('OsdToolbarComponent', () => {
