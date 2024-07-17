@@ -164,7 +164,9 @@ export class ViewerService {
 
     this.goToCanvasGroupStrategy.centerCurrentCanvas();
 
-    this.canvasService.resetFitTo();
+    if (this.canvasService.isFitToEnabled()) {
+      this.canvasService.resetFitTo();
+    }
     this.goToHomeZoom();
   }
 
