@@ -53,6 +53,8 @@ describe('VerticalGoToCanvasGroupsStrategy', () => {
         .spyOn(canvasService, 'findClosestCanvasGroupIndex')
         .mockReturnValue(4);
       jest.spyOn(goToCanvasGroupStrategy, 'goToCanvasGroup');
+      modeService.mode = ViewerMode.PAGE_ZOOMED;
+      config.preserveZoomOnCanvasGroupChange = true;
     });
 
     it('should call goToCanvasGroup with the next canvas group index', () => {
@@ -86,6 +88,9 @@ describe('VerticalGoToCanvasGroupsStrategy', () => {
 
     beforeEach(() => {
       jest.spyOn(modeService, 'setViewerModeByZoomLevel');
+      jest
+        .spyOn(canvasService, 'getCanvasGroupRect')
+        .mockReturnValue(canvasGroupRect);
     });
 
     it('should update ViewerMode if fitToWidth is enabled', () => {
@@ -105,12 +110,6 @@ describe('VerticalGoToCanvasGroupsStrategy', () => {
     });
 
     describe('should call panToCenter', () => {
-      beforeEach(() => {
-        jest
-          .spyOn(canvasService, 'getCanvasGroupRect')
-          .mockReturnValue(canvasGroupRect);
-      });
-
       it('when panToCenter flag is passed as true', () => {
         goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup, true);
 

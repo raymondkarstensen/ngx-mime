@@ -106,7 +106,7 @@ describe('HorizontalGoToCanvasGroupStrategy ', () => {
       jest
         .spyOn(canvasService, 'findClosestCanvasGroupIndex')
         .mockReturnValue(4);
-      jest.spyOn(goToCanvasGroupStrategy, 'goToCanvasGroup');
+      jest.spyOn(goToCanvasGroupStrategy, 'goToCanvasGroup').mockReturnValue();
     });
 
     it('should call goToCanvasGroup with the next canvas group index', () => {
@@ -143,6 +143,10 @@ describe('HorizontalGoToCanvasGroupStrategy ', () => {
     });
 
     it('should update ViewerMode if fitToWidth is enabled', () => {
+      jest
+        .spyOn(canvasService, 'getCanvasGroupRect')
+        .mockReturnValue(canvasGroupRect);
+
       canvasService.toggleFitToWidth();
 
       goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup);
@@ -151,6 +155,10 @@ describe('HorizontalGoToCanvasGroupStrategy ', () => {
     });
 
     it('should update ViewerMode if fitToHeight is enabled', () => {
+      jest
+        .spyOn(canvasService, 'getCanvasGroupRect')
+        .mockReturnValue(canvasGroupRect);
+
       canvasService.toggleFitToHeight();
 
       goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup);
@@ -198,13 +206,17 @@ describe('HorizontalGoToCanvasGroupStrategy ', () => {
 
     describe('should call panTo', () => {
       it('when the viewer is zoomed in and preserve zoom flag is true', () => {
+        jest
+          .spyOn(canvasService, 'getCanvasGroupRect')
+          .mockReturnValue(canvasGroupRect);
+
         config.preserveZoomOnCanvasGroupChange = true;
         modeService.mode = ViewerMode.PAGE_ZOOMED;
 
         goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup);
 
         expect(viewer.viewport.panTo).toHaveBeenCalledWith(
-          { x: 0, y: 50 },
+          { x: 100, y: 50 },
           false,
         );
       });
