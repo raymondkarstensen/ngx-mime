@@ -140,13 +140,12 @@ describe('HorizontalGoToCanvasGroupStrategy ', () => {
 
     beforeEach(() => {
       jest.spyOn(modeService, 'setViewerModeByZoomLevel');
-    });
-
-    it('should update ViewerMode if fitToWidth is enabled', () => {
       jest
         .spyOn(canvasService, 'getCanvasGroupRect')
         .mockReturnValue(canvasGroupRect);
+    });
 
+    it('should update ViewerMode if fitToWidth is enabled', () => {
       canvasService.toggleFitToWidth();
 
       goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup);
@@ -155,10 +154,6 @@ describe('HorizontalGoToCanvasGroupStrategy ', () => {
     });
 
     it('should update ViewerMode if fitToHeight is enabled', () => {
-      jest
-        .spyOn(canvasService, 'getCanvasGroupRect')
-        .mockReturnValue(canvasGroupRect);
-
       canvasService.toggleFitToHeight();
 
       goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup);
@@ -167,12 +162,6 @@ describe('HorizontalGoToCanvasGroupStrategy ', () => {
     });
 
     describe('should call panToCenter', () => {
-      beforeEach(() => {
-        jest
-          .spyOn(canvasService, 'getCanvasGroupRect')
-          .mockReturnValue(canvasGroupRect);
-      });
-
       it('when panToCenter flag is passed as true', () => {
         goToCanvasGroupStrategy.goToCanvasGroup(canvasGroup, true);
 
@@ -206,10 +195,6 @@ describe('HorizontalGoToCanvasGroupStrategy ', () => {
 
     describe('should call panTo', () => {
       it('when the viewer is zoomed in and preserve zoom flag is true', () => {
-        jest
-          .spyOn(canvasService, 'getCanvasGroupRect')
-          .mockReturnValue(canvasGroupRect);
-
         config.preserveZoomOnCanvasGroupChange = true;
         modeService.mode = ViewerMode.PAGE_ZOOMED;
 

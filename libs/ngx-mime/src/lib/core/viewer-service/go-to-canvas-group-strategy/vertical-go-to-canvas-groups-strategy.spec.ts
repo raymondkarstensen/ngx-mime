@@ -52,9 +52,7 @@ describe('VerticalGoToCanvasGroupsStrategy', () => {
       jest
         .spyOn(canvasService, 'findClosestCanvasGroupIndex')
         .mockReturnValue(4);
-      jest.spyOn(goToCanvasGroupStrategy, 'goToCanvasGroup');
-      modeService.mode = ViewerMode.PAGE_ZOOMED;
-      config.preserveZoomOnCanvasGroupChange = true;
+      jest.spyOn(goToCanvasGroupStrategy, 'goToCanvasGroup').mockReturnValue();
     });
 
     it('should call goToCanvasGroup with the next canvas group index', () => {
