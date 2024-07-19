@@ -165,26 +165,43 @@ describe('ViewerService', () => {
     });
   });
 
-  describe('fit to height', () => {
+  describe('fit to', () => {
     beforeEach(() => {
-      jest.spyOn(canvasService, 'resetFitTo');
-
-      canvasService.toggleFitToHeight();
+      jest.spyOn(canvasService, 'resetFitTo').mockReturnValue();
+      jest.spyOn(canvasService, 'isFitToEnabled').mockReturnValue(true);
       modeService.mode = ViewerMode.PAGE_ZOOMED;
     });
 
-    it('should reset when OSD home button is clicked', () => {
-      viewerService.home();
+    describe('height', () => {
+      it('should reset when OSD home button is clicked', () => {
+        viewerService.home();
 
-      expect(modeService.mode).toEqual(ViewerMode.PAGE);
-      expect(canvasService.resetFitTo).toHaveBeenCalledTimes(1);
+        expect(modeService.mode).toEqual(ViewerMode.PAGE);
+        expect(canvasService.resetFitTo).toHaveBeenCalledTimes(1);
+      });
+
+      it('should not reset when ViewerMode is changed to Page mode', () => {
+        modeService.mode = ViewerMode.PAGE;
+
+        expect(modeService.mode).toEqual(ViewerMode.PAGE);
+        expect(canvasService.resetFitTo).not.toHaveBeenCalled();
+      });
     });
 
-    it('should not reset when ViewerMode is changed to Page mode', () => {
-      modeService.mode = ViewerMode.PAGE;
+    describe('width', () => {
+      it('should reset when OSD home button is clicked', () => {
+        viewerService.home();
 
-      expect(modeService.mode).toEqual(ViewerMode.PAGE);
-      expect(canvasService.resetFitTo).not.toHaveBeenCalled();
+        expect(modeService.mode).toEqual(ViewerMode.PAGE);
+        expect(canvasService.resetFitTo).toHaveBeenCalledTimes(1);
+      });
+
+      it('should not reset when ViewerMode is changed to Page mode', () => {
+        modeService.mode = ViewerMode.PAGE;
+
+        expect(modeService.mode).toEqual(ViewerMode.PAGE);
+        expect(canvasService.resetFitTo).not.toHaveBeenCalled();
+      });
     });
   });
 });
